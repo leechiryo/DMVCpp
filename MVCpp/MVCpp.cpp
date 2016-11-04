@@ -3,8 +3,9 @@
 
 #include "stdafx.h"
 #include "MVCpp.h"
+#include <system_error>
 #pragma comment(lib, "d2d1.lib")
-#pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "dwrite.lib")
 
 #define MAX_LOADSTRING 100
 
@@ -15,19 +16,9 @@ TCHAR szWindowClass[MAX_LOADSTRING];			// メイン ウィンドウ クラス名
 HANDLE drawThread;
 HANDLE drawThreadExitSignal;
 
-ID2D1Factory1 *d2dFactory;
-ID3D11Device *device;
-ID3D11DeviceContext *context;
-ID2D1Device *d2dDevice;
-ID2D1DeviceContext *d2dContext;
-IDXGIDevice1 *dxgiDevice;
-IDXGIAdapter *dxgiAdapter;
-IDXGIFactory2 *dxgiFactory;
-IDXGISwapChain1 *swapChain;
-ID3D11Texture2D *backBuffer;
-ID3D11RenderTargetView *renderTarget;
-IDXGISurface *dxgiBackBuffer;
-ID2D1Bitmap1 *bmp;
+ID2D1Factory* s_pDirect2dFactory;
+IDWriteFactory* s_pDWriteFactory;
+ID2D1HwndRenderTarget* m_pRenderTarget = nullptr;
 
 
 // このコード モジュールに含まれる関数の宣言を転送します:
@@ -36,70 +27,52 @@ BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
-void InitD2D(HWND hWnd){
+void InitD2D(HWND hWnd) {
   // 初始化DirectX
-  HRESULT hr = 0;
+  HRESULT hr = CoInitialize(NULL);
+  if (!SUCCEEDED(hr)) {
+    throw std::system_error(EINTR, std::system_category(), "COM environment is not initialized successfully.");
+  }
+  // create the d2d factory.
+  hr = D2D1CreateFactory(
+    D2D1_FACTORY_TYPE_MULTI_THREADED,
+    &s_pDirect2dFactory);
 
-  D3D_FEATURE_LEVEL featureLevel;
-  D3D_FEATURE_LEVEL featureLevels[] = {
-    D3D_FEATURE_LEVEL_11_1,
-    D3D_FEATURE_LEVEL_11_0,
-    D3D_FEATURE_LEVEL_10_1,
-    D3D_FEATURE_LEVEL_10_0,
-    D3D_FEATURE_LEVEL_9_3,
-    D3D_FEATURE_LEVEL_9_2,
-    D3D_FEATURE_LEVEL_9_1
-  };
+  if (!SUCCEEDED(hr)) {
+    CoUninitialize();
+    throw std::system_error(EINTR, std::system_category(), "Direct2D is not initialized successfully.");
+  }
 
-  hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, D3D11_CREATE_DEVICE_BGRA_SUPPORT,
-    featureLevels, ARRAYSIZE(featureLevels), D3D11_SDK_VERSION, &device, &featureLevel, &context);
-  hr = device->QueryInterface(__uuidof(IDXGIDevice1), (void**)&dxgiDevice);
+  // create the dwrite factory.
+  hr = DWriteCreateFactory(
+    DWRITE_FACTORY_TYPE_SHARED,
+    __uuidof(IDWriteFactory),
+    reinterpret_cast<IUnknown**>(&s_pDWriteFactory));
 
-  D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &d2dFactory);
-  hr = d2dFactory->CreateDevice(dxgiDevice, &d2dDevice);
-  hr = d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &d2dContext);
+  if (!SUCCEEDED(hr)) {
+    SafeRelease(s_pDirect2dFactory);
+    CoUninitialize();
+    throw std::system_error(EINTR, std::system_category(), "DirectWrite is not initialized successfully.");
+  }
 
-  DXGI_SWAP_CHAIN_DESC1 scd = { 0 };
-  scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-  scd.BufferCount = 2;
-  scd.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-  scd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-  scd.SampleDesc.Count = 1;
+  if (!m_pRenderTarget) {
+    RECT rc;
+    GetClientRect(hWnd, &rc);
 
-  hr = dxgiDevice->GetAdapter(&dxgiAdapter);
-  hr = dxgiAdapter->GetParent(_uuidof(IDXGIFactory2), (void**)&dxgiFactory);
-  hr = dxgiFactory->CreateSwapChainForHwnd(device, hWnd, &scd, nullptr, nullptr, &swapChain);
-  hr = dxgiDevice->SetMaximumFrameLatency(1);
-  hr = swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer));
-  hr = device->CreateRenderTargetView(backBuffer, nullptr, &renderTarget);
+    D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
 
-  D2D1_BITMAP_PROPERTIES1 bmpProp;
-  bmpProp.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW;
-  bmpProp.pixelFormat.format = DXGI_FORMAT_B8G8R8A8_UNORM;
-  bmpProp.pixelFormat.alphaMode = D2D1_ALPHA_MODE_IGNORE;
-  d2dFactory->GetDesktopDpi(&bmpProp.dpiX, &bmpProp.dpiY);
-  bmpProp.colorContext = nullptr;
-
-  hr = swapChain->GetBuffer(0, IID_PPV_ARGS(&dxgiBackBuffer));
-  hr = d2dContext->CreateBitmapFromDxgiSurface(dxgiBackBuffer, &bmpProp, &bmp);
-  d2dContext->SetTarget(bmp);
-
+    hr = s_pDirect2dFactory->CreateHwndRenderTarget(
+      D2D1::RenderTargetProperties(),
+      D2D1::HwndRenderTargetProperties(hWnd, size),
+      &m_pRenderTarget);
+  }
 }
 
-void DeinitD2D(){
-  SafeRelease(d2dFactory);
-  SafeRelease(device);
-  SafeRelease(context);
-  SafeRelease(d2dDevice);
-  SafeRelease(d2dContext);
-  SafeRelease(dxgiDevice);
-  SafeRelease(dxgiAdapter);
-  SafeRelease(dxgiFactory);
-  SafeRelease(swapChain);
-  SafeRelease(backBuffer);
-  SafeRelease(renderTarget);
-  SafeRelease(dxgiBackBuffer);
-  SafeRelease(bmp);
+void DeinitD2D() {
+  SafeRelease(m_pRenderTarget);
+  SafeRelease(s_pDirect2dFactory);
+  SafeRelease(s_pDWriteFactory);
+  CoUninitialize();
 }
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
@@ -161,7 +134,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
   wcex.cbSize = sizeof(WNDCLASSEX);
 
-  wcex.style = CS_HREDRAW | CS_VREDRAW;
+  wcex.style = 0; // CS_HREDRAW | CS_VREDRAW;
   wcex.lpfnWndProc = WndProc;
   wcex.cbClsExtra = 0;
   wcex.cbWndExtra = 0;
@@ -178,43 +151,37 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
 
 // 一个描画线程以60FPS的速度描画窗口
-DWORD WINAPI DrawWindow(LPVOID lpParam){
+DWORD WINAPI DrawWindow(LPVOID lpParam) {
   //HDC hdc;
   HWND hWnd = *((HWND*)lpParam);
-  RECT rect;
+  RECT rect, rect1;
 
   ID2D1SolidColorBrush *blackBrush;
-  d2dContext->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &blackBrush);
+  m_pRenderTarget->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Black), &blackBrush);
 
-  while (true){
-    GetClientRect(hWnd, &rect);
-    //hdc = GetDC(hWnd);
+  while (true) {
 
-    //DrawText(hdc, L"I like windows.", 15, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    do {
+      GetClientRect(hWnd, &rect);
+      m_pRenderTarget->Resize(D2D1::SizeU(rect.right, rect.bottom));
 
-    //ReleaseDC(hWnd, hdc);
+      m_pRenderTarget->BeginDraw();
+      m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+      m_pRenderTarget->DrawRectangle(
+        D2D1::RectF(100.0f,
+          100.0f,
+          400.0f,
+          400.0f),
+        blackBrush);
+      m_pRenderTarget->EndDraw();
 
-    context->OMSetRenderTargets(1, &renderTarget, nullptr);
+      GetClientRect(hWnd, &rect1);
+    } while (rect.right != rect1.right || rect.bottom != rect1.bottom);
 
-    d2dContext->BeginDraw();
 
-
-    d2dContext->DrawRectangle(
-      D2D1::RectF(rect.left + 100.0f,
-                  rect.top + 100.0f,
-                  rect.right - 100.0f,
-                  rect.bottom - 100.0f),
-      blackBrush);
-
-    d2dContext->EndDraw();
-
-    swapChain->Present(1, 0);
-
-    if (WaitForSingleObject(drawThreadExitSignal, 0) == WAIT_OBJECT_0){
+    if (WaitForSingleObject(drawThreadExitSignal, 17) == WAIT_OBJECT_0) {
       break;
     }
-
-    Sleep(17);
   }
 
   return 0;
@@ -271,14 +238,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
   int wmId, wmEvent;
-  PAINTSTRUCT ps;
-  HDC hdc;
   RECT rect;
   rect.left = 50;
   rect.top = 50;
   rect.right = 250;
   rect.bottom = 100;
-
 
   switch (message)
   {
@@ -298,11 +262,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       return DefWindowProc(hWnd, message, wParam, lParam);
     }
     break;
-  case WM_PAINT:
-    hdc = BeginPaint(hWnd, &ps);
-    // TODO: 描画コードをここに追加してください...
-    EndPaint(hWnd, &ps);
-    break;
+
   case WM_DESTROY:
     PostQuitMessage(0);
     break;
