@@ -8,6 +8,8 @@
 
 #define MAX_LOADSTRING 100
 
+using namespace mvc;
+
 // グローバル変数:
 HINSTANCE hInst;								// 現在のインターフェイス
 TCHAR szTitle[MAX_LOADSTRING];					// タイトル バーのテキスト

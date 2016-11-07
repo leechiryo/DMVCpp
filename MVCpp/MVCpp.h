@@ -18,14 +18,4 @@
 #include <dwrite.h>
 #include "resource.h"
 
-#include "mvc\Types.h"
-
-template<class Interface>
-inline void SafeRelease(Interface *ppInterfaceToRelease) {
-  if (ppInterfaceToRelease != NULL)
-  {
-    (ppInterfaceToRelease)->Release();
-
-    (ppInterfaceToRelease) = NULL;
-  }
-}
+#include "mvc\mvc.h"
