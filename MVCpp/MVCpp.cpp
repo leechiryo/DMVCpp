@@ -1,7 +1,6 @@
 ﻿// MVCpp.cpp : アプリケーションのエントリ ポイントを定義します。
 //
 
-#include "stdafx.h"
 #include "MVCpp.h"
 #include <system_error>
 #pragma comment(lib, "d2d1.lib")
@@ -177,7 +176,6 @@ DWORD WINAPI DrawWindow(LPVOID lpParam) {
 
       GetClientRect(hWnd, &rect1);
     } while (rect.right != rect1.right || rect.bottom != rect1.bottom);
-
 
     if (WaitForSingleObject(drawThreadExitSignal, 17) == WAIT_OBJECT_0) {
       break;
