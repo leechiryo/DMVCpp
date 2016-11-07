@@ -89,6 +89,7 @@
     <ClInclude Include="mvc\Types.h" />
     <ClInclude Include="mvc\View.h" />
     <ClInclude Include="mvc\ViewBase.h" />
+    <ClInclude Include="mvc\ViewElements\Window.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>

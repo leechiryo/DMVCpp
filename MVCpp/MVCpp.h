@@ -19,3 +19,4 @@
 #include "resource.h"
 
 #include "mvc\mvc.h"
+#include "mvc\ViewElements\Window.h"
