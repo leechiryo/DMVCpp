@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Types.h"
 
@@ -8,11 +8,11 @@ namespace mvc {
   template<typename T>
   class ModelSafePtr {
   private:
-    T *m_fieldPtr;
-    SPModel m_spModel;  // a shared pointer which to ensure the model will not be destroied while access to it.
+    T **m_fieldPtr;     // 这个指针可以指向Model实例本身，也可能指向Model实例的某个字段
+    SPModel m_spModel;  // 这个共享指针确保在访问Model时，程序的其它部分不会删除该Model。
 
   public:
-    ModelSafePtr(T *p, const shared_ptr<ModelBase> &pm) {
+    ModelSafePtr(T **p, const shared_ptr<ModelBase> &pm) {
       m_fieldPtr = p;
       m_spModel = pm;
     }
@@ -23,14 +23,14 @@ namespace mvc {
     }
 
     T* operator->() {
-      return m_fieldPtr;
+      return *m_fieldPtr;
     }
 
     operator T*() const {
-      return m_fieldPtr;
+      return *m_fieldPtr;
     }
 
-    shared_ptr<ModelBase> get_spModel() {
+    SPModel get_spModel() {
       return m_spModel;
     }
   };

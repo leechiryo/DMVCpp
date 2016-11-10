@@ -11,13 +11,4 @@ namespace mvc {
 
   ID2D1Factory* App::s_pDirect2dFactory = nullptr;
   IDWriteFactory* App::s_pDWriteFactory = nullptr;
-
-  void App::UpdateViews()
-  {
-    for (auto m : s_models) {
-      if (m.second->ModelChanged()) {
-        m.second->UpdateBindedViews();
-      }
-    }
-  }
 }

@@ -11,14 +11,13 @@ namespace mvc {
   private:
     HWND m_hwnd;
     ID2D1HwndRenderTarget* m_pRenderTarget = nullptr;
+    HANDLE m_drawThread;
+    HANDLE m_drawThreadExitSignal;
 
     // controller method
     static LRESULT Handle_SIZE(shared_ptr<Window> wnd, WPARAM wParam, LPARAM lParam) {
       wnd->m_right = LOWORD(lParam);
       wnd->m_bottom = HIWORD(lParam);
-      if (wnd->m_pRenderTarget) {
-        wnd->m_pRenderTarget->Resize(D2D1::SizeU((UINT)wnd->m_right, (UINT)wnd->m_bottom));
-      }
       return 0;
     }
 
@@ -32,6 +31,44 @@ namespace mvc {
       return 1;
     }
 
+    // 一个描画线程以60FPS的速度描画窗口
+    static DWORD WINAPI DrawWindow(LPVOID lpParam) {
+      //HDC hdc;
+      Window *pWnd = (Window*)lpParam;
+      RECT rect, rect1;
+      HRESULT hr;
+
+      while (true) {
+
+        do {
+          GetClientRect(pWnd->m_hwnd, &rect);
+          pWnd->m_pRenderTarget->Resize(D2D1::SizeU(rect.right, rect.bottom));
+
+          pWnd->m_pRenderTarget->BeginDraw();
+
+          // 调用基类ViewBase的方法.
+          pWnd->Draw();
+
+          hr = pWnd->m_pRenderTarget->EndDraw();
+
+          if (hr == D2DERR_RECREATE_TARGET) {
+            // 出现绘制错误的情况则尝试重建整个D2D环境
+            pWnd->DestroyD2DEnvironment();
+            pWnd->CreateD2DEnvironment();
+          }
+
+          GetClientRect(pWnd->m_hwnd, &rect1);
+        } while (rect.right != rect1.right
+          || rect.bottom != rect1.bottom
+          || hr == D2DERR_RECREATE_TARGET);
+
+        if (WaitForSingleObject(pWnd->m_drawThreadExitSignal, 17) == WAIT_OBJECT_0) {
+          break;
+        }
+      }
+
+      return 0;
+    }
 
     void CreateMe() {
       m_hwnd = nullptr;
@@ -46,7 +83,7 @@ namespace mvc {
 
       wcex.cbSize = sizeof(WNDCLASSEX);
 
-      wcex.style = CS_HREDRAW | CS_VREDRAW;
+      wcex.style = 0;
       wcex.lpfnWndProc = WndProc;
       wcex.cbClsExtra = 0;
       wcex.cbWndExtra = sizeof(LONG_PTR);
@@ -72,7 +109,7 @@ namespace mvc {
         NULL,
         NULL,
         HINST_THISCOMPONENT,
-        this); // pass the this pointer to window parameter
+        this); // 将this指针传递给Window创建的参数
 
       // 在Constructor中调用虚函数。本来，如此调用虚函数并不会激发
       // 对象的多态调用（即调用派生对象的虚函数）。但在此处每个类都负责
@@ -80,6 +117,7 @@ namespace mvc {
       // 这么做并没有什么问题。
       CreateD2DEnvironment();
     }
+
 
   protected:
     virtual void CreateD2DResource() {
@@ -116,20 +154,25 @@ namespace mvc {
         ShowWindow(m_hwnd, SW_SHOWNORMAL);
         UpdateWindow(m_hwnd);
 
-        // Process and dispatch messages
-        MSG msg = { 0 };
-        while (true){
-          if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+        // 启动一个新的线程以60FPS的速度更新画面。
+        m_drawThreadExitSignal = CreateEvent(NULL, false, false, nullptr);
+        m_drawThread = CreateThread(NULL, 0, DrawWindow, this, 0, NULL);
 
-            if (msg.message == WM_QUIT) break;
-          }
-          else{
-            // Update the screen.
-            Sleep(17);  // Update the screen 60 times every second.
-          }
+        // 处理消息
+        MSG msg = { 0 };
+
+        // 主消息循环
+        while (GetMessage(&msg, NULL, 0, 0))
+        {
+          TranslateMessage(&msg);
+          DispatchMessage(&msg);
         }
+
+        // 当程序结束时，终止绘制窗口的线程。
+        SetEvent(m_drawThreadExitSignal);
+
+        // 等待绘制线程结束
+        WaitForSingleObject(m_drawThread, INFINITE);
       }
     }
 
@@ -179,28 +222,7 @@ namespace mvc {
           ::GetWindowLongPtr(hwnd, GWLP_USERDATA)));
 
         if (pDemoApp) {
-          if (message == WM_PAINT) {
-            // WM_PAINT will never be process by message handler function.
-            // It will be process in a special way.
-            pDemoApp->m_pRenderTarget->BeginDraw();
-
-            // Method from base class (Element).
-            pDemoApp->Draw();
-
-            HRESULT hr = pDemoApp->m_pRenderTarget->EndDraw();
-
-            if (hr == D2DERR_RECREATE_TARGET) {
-              // Discard all of the device resources in the child window
-              // and recreate them.
-              pDemoApp->DestroyD2DEnvironment();
-              pDemoApp->CreateD2DEnvironment();
-            }
-
-            ValidateRect(hwnd, NULL);
-
-            result = 0;
-          }
-          else if (message == WM_NCCALCSIZE) {
+          if (message == WM_NCCALCSIZE) {
             /*
             ** From MSDN:
             ** If the wParam parameter is FALSE, the application should return zero.
@@ -209,7 +231,11 @@ namespace mvc {
             ** This will remove the window frame and caption items from your window, leaving only the client
             ** area displayed.
             */
-            return 0;
+            // return 0;
+            return DefWindowProc(hwnd, message, wParam, lParam);
+          }
+          else if (message == WM_SIZE){
+            return DefWindowProc(hwnd, message, wParam, lParam);
           }
           else {
             char processed = pDemoApp->HandleMessage(message, wParam, lParam, result);

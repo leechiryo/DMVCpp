@@ -4,6 +4,8 @@
 #include <string>
 #include <memory>
 #include "App.h"
+#include "Model.h"
+#include "ModelRef.h"
 
 using namespace std;
 

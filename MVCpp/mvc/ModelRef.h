@@ -16,14 +16,12 @@ namespace mvc {
     T m_fallback;
     T *m_fieldPtr;
     WPModel m_wpModel;
-    ViewBase *m_pMyView;
 
   public:
 
     template<typename ... Args>
-    ModelRef(ViewBase * pView, Args ... args) : m_fallback(args...), m_wpModel() {
+    ModelRef(Args ... args) : m_fallback(args...), m_wpModel() {
       m_fieldPtr = &m_fallback;
-      m_pMyView = pView;
     }
 
     ~ModelRef() {
@@ -36,9 +34,6 @@ namespace mvc {
       m_wpModel = spModel.get_spModel();
       if (spModel.isValid()) {
         m_fieldPtr = &(spModel->*mPtr);
-        if (m_pMyView) {
-          spModel.get_spModel()->AddBindedView(m_pMyView->m_wpThis);
-        }
       }
       else {
         throw runtime_error("Can not bind to an object which is destroied.");
@@ -50,9 +45,6 @@ namespace mvc {
       m_wpModel = spModel.get_spModel();
       if (spModel.isValid()) {
         m_fieldPtr = spModel;
-        if (m_pMyView) {
-          spModel.get_spModel()->AddBindedView(m_pMyView->m_wpThis);
-        }
       }
       else {
         throw runtime_error("Can not bind to an object which is destroied.");
@@ -60,10 +52,6 @@ namespace mvc {
     }
 
     void UnBind() {
-      auto spModel = m_wpModel.lock();
-      if (spModel) {
-        spModel->RemoveBindedView(m_pMyView->m_wpThis);
-      }
       m_fieldPtr = &m_fallback;
     }
 

@@ -69,8 +69,6 @@ namespace mvc {
       CoUninitialize();
     }
 
-    static void UpdateViews();
-
     template <typename T>
     static shared_ptr<T> CreateView(string id, const ConstructorProxy<T> &cp) {
       if (s_views.find(id) != s_views.end()) {
@@ -118,7 +116,6 @@ namespace mvc {
       auto it = s_models.find(id);
       if (it != s_models.end()) {
         if (it->second) {
-          int cnt = it->second.use_count();
           it->second.reset();
         }
         s_models.erase(it);

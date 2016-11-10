@@ -18,7 +18,6 @@ namespace mvc {
 
   protected:
 
-
     virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result) {
 
       bool isMouseEvent = 0;
@@ -100,10 +99,10 @@ namespace mvc {
 
     void FireEvent(int msg) {
       if (m_eventHandlers.find(msg) != m_eventHandlers.end()) {
-        auto sharedthis = m_wpThis.lock();
-        if (sharedthis) {
+        auto spThis = m_wpThis.lock();
+        if (spThis) {
           for (auto handler : m_eventHandlers[msg]){
-            handler(dynamic_pointer_cast<DerivedType>(sharedthis), msg, 0);
+            handler(dynamic_pointer_cast<DerivedType>(spThis), msg, 0);
           }
         }
         App::UpdateViews();
