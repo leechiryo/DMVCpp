@@ -37,9 +37,11 @@ namespace mvc {
     virtual void DestroyD2DResource() = 0;
     virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result) = 0;
 
+    // 如果需要处理鼠标进入事件，可以重载此函数
     virtual void MouseEnter(double x, double y) {
     }
 
+    // 如果需要处理鼠标离开事件，可以重载此函数
     virtual void MouseLeft(double x, double y) {
     }
 

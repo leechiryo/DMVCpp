@@ -16,7 +16,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   App::Initialize();
 
   auto view = v<Window>("main_window", {});
-  ModelSafePtr<string> model = m<std::string>("abc", "abc");
+  auto model = m<std::string>("def", "abc");
 
   view->Show();
 

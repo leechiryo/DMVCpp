@@ -62,6 +62,8 @@ namespace mvc {
           || rect.bottom != rect1.bottom
           || hr == D2DERR_RECREATE_TARGET);
 
+        // 检查线程是否已经被主线程终止，如果是，则终止绘制循环并推出函数，否则等待17毫秒并进行
+        // 下一次绘制循环。（等待17毫秒意味着每秒钟可以绘制1000 / 17 = 60）
         if (WaitForSingleObject(pWnd->m_drawThreadExitSignal, 17) == WAIT_OBJECT_0) {
           break;
         }
@@ -180,7 +182,7 @@ namespace mvc {
       DestroyD2DEnvironment();
     }
 
-    void DrawSelf() {
+    virtual void DrawSelf() {
       m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
       m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
     }
@@ -193,15 +195,15 @@ namespace mvc {
       PostQuitMessage(0);
     }
 
-    // The windows procedure.
+    // 窗口消息函数
     static LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
       LRESULT result = 0;
 
       if (message == WM_CREATE) {
         LPCREATESTRUCT pcs = (LPCREATESTRUCT)lParam;
-        Window *pDemoApp = (Window *)pcs->lpCreateParams;
-        ::SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pDemoApp);
+        Window *pWnd = (Window *)pcs->lpCreateParams;
+        ::SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pWnd);
 
         // inform the application of the frame change.
         RECT rcClient;
@@ -218,10 +220,10 @@ namespace mvc {
         result = 1;
       }
       else {
-        Window *pDemoApp = reinterpret_cast<Window *>(static_cast<LONG_PTR>(
+        Window *pWnd = reinterpret_cast<Window *>(static_cast<LONG_PTR>(
           ::GetWindowLongPtr(hwnd, GWLP_USERDATA)));
 
-        if (pDemoApp) {
+        if (pWnd) {
           if (message == WM_NCCALCSIZE) {
             /*
             ** From MSDN:
@@ -238,7 +240,7 @@ namespace mvc {
             return DefWindowProc(hwnd, message, wParam, lParam);
           }
           else {
-            char processed = pDemoApp->HandleMessage(message, wParam, lParam, result);
+            char processed = pWnd->HandleMessage(message, wParam, lParam, result);
             if (!processed) {
               result = DefWindowProc(hwnd, message, wParam, lParam);
             }

@@ -31,7 +31,9 @@ namespace mvc {
       }
 
       for (auto v : m_subViews) {
-        auto spv = v.lock(); if (!spv) continue; if (isMouseEvent) {
+        auto spv = v.lock(); 
+        if (!spv) continue; 
+        if (isMouseEvent) {
           // TODO: 遇到mouse事件，判断该事件是否表示进入某个子view，
           // 如果是，则向该子view发送WM_MOUSEHOVER消息或WM_MOUSELEAVE消息
           double dipX = PixelsToDipsX(pixelX);
