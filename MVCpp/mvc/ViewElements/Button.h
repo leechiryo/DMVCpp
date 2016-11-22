@@ -120,7 +120,7 @@ namespace mvc {
   public:
     ModelRef<wstring> title;
 
-    Button(wstring ttl) : title{ this, ttl } {
+    Button(wstring ttl) : title{ ttl } {
       m_color = 0x333333;
       m_fontWeight = DWRITE_FONT_WEIGHT_REGULAR;
       m_fontStyle = DWRITE_FONT_STYLE_NORMAL;

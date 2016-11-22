@@ -33,6 +33,9 @@
     <ClInclude Include="mvc\ConstructorProxy.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="mvc\ModelSafePtr.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
     <ClInclude Include="mvc\App.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -40,9 +43,6 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="mvc\View.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="mvc\ModelSafePtr.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="mvc\Model.h">
@@ -54,18 +54,18 @@
     <ClInclude Include="mvc\mvc.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="mvc\ViewElements\Button.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
     <ClInclude Include="mvc\ViewElements\Window.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="mvc\ViewElements\Button.h">
+    <ClInclude Include="MyController.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MVCpp.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="mvc\App.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="mvc\App.cpp">

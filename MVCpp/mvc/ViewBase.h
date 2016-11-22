@@ -129,7 +129,7 @@ namespace mvc {
     }
 
     template <typename T>
-    SPView AddSubView(string id, const ConstructorProxy<T> &cp) {
+    shared_ptr<T> AddSubView(string id, const ConstructorProxy<T> &cp) {
       auto v = App::CreateView<T>(id, cp);
       m_subViews.insert(v);
       return v;

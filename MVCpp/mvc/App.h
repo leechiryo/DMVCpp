@@ -136,7 +136,7 @@ namespace mvc {
       if (s_models.find(id) == s_models.end()) {
         throw std::runtime_error("Can not find the model.");
       }
-      auto ptrm = dynamic_pointer_cast<Model<T>, ModelBase>(s_models[id]);
+      auto ptrm = static_pointer_cast<Model<T>, ModelBase>(s_models[id]);
       return ptrm->get_safeptr();
     }
   };

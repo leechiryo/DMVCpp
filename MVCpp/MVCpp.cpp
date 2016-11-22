@@ -2,6 +2,7 @@
 //
 
 #include "MVCpp.h"
+#include "MyController.h"
 #include <system_error>
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "dwrite.lib")
@@ -16,9 +17,13 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   App::Initialize();
 
   auto view = v<Window>("main_window", {});
-  auto model = m<std::string>("def", "abc");
+  auto model = m<std::wstring>("my_model", L"Hello!");
 
-  view->AddSubView<Button>("btnStart", { L"START" });
+  auto btn = view->AddSubView<Button>("btnStart", L"START");
+  btn->SetPos(100, 200, 200, 240);
+
+  btn->title.Bind("my_model");
+  btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);
   view->Show();
 
   App::Uninitialize();
