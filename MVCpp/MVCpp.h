@@ -20,3 +20,4 @@
 
 #include "mvc\mvc.h"
 #include "mvc\ViewElements\Window.h"
+#include "mvc\ViewElements\Button.h"

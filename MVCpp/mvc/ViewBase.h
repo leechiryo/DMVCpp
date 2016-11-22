@@ -17,7 +17,6 @@ namespace mvc {
     template<typename T>
     friend class View;
 
-
   protected:
     weak_ptr<ViewBase> m_wpThis;
     WPViewSet m_subViews;
@@ -31,7 +30,7 @@ namespace mvc {
 
     // 指向Window对象的D2DRenderTarget字段的指针。每个Window都有一个独立的D2DRenderTarget对象，
     // 其内部的所有subview将共享这一对象，并利用该对象进行绘制。
-    ID2D1HwndRenderTarget** m_ppRenderTarget = nullptr;
+    ID2D1HwndRenderTarget* m_pRenderTarget = nullptr;
 
     virtual void CreateD2DResource() = 0;
     virtual void DestroyD2DResource() = 0;
@@ -57,7 +56,10 @@ namespace mvc {
 
       for (auto e : m_subViews) {
         auto spv = e.lock();
-        if (spv) spv->CreateD2DEnvironment();
+        if (spv){
+          spv->m_pRenderTarget = m_pRenderTarget;
+          spv->CreateD2DEnvironment();
+        }
       }
     }
 
@@ -106,16 +108,6 @@ namespace mvc {
 
     virtual ~ViewBase() { }
 
-    ViewBase(ID2D1HwndRenderTarget** ppRndrTgt, const WPViewSet & views) : m_subViews(views) {
-      m_ppRenderTarget = ppRndrTgt;
-      for (auto v : m_subViews) {
-        auto spv = v.lock();
-        if (spv) {
-          spv->m_ppRenderTarget = m_ppRenderTarget;
-        }
-      }
-    }
-
     double left, top, width, height;
 
     virtual void DrawSelf() = 0;
@@ -136,8 +128,11 @@ namespace mvc {
       }
     }
 
-    void AddSubView(const WPView &v) {
+    template <typename T>
+    SPView AddSubView(string id, const ConstructorProxy<T> &cp) {
+      auto v = App::CreateView<T>(id, cp);
       m_subViews.insert(v);
+      return v;
     }
 
     void RemoveSubView(const WPView &v) {

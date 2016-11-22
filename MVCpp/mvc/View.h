@@ -83,9 +83,6 @@ namespace mvc {
     View() : ViewBase() {
     }
 
-    View(ID2D1HwndRenderTarget** ppRndrTgt, const WPViewSet & views) : ViewBase(ppRndrTgt, views) {
-    }
-
     void AddEventHandler(int msg, ControllerMethod method) {
 
       if (m_eventHandlers.find(msg) == m_eventHandlers.end()) {

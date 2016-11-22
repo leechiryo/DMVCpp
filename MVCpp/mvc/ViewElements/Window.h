@@ -10,7 +10,6 @@ namespace mvc {
   {
   private:
     HWND m_hwnd;
-    ID2D1HwndRenderTarget* m_pRenderTarget = nullptr;
     HANDLE m_drawThread;
     HANDLE m_drawThreadExitSignal;
 
@@ -72,7 +71,30 @@ namespace mvc {
       return 0;
     }
 
-    void CreateMe() {
+
+  protected:
+    virtual void CreateD2DResource() {
+      HRESULT hr = S_OK;
+
+      if (!m_pRenderTarget) {
+        RECT rc;
+        GetClientRect(m_hwnd, &rc);
+
+        D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
+
+        hr = App::s_pDirect2dFactory->CreateHwndRenderTarget(
+          D2D1::RenderTargetProperties(),
+          D2D1::HwndRenderTargetProperties(m_hwnd, size),
+          &m_pRenderTarget);
+      }
+    }
+
+    virtual void DestroyD2DResource() {
+      SafeRelease(m_pRenderTarget);
+    }
+
+  public:
+    Window() {
       m_hwnd = nullptr;
 
       // Register message handler methods.
@@ -112,46 +134,13 @@ namespace mvc {
         NULL,
         HINST_THISCOMPONENT,
         this); // 将this指针传递给Window创建的参数
-
-      // 在Constructor中调用虚函数。本来，如此调用虚函数并不会激发
-      // 对象的多态调用（即调用派生对象的虚函数）。但在此处每个类都负责
-      // 自身所需的D2D资源的创建，所以并不需要调用派生对象的虚函数。
-      // 这么做并没有什么问题。
-      CreateD2DEnvironment();
-    }
-
-
-  protected:
-    virtual void CreateD2DResource() {
-      HRESULT hr = S_OK;
-
-      if (!m_pRenderTarget) {
-        RECT rc;
-        GetClientRect(m_hwnd, &rc);
-
-        D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
-
-        hr = App::s_pDirect2dFactory->CreateHwndRenderTarget(
-          D2D1::RenderTargetProperties(),
-          D2D1::HwndRenderTargetProperties(m_hwnd, size),
-          &m_pRenderTarget);
-      }
-    }
-
-    virtual void DestroyD2DResource() {
-      SafeRelease(m_pRenderTarget);
-    }
-
-  public:
-    Window() {
-      CreateMe();
-    }
-    Window(const WPViewSet & subViews) : View(&m_pRenderTarget, subViews) {
-      CreateMe();
     }
 
     void Show() {
       if (m_hwnd) {
+
+        // 创建D2D的绘制环境
+        CreateD2DEnvironment();
 
         ShowWindow(m_hwnd, SW_SHOWNORMAL);
         UpdateWindow(m_hwnd);

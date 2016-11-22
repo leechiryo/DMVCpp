@@ -18,6 +18,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   auto view = v<Window>("main_window", {});
   auto model = m<std::string>("def", "abc");
 
+  view->AddSubView<Button>("btnStart", { L"START" });
   view->Show();
 
   App::Uninitialize();
