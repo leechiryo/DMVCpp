@@ -9,7 +9,7 @@
  * 如果v函数和m函数的参数不使用该对象，而是直接传递View对象和Model对象
  * 的构造参数，那么又无法使用{}-list写法。
  * 让该对象作为v函数和m函数的参数，我们在调用时可以使用{}-list写法构造出
- * 一个VMObjCreator对象，进而在内部new出一个View/Model对象。
+ * 一个ConstructorProxy对象，进而在内部new出一个View/Model对象。
  * 在v函数和m函数的内部，我们又可以将View/Model对象连同id注册给全局的map。
  * 解决了用{}-list调用v/m函数的问题。
  */

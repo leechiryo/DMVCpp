@@ -6,7 +6,6 @@
 #include <set>
 #include <string>
 #include <memory>
-#include <system_error>
 #include "Types.h"
 #include "ConstructorProxy.h"
 
@@ -33,7 +32,7 @@ namespace mvc {
     {
       HRESULT hr = CoInitialize(NULL);
       if (!SUCCEEDED(hr)) {
-        throw system_error(EINTR, system_category(), "COM environment is not initialized successfully.");
+        throw std::system_error(EINTR, std::system_category(), "COM environment is not initialized successfully.");
       }
       // create the d2d factory.
       hr = D2D1CreateFactory(
@@ -42,7 +41,7 @@ namespace mvc {
 
       if (!SUCCEEDED(hr)) {
         CoUninitialize();
-        throw system_error(EINTR, system_category(), "Direct2D is not initialized successfully.");
+        throw std::system_error(EINTR, std::system_category(), "Direct2D is not initialized successfully.");
       }
 
       // create the dwrite factory.
@@ -54,7 +53,7 @@ namespace mvc {
       if (!SUCCEEDED(hr)) {
         SafeRelease(s_pDirect2dFactory);
         CoUninitialize();
-        throw system_error(EINTR, system_category(), "DirectWrite is not initialized successfully.");
+        throw std::system_error(EINTR, std::system_category(), "DirectWrite is not initialized successfully.");
       }
 
       float dpiX, dpiY;
@@ -68,8 +67,7 @@ namespace mvc {
       SafeRelease(s_pDWriteFactory);
       SafeRelease(s_pDirect2dFactory);
       CoUninitialize();
-    
-    static void UpdateViews();
+    }
 
     template <typename T>
     static shared_ptr<T> CreateView(string id, const ConstructorProxy<T> &cp) {
@@ -118,7 +116,6 @@ namespace mvc {
       auto it = s_models.find(id);
       if (it != s_models.end()) {
         if (it->second) {
-          int cnt = it->second.use_count();
           it->second.reset();
         }
         s_models.erase(it);

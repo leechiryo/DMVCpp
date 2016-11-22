@@ -10,33 +10,8 @@
 #include "ViewBase.h"
 
 namespace mvc {
-  class ModelBase {
 
-  private:
-    WPViewSet m_linkedViews;
-
-  public:
-    virtual bool ModelChanged() = 0;
-
-    void AddBindedView(const WPView &v) {
-      m_linkedViews.insert(v);
-    }
-
-    void RemoveBindedView(const WPView &v) {
-      m_linkedViews.erase(v);
-    }
-
-    void UpdateBindedViews() {
-      for (auto v : m_linkedViews) {
-        auto pv = v.lock();
-        if (pv) {
-          pv->Draw();
-        }
-        else if (v.expired()) {
-          m_linkedViews.erase(v);
-        }
-      }
-    }
+  class ModelBase{
   };
 
   template <typename T>
@@ -45,8 +20,12 @@ namespace mvc {
     friend class ModelRef<T>;
 
   private:
-    T m_modelCopy;
     T m_model;
+
+    // 此弱指针用于生成指向自身的共享指针发送给外部。
+    // 注意：此处不能用普通指针，否则将会产生多个无关的共享指针副本。
+    //      此处也不能直接使用共享指针，否则由于对象内部始终保有自己
+    //      的共享指针而导致无法删除该对象
     weak_ptr<Model<T>> m_wpThis;
 
     ModelSafePtr<T> get_safeptr() {
@@ -59,23 +38,10 @@ namespace mvc {
       }
     }
 
-    T* get_ptr() {
-      return &m_model;
-    }
-
   public:
     template<typename... Args>
     Model(Args... args) : m_model(args...) {
-      m_modelCopy = m_model;
     }
 
-    bool ModelChanged() {
-      bool changed = (m_modelCopy != m_model);
-      if (changed) {
-        m_modelCopy = m_model;
-      }
-      return changed;
-    }
   };
 }
-
