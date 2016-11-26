@@ -14,7 +14,7 @@ namespace mvc {
     ID2D1SolidColorBrush* m_pHoverBackgroundBrush;
     ID2D1SolidColorBrush* m_pClickBackgroundBrush;
     ID2D1SolidColorBrush* m_pBackgroundBrush;
-    AniButtonPressed m_aniPressed;
+    shared_ptr<AniButtonPressed> m_spAniPressed;
 
     static const int MAX_CHARS = 256;
     wchar_t m_font[MAX_CHARS + 1];
@@ -31,11 +31,13 @@ namespace mvc {
     // controller method
     static LRESULT Handle_LBUTTONDOWN(shared_ptr<Button> btn, WPARAM wParam, LPARAM lParam) {
       btn->m_pBackgroundBrush = btn->m_pClickBackgroundBrush;
+      btn->m_spAniPressed->PlayAndStopAtEnd();
       return 0;
     }
 
     static LRESULT Handle_LBUTTONUP(shared_ptr<Button> btn, WPARAM wParam, LPARAM lParam) {
       btn->m_pBackgroundBrush = btn->m_pHoverBackgroundBrush;
+      btn->m_spAniPressed->Stop();
       return 0;
     }
 
@@ -122,7 +124,7 @@ namespace mvc {
   public:
     ModelRef<wstring> title;
 
-    Button(wstring ttl) : title{ ttl } {
+    Button(wstring ttl) : title{ ttl }{
       m_color = 0x333333;
       m_fontWeight = DWRITE_FONT_WEIGHT_REGULAR;
       m_fontStyle = DWRITE_FONT_STYLE_NORMAL;
@@ -133,8 +135,9 @@ namespace mvc {
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
       AddEventHandler(WM_LBUTTONUP, Handle_LBUTTONUP);
 
-      m_aniPressed.SetPos(m_left, m_top, m_right, m_bottom);
-      m_subViews.insert(make_shared(&m_aniPressed));
+      m_spAniPressed = make_shared<AniButtonPressed>();
+
+      m_subViews.insert(m_spAniPressed);
     }
 
     ~Button() {
@@ -150,6 +153,8 @@ namespace mvc {
         m_pTextFormat,
         textRect,
         m_pBrush);
+
+      m_spAniPressed->SetPos(m_left, m_top, m_right, m_bottom);
     }
 
   };

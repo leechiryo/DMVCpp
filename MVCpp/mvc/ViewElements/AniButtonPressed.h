@@ -17,6 +17,7 @@ namespace mvc {
         throw std::runtime_error("Failed to create the background brush.");
       }
 
+      m_pBrush->SetOpacity(0.3);
     }
 
     virtual void DestroyD2DResource() {
@@ -24,7 +25,7 @@ namespace mvc {
     }
   public:
     virtual bool DrawFrame(int frameIdx) {
-      // TODO:用10帧(1/6秒)在点击的位置作出一个圆形，逐渐填充到整个区域。
+      // TODO:用10帧(1/6秒)在点击的位置作出一个半透明的圆形，逐渐填充到整个区域。
       double width = m_right - m_left;
       double height = m_bottom - m_top;
       double circle_x = m_left + width / 2.0;

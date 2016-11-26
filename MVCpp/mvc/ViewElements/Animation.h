@@ -7,6 +7,7 @@
 namespace mvc {
 
   enum class AniStatus { Stoped, Paused, Playing };
+  enum class AniPlayMode { PlayAndStopAtEnd, PlayAndStopAtStart, PlayRepeatly };
 
   typedef void(*AnimationCallBack)();
 
@@ -16,6 +17,7 @@ namespace mvc {
     int m_frameIdx;
     int m_rotation;
     AniStatus m_status;
+    AniPlayMode m_mode;
 
   public:
 
@@ -42,8 +44,19 @@ namespace mvc {
       m_rotation = angle;
     }
 
-    void Play() {
+    void PlayAndStopAtEnd() {
       m_status = AniStatus::Playing;
+      m_mode = AniPlayMode::PlayAndStopAtEnd;
+    }
+
+    void PlayAndStopAtStart() {
+      m_status = AniStatus::Playing;
+      m_mode = AniPlayMode::PlayAndStopAtStart;
+    }
+
+    void PlayRepeatly() {
+      m_status = AniStatus::Playing;
+      m_mode = AniPlayMode::PlayRepeatly;
     }
 
     void Stop() {
@@ -65,7 +78,16 @@ namespace mvc {
 
           // 如果当前帧完成后动画播放完毕(没有下一帧了)，则将下一帧设为0（动画开始的位置），
           // 下次调用Show的时候将从头播放。
-          m_frameIdx = 0;
+          if (m_mode == AniPlayMode::PlayAndStopAtStart) {
+            m_frameIdx = 0;
+            Pause();
+          }
+          else if (m_mode == AniPlayMode::PlayAndStopAtEnd) {
+            Pause();
+          }
+          else if (m_mode == AniPlayMode::PlayRepeatly) {
+            m_frameIdx = 0;
+          }
 
           if (OnFinished) {
             // 如果定义了播放完成后的回调函数，则调用它。
