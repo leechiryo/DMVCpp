@@ -89,6 +89,7 @@
     <ClInclude Include="mvc\Types.h" />
     <ClInclude Include="mvc\View.h" />
     <ClInclude Include="mvc\ViewBase.h" />
+    <ClInclude Include="mvc\ViewElements\AniButtonPressed.h" />
     <ClInclude Include="mvc\ViewElements\Animation.h" />
     <ClInclude Include="mvc\ViewElements\Button.h" />
     <ClInclude Include="mvc\ViewElements\Window.h" />
