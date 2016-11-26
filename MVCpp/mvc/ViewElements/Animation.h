@@ -20,6 +20,8 @@ namespace mvc {
   public:
 
     // 每一个动画对象都要实现此方法。
+    // 如果传入的frameIdx是动画中的最后一帧时，函数
+    // 应返回True，否则应返回False.
     virtual bool DrawFrame(int frameIdx) = 0;
 
     // 可以设置动画完成时的回调函数

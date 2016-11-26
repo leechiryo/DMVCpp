@@ -3,6 +3,7 @@
 #include "..\Types.h"
 #include "..\View.h"
 #include "..\ModelRef.h"
+#include "AniButtonPressed.h"
 
 namespace mvc {
   class Button : public View<Button>
@@ -13,6 +14,7 @@ namespace mvc {
     ID2D1SolidColorBrush* m_pHoverBackgroundBrush;
     ID2D1SolidColorBrush* m_pClickBackgroundBrush;
     ID2D1SolidColorBrush* m_pBackgroundBrush;
+    AniButtonPressed m_aniPressed;
 
     static const int MAX_CHARS = 256;
     wchar_t m_font[MAX_CHARS + 1];
@@ -130,6 +132,9 @@ namespace mvc {
 
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
       AddEventHandler(WM_LBUTTONUP, Handle_LBUTTONUP);
+
+      m_aniPressed.SetPos(m_left, m_top, m_right, m_bottom);
+      m_subViews.insert(make_shared(&m_aniPressed));
     }
 
     ~Button() {
