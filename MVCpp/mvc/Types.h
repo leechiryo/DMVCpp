@@ -62,6 +62,11 @@ namespace mvc {
       static_cast<float>(y));
   }
 
+  template<class T>
+  inline float tof(T x){
+    return static_cast<float>(x);
+  }
+
 
 #ifndef Assert
 #if defined( DEBUG ) || defined( _DEBUG )

@@ -20,16 +20,16 @@ namespace mvc {
         throw std::runtime_error("Failed to create the background brush.");
       }
 
-      m_pBrush->SetOpacity(0.3);
+      m_pBrush->SetOpacity(0.2f);
     }
 
     virtual void DestroyD2DResource() {
       SafeRelease(m_pBrush);
     }
   public:
-    void SetCenter(float x, float y) {
-      m_clickX = x;
-      m_clickY = y;
+    void SetCenter(double x, double y) {
+      m_clickX = tof(x);
+      m_clickY = tof(y);
     }
 
     virtual bool DrawFrame(int frameIdx) {
@@ -41,7 +41,7 @@ namespace mvc {
 
       D2D1_ELLIPSE ellipse = D2D1::Ellipse(
           D2D1::Point2F(m_clickX, m_clickY),
-          radius, radius );
+          tof(radius), tof(radius));
 
       m_pRenderTarget->PushAxisAlignedClip(RectD(m_left, m_top, m_right, m_bottom), D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
       m_pRenderTarget->FillEllipse(ellipse, m_pBrush);

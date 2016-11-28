@@ -34,13 +34,13 @@ namespace mvc {
       int xPos = GET_X_LPARAM(lParam); 
       int yPos = GET_Y_LPARAM(lParam); 
       btn->m_spAniPressed->SetCenter(btn->PixelsToDipsX(xPos),btn->PixelsToDipsY(yPos));
+      btn->m_spAniPressed->Stop();
       btn->m_spAniPressed->PlayAndStopAtEnd();
       return 0;
     }
 
     static LRESULT Handle_LBUTTONUP(shared_ptr<Button> btn, WPARAM wParam, LPARAM lParam) {
       btn->m_pBackgroundBrush = btn->m_pHoverBackgroundBrush;
-      btn->m_spAniPressed->Stop();
       return 0;
     }
 
