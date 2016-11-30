@@ -92,6 +92,7 @@
     <ClInclude Include="mvc\ViewElements\AniButtonPressed.h" />
     <ClInclude Include="mvc\ViewElements\Animation.h" />
     <ClInclude Include="mvc\ViewElements\Button.h" />
+    <ClInclude Include="mvc\ViewElements\TextBox.h" />
     <ClInclude Include="mvc\ViewElements\Window.h" />
     <ClInclude Include="MyController.h" />
     <ClInclude Include="Resource.h" />

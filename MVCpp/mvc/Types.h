@@ -2,7 +2,9 @@
 
 #include <memory>
 #include <set>
-#include <d2d1.h>
+#include <d2d1_1.h>
+#include <dwrite_1.h>
+#include <d3d11_1.h>
 
 namespace mvc {
 
@@ -67,6 +69,12 @@ namespace mvc {
     return static_cast<float>(x);
   }
 
+  template<class T, class S>
+  T* QueryInterface(S* pS){
+    T *pT;
+    pS->QueryInterface(__uuidof(T), (void **)&pT);
+    return pT;
+  }
 
 #ifndef Assert
 #if defined( DEBUG ) || defined( _DEBUG )

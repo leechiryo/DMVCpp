@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include <d2d1.h>
 #include "Types.h"
 #include "App.h"
 
@@ -16,6 +15,12 @@ namespace mvc {
 
     template<typename T>
     friend class View;
+  private:
+    ID3D11Device1 *m_d3dDevice;
+    ID3D11DeviceContext1 *m_d3dContext;
+    ID2D1Device *m_d2dDevice;
+    IDXGISwapChain1 *m_dxgiSwapChain;
+    ID2D1Bitmap1 *m_d2dBuffer;
 
   protected:
     weak_ptr<ViewBase> m_wpThis;
@@ -31,6 +36,7 @@ namespace mvc {
     // 指向Window对象的D2DRenderTarget字段的指针。每个Window都有一个独立的D2DRenderTarget对象，
     // 其内部的所有subview将共享这一对象，并利用该对象进行绘制。
     ID2D1HwndRenderTarget* m_pRenderTarget = nullptr;
+    ID2D1DeviceContext* m_pContext = nullptr;
 
     virtual void CreateD2DResource() = 0;
     virtual void DestroyD2DResource() = 0;

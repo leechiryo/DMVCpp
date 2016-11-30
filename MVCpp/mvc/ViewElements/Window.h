@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include <d2d1.h>
 #include <vector>
 
 #include "..\View.h"
@@ -73,8 +72,75 @@ namespace mvc {
 
 
   protected:
+    // 初始化D2D的设备相关的资源
     virtual void CreateD2DResource() {
+
+      // 1. 创建Direct3D的设备和设备环境
       HRESULT hr = S_OK;
+      D3D_FEATURE_LEVEL fls[] = {
+        D3D_FEATURE_LEVEL_11_1,
+        D3D_FEATURE_LEVEL_11_0,
+        D3D_FEATURE_LEVEL_10_1,
+        D3D_FEATURE_LEVEL_10_0,
+        D3D_FEATURE_LEVEL_9_3,
+        D3D_FEATURE_LEVEL_9_2,
+        D3D_FEATURE_LEVEL_9_1
+      };
+
+      D3D_FEATURE_LEVEL retFeatureLevel;
+      ID3D11Device *device;
+      ID3D11DeviceContext *context;
+
+      D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 
+        0, D3D11_CREATE_DEVICE_BGRA_SUPPORT, 
+        fls, ARRAYSIZE(fls), D3D11_SDK_VERSION,
+        &device, &retFeatureLevel, &context);
+
+      // 2. 获取特定的设备和设备环境的接口。
+      auto device1 = QueryInterface<ID3D11Device1>(device); 
+      auto context1 = QueryInterface<ID3D11DeviceContext1>(context);
+      auto dxgiDevice = QueryInterface<IDXGIDevice>(device1);
+
+      // 3. 创建Direct2D的设备和设备环境
+      ID2D1Device *d2dDevice;
+      App::s_pDirect2dFactory->CreateDevice(dxgiDevice, &d2dDevice);
+      d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pContext);
+
+      // 4. 创建和窗口大小相关的资源
+      IDXGIAdapter *dxgiAdapter;
+      IDXGIFactory2 *dxgiFactory;
+      dxgiDevice->GetAdapter(&dxgiAdapter);
+      dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory));
+
+      // Swap chain
+      DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
+      swapChainDesc.Width = 0;
+      swapChainDesc.Height = 0;
+      swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+      swapChainDesc.Stereo = false;
+      swapChainDesc.SampleDesc.Count = 1;
+      swapChainDesc.SampleDesc.Quality = 0;
+      swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+      swapChainDesc.BufferCount = 2;
+      swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+      swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+      swapChainDesc.Flags = 0;
+
+      IDXGISwapChain1 *dxgiSwapChain;
+      dxgiFactory->CreateSwapChainForHwnd(device1, m_hwnd, 
+        &swapChainDesc, nullptr, nullptr, &dxgiSwapChain);
+
+      IDXGISurface *dxgiBackBuffer;
+      dxgiSwapChain->GetBuffer(0, IID_PPV_ARGS(&dxgiBackBuffer));
+
+      FLOAT dpiX, dpiY;
+      App::s_pDirect2dFactory->GetDesktopDpi(&dpiX, &dpiY);
+
+      ID2D1Bitmap1 *d2dBuffer;
+      D2D1_BITMAP_PROPERTIES1 bmpProp = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
+        D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE), dpiX, dpiY);
+      m_pContext->CreateBitmapFromDxgiSurface(dxgiBackBuffer, &bmpProp, &d2dBuffer);
+      m_pContext->SetTarget(d2dBuffer);
 
       if (!m_pRenderTarget) {
         RECT rc;
@@ -87,6 +153,7 @@ namespace mvc {
           D2D1::HwndRenderTargetProperties(m_hwnd, size),
           &m_pRenderTarget);
       }
+
     }
 
     virtual void DestroyD2DResource() {

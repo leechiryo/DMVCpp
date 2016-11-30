@@ -14,10 +14,9 @@
 
 
 // TODO: プログラムに必要な追加ヘッダーをここで参照してください。
-#include <d2d1.h>
-#include <dwrite.h>
 #include "resource.h"
 
 #include "mvc\mvc.h"
 #include "mvc\ViewElements\Window.h"
 #include "mvc\ViewElements\Button.h"
+#include "mvc\ViewElements\TextBox.h"
