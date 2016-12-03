@@ -103,6 +103,8 @@ namespace mvc {
 
       // 3. 创建Direct2D的设备和设备环境
       ID2D1Device *d2dDevice;
+      // 实验：用模板把参数传递和错误处理等不自然的地方封装起来
+      // d2dDevice = GetXResource<ID2D1Device>(App::s_pDirect2dFactory, &ID2D1Factory1::CreateDevice, dxgiDevice);
       App::s_pDirect2dFactory->CreateDevice(dxgiDevice, &d2dDevice);
       d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pContext);
 

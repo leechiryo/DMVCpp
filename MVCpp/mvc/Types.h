@@ -76,6 +76,13 @@ namespace mvc {
     return pT;
   }
 
+  template<typename R, typename O, typename OP, typename... Args>
+  R* GetXResource(O o, OP op, Args... args) {
+    R *resource;
+    (o->*op)(args..., &resource);
+    return resource;
+  }
+
 #ifndef Assert
 #if defined( DEBUG ) || defined( _DEBUG )
 #define Assert(b) do {if (!(b)) {OutputDebugStringA("Assert: " #b "\n");}} while(0)
