@@ -88,8 +88,10 @@ namespace mvc {
       };
 
       D3D_FEATURE_LEVEL retFeatureLevel;
-      ID3D11Device *device;
-      ID3D11DeviceContext *context;
+
+      // 用DxResourcePtr封装的资源，当发生异常时会自动调用SafeRelease函数释放资源。
+      DxResourcePtr<ID3D11Device> device;
+      DxResourcePtr<ID3D11DeviceContext> context;
 
       D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 
         0, D3D11_CREATE_DEVICE_BGRA_SUPPORT, 
@@ -97,21 +99,22 @@ namespace mvc {
         &device, &retFeatureLevel, &context);
 
       // 2. 获取特定的设备和设备环境的接口。
-      auto device1 = QueryInterface<ID3D11Device1>(device); 
-      auto context1 = QueryInterface<ID3D11DeviceContext1>(context);
-      auto dxgiDevice = QueryInterface<IDXGIDevice>(device1);
+      auto device1 = device.QueryInterface<ID3D11Device1>(); 
+      auto context1 = context.QueryInterface<ID3D11DeviceContext1>();
+      auto dxgiDevice = device1.QueryInterface<IDXGIDevice>();
 
       // 3. 创建Direct2D的设备和设备环境
       ID2D1Device *d2dDevice;
+
       // 实验：用模板把参数传递和错误处理等不自然的地方封装起来
       // d2dDevice = GetXResource<ID2D1Device>(App::s_pDirect2dFactory, &ID2D1Factory1::CreateDevice, dxgiDevice);
       App::s_pDirect2dFactory->CreateDevice(dxgiDevice, &d2dDevice);
       d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pContext);
 
       // 4. 创建和窗口大小相关的资源
-      IDXGIAdapter *dxgiAdapter;
+      IDXGIAdapter *dxgiAdapter = dxgiDevice.GetDxResource<IDXGIAdapter>(&IDXGIDevice::GetAdapter);
       IDXGIFactory2 *dxgiFactory;
-      dxgiDevice->GetAdapter(&dxgiAdapter);
+      //dxgiDevice->GetAdapter(&dxgiAdapter);
       dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory));
 
       // Swap chain

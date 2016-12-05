@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <memory>
 #include <set>
@@ -69,19 +69,68 @@ namespace mvc {
     return static_cast<float>(x);
   }
 
-  template<class T, class S>
-  T* QueryInterface(S* pS){
-    T *pT;
-    pS->QueryInterface(__uuidof(T), (void **)&pT);
-    return pT;
-  }
+  // DirectX 资源管理
+  template <typename T>
+  class DxResource{
+  private:
+    T* m_pResource;
 
-  template<typename R, typename O, typename OP, typename... Args>
-  R* GetXResource(O o, OP op, Args... args) {
-    R *resource;
-    (o->*op)(args..., &resource);
-    return resource;
-  }
+  public:
+    DxResource(){
+      m_pResource = nullptr;
+    }
+
+    DxResource(T* pResource){
+      m_pResource = pResource;
+    }
+
+    DxResource(const DxResource& dxR){
+      m_pResource = dxR.m_pResource;
+    }
+
+    DxResource& operator=(const DxResource& dxR){
+      m_pResource = dxR.m_pResource;
+      return *this;
+    }
+
+    T** operator&(){
+      return &m_pResource;
+    }
+
+    operator T*() const {
+      return m_pResource;
+    }
+
+    ~DxResource(){
+      SafeRelease(m_pResource);
+    }
+
+    template<typename S>
+    DxResource<S> QueryInterface(){
+      S* pS;
+      HRESULT hr = S_OK;
+      hr = m_pResource->QueryInterface(__uuidof(S), (void **)&pS);
+
+      if (hr != S_OK){
+        throw std::runtime_error("Failed to query the interface.");
+      }
+
+      return pS;
+    }
+
+    template<typename R, typename OP, typename... Args>
+    DxResource<R> GetResource(OP op, Args... args) {
+      R *resource;
+      HRESULT hr = S_OK;
+      hr = (m_pResource->*op)(args..., &resource);
+
+      if (hr != S_OK){
+        throw std::runtime_error("Failed to get the directx resource.");
+      }
+
+      return resource;
+    }
+  };
 
 #ifndef Assert
 #if defined( DEBUG ) || defined( _DEBUG )
@@ -95,4 +144,4 @@ namespace mvc {
   EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #define HINST_THISCOMPONENT ((HINSTANCE)&__ImageBase)
 #endif
-}
+  }
