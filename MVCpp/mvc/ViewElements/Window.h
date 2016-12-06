@@ -90,8 +90,8 @@ namespace mvc {
       D3D_FEATURE_LEVEL retFeatureLevel;
 
       // 用DxResourcePtr封装的资源，当发生异常时会自动调用SafeRelease函数释放资源。
-      DxResourcePtr<ID3D11Device> device;
-      DxResourcePtr<ID3D11DeviceContext> context;
+      DxResource<ID3D11Device> device;
+      DxResource<ID3D11DeviceContext> context;
 
       D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 
         0, D3D11_CREATE_DEVICE_BGRA_SUPPORT, 
@@ -112,7 +112,7 @@ namespace mvc {
       d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pContext);
 
       // 4. 创建和窗口大小相关的资源
-      IDXGIAdapter *dxgiAdapter = dxgiDevice.GetDxResource<IDXGIAdapter>(&IDXGIDevice::GetAdapter);
+      IDXGIAdapter *dxgiAdapter = dxgiDevice.GetResource<IDXGIAdapter>(&IDXGIDevice::GetAdapter);
       IDXGIFactory2 *dxgiFactory;
       //dxgiDevice->GetAdapter(&dxgiAdapter);
       dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory));
