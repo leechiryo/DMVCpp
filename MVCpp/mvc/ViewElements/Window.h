@@ -89,7 +89,7 @@ namespace mvc {
 
       D3D_FEATURE_LEVEL retFeatureLevel;
 
-      // 用DxResourcePtr封装的资源，当发生异常时会自动调用SafeRelease函数释放资源。
+      // 用DxResource封装的资源，当发生异常时会自动调用SafeRelease函数释放资源。
       DxResource<ID3D11Device> device;
       DxResource<ID3D11DeviceContext> context;
 
@@ -99,23 +99,22 @@ namespace mvc {
         &device, &retFeatureLevel, &context);
 
       // 2. 获取特定的设备和设备环境的接口。
-      auto device1 = device.QueryInterface<ID3D11Device1>(); 
-      auto context1 = context.QueryInterface<ID3D11DeviceContext1>();
-      auto dxgiDevice = device1.QueryInterface<IDXGIDevice>();
+      auto device1 = device.Query<ID3D11Device1>(); 
+      auto context1 = context.Query<ID3D11DeviceContext1>();
+      auto dxgiDevice = device1.Query<IDXGIDevice>();
 
       // 3. 创建Direct2D的设备和设备环境
-      ID2D1Device *d2dDevice;
+      auto d2dDevice = App::s_pDirect2dFactory.GetResource<ID2D1Device>(&ID2D1Factory1::CreateDevice, dxgiDevice.GetPtr());
 
       // 实验：用模板把参数传递和错误处理等不自然的地方封装起来
       // d2dDevice = GetXResource<ID2D1Device>(App::s_pDirect2dFactory, &ID2D1Factory1::CreateDevice, dxgiDevice);
-      App::s_pDirect2dFactory->CreateDevice(dxgiDevice, &d2dDevice);
       d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pContext);
 
       // 4. 创建和窗口大小相关的资源
-      IDXGIAdapter *dxgiAdapter = dxgiDevice.GetResource<IDXGIAdapter>(&IDXGIDevice::GetAdapter);
-      IDXGIFactory2 *dxgiFactory;
+      auto dxgiAdapter = dxgiDevice.GetResource(&IDXGIDevice::GetAdapter);
+      auto dxgiFactory = dxgiAdapter.GetParent<IDXGIFactory2>();
       //dxgiDevice->GetAdapter(&dxgiAdapter);
-      dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory));
+      //dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory));
 
       // Swap chain
       DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
@@ -132,7 +131,7 @@ namespace mvc {
       swapChainDesc.Flags = 0;
 
       IDXGISwapChain1 *dxgiSwapChain;
-      dxgiFactory->CreateSwapChainForHwnd(device1, m_hwnd, 
+      dxgiFactory->CreateSwapChainForHwnd(device1.GetPtr(), m_hwnd, 
         &swapChainDesc, nullptr, nullptr, &dxgiSwapChain);
 
       IDXGISurface *dxgiBackBuffer;

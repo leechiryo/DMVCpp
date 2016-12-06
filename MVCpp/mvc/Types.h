@@ -88,28 +88,31 @@ namespace mvc {
       m_pResource = dxR.m_pResource;
     }
 
-    DxResource& operator=(const DxResource& dxR){
-      m_pResource = dxR.m_pResource;
-      return *this;
-    }
-
     T** operator&(){
       return &m_pResource;
-    }
-
-    operator T*() const {
-      return m_pResource;
     }
 
     ~DxResource(){
       SafeRelease(m_pResource);
     }
 
-    template<typename S>
-    DxResource<S> QueryInterface(){
-      S* pS;
+    inline REFIID GetGUID(){
+      return __uuidof(T);
+    }
+
+    T* operator->(){
+      return m_pResource;
+    }
+
+    T* GetPtr(){
+      return m_pResource;
+    }
+
+    template<typename R>
+    DxResource<R> Query(){
+      R* pS;
       HRESULT hr = S_OK;
-      hr = m_pResource->QueryInterface(__uuidof(S), (void **)&pS);
+      hr = m_pResource->QueryInterface(__uuidof(R), (void **)&pS);
 
       if (hr != S_OK){
         throw std::runtime_error("Failed to query the interface.");
@@ -118,10 +121,38 @@ namespace mvc {
       return pS;
     }
 
-    template<typename R, typename OP, typename... Args>
-    DxResource<R> GetResource(OP op, Args... args) {
+    template<typename R>
+    DxResource<R> GetParent(){
+      R* pS;
+      HRESULT hr = S_OK;
+      hr = m_pResource->GetParent(__uuidof(R), (void **)&pS);
+
+      if (hr != S_OK){
+        throw std::runtime_error("Failed to get the parent of the interface.");
+      }
+
+      return pS;
+    }
+
+    template<typename R>
+    DxResource<R> GetResource(HRESULT (__stdcall T::*op)(R**)) {
       R *resource;
       HRESULT hr = S_OK;
+
+      hr = (m_pResource->*op)(&resource);
+
+      if (hr != S_OK){
+        throw std::runtime_error("Failed to get the directx resource.");
+      }
+
+      return resource;
+    }
+
+    template<typename R, typename... Args>
+    DxResource<R> GetResource(HRESULT (__stdcall T::*op)(...), Args... args) {
+      R *resource;
+      HRESULT hr = S_OK;
+
       hr = (m_pResource->*op)(args..., &resource);
 
       if (hr != S_OK){
