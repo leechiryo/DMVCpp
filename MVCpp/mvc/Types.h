@@ -104,7 +104,7 @@ namespace mvc {
       return m_pResource;
     }
 
-    T* GetPtr(){
+    T* ptr(){
       return m_pResource;
     }
 
@@ -135,7 +135,7 @@ namespace mvc {
     }
 
     template<typename R>
-    DxResource<R> GetResource(HRESULT (__stdcall T::*op)(R**)) {
+    DxResource<R> GetResource(HRESULT(__stdcall T::*op)(R**)) {
       R *resource;
       HRESULT hr = S_OK;
 
@@ -149,7 +149,11 @@ namespace mvc {
     }
 
     template<typename R, typename... Args>
-    DxResource<R> GetResource(HRESULT (__stdcall T::*op)(...), Args... args) {
+    void Test(R r, Args... args){
+    }
+
+    template<typename R, typename... Args, typename... Args2>
+    DxResource<R> GetResource(HRESULT(__stdcall T::*op)(Args2...), Args... args) {
       R *resource;
       HRESULT hr = S_OK;
 
@@ -175,4 +179,4 @@ namespace mvc {
   EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 #define HINST_THISCOMPONENT ((HINSTANCE)&__ImageBase)
 #endif
-  }
+}

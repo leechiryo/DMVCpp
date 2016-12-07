@@ -36,7 +36,7 @@ namespace mvc {
     // 指向Window对象的D2DRenderTarget字段的指针。每个Window都有一个独立的D2DRenderTarget对象，
     // 其内部的所有subview将共享这一对象，并利用该对象进行绘制。
     ID2D1HwndRenderTarget* m_pRenderTarget = nullptr;
-    ID2D1DeviceContext* m_pContext = nullptr;
+    DxResource<ID2D1DeviceContext> m_pContext;
 
     virtual void CreateD2DResource() = 0;
     virtual void DestroyD2DResource() = 0;

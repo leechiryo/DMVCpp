@@ -104,11 +104,11 @@ namespace mvc {
       auto dxgiDevice = device1.Query<IDXGIDevice>();
 
       // 3. 创建Direct2D的设备和设备环境
-      auto d2dDevice = App::s_pDirect2dFactory.GetResource<ID2D1Device>(&ID2D1Factory1::CreateDevice, dxgiDevice.GetPtr());
+      auto d2dDevice = App::s_pDirect2dFactory.GetResource<ID2D1Device>(&ID2D1Factory1::CreateDevice, dxgiDevice.ptr());
 
       // 实验：用模板把参数传递和错误处理等不自然的地方封装起来
       // d2dDevice = GetXResource<ID2D1Device>(App::s_pDirect2dFactory, &ID2D1Factory1::CreateDevice, dxgiDevice);
-      d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &m_pContext);
+      m_pContext = d2dDevice.GetResource<ID2D1DeviceContext>(&ID2D1Device::CreateDeviceContext, D2D1_DEVICE_CONTEXT_OPTIONS_NONE);
 
       // 4. 创建和窗口大小相关的资源
       auto dxgiAdapter = dxgiDevice.GetResource(&IDXGIDevice::GetAdapter);
@@ -131,7 +131,7 @@ namespace mvc {
       swapChainDesc.Flags = 0;
 
       IDXGISwapChain1 *dxgiSwapChain;
-      dxgiFactory->CreateSwapChainForHwnd(device1.GetPtr(), m_hwnd, 
+      dxgiFactory->CreateSwapChainForHwnd(device1.ptr(), m_hwnd, 
         &swapChainDesc, nullptr, nullptr, &dxgiSwapChain);
 
       IDXGISurface *dxgiBackBuffer;
