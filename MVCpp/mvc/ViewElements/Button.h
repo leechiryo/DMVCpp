@@ -54,7 +54,7 @@ namespace mvc {
     }
 
     virtual void CreateD2DResource() {
-      HRESULT hr = m_pRenderTarget->CreateSolidColorBrush(
+      HRESULT hr = m_pContext->CreateSolidColorBrush(
         D2D1::ColorF(0xcccccc),
         &m_pNormalBackgroundBrush);
 
@@ -62,7 +62,7 @@ namespace mvc {
         throw std::runtime_error("Failed to create the background brush.");
       }
 
-      hr = m_pRenderTarget->CreateSolidColorBrush(
+      hr = m_pContext->CreateSolidColorBrush(
         D2D1::ColorF(0x999999),
         &m_pHoverBackgroundBrush);
 
@@ -71,7 +71,7 @@ namespace mvc {
         throw std::runtime_error("Failed to create the background brush.");
       }
 
-      hr = m_pRenderTarget->CreateSolidColorBrush(
+      hr = m_pContext->CreateSolidColorBrush(
         D2D1::ColorF(0x666666),
         &m_pClickBackgroundBrush);
 
@@ -101,7 +101,7 @@ namespace mvc {
         throw new std::runtime_error("Failed to create the text format.");
       }
 
-      hr = m_pRenderTarget->CreateSolidColorBrush(
+      hr = m_pContext->CreateSolidColorBrush(
         D2D1::ColorF(m_color),
         &m_pBrush);
 
@@ -148,9 +148,9 @@ namespace mvc {
 
     virtual void DrawSelf() {
       D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
-      m_pRenderTarget->FillRectangle(textRect, m_pBackgroundBrush);
+      m_pContext->FillRectangle(textRect, m_pBackgroundBrush);
 
-      m_pRenderTarget->DrawText(
+      m_pContext->DrawText(
         title->c_str(),
         title->length(),
         m_pTextFormat,

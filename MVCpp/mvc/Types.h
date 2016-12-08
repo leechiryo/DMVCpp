@@ -74,6 +74,7 @@ namespace mvc {
   class DxResource{
   private:
     T* m_pResource;
+    std::shared_ptr<int> sp;
 
   public:
     DxResource(){
@@ -82,10 +83,26 @@ namespace mvc {
 
     DxResource(T* pResource){
       m_pResource = pResource;
+      sp = std::make_shared<int>();
     }
 
-    DxResource(const DxResource& dxR){
+    DxResource(const DxResource& dxR) = delete;
+
+    DxResource& operator=(const DxResource& dxR){
       m_pResource = dxR.m_pResource;
+      sp = dxR.sp;
+      return *this;
+    }
+
+    DxResource(DxResource&& dxR){
+      std::swap(m_pResource, dxR.m_pResource);
+      std::swap(sp, dxR.sp);
+    }
+
+    DxResource& operator=(DxResource&& dxR){
+      std::swap(m_pResource, dxR.m_pResource);
+      std::swap(sp, dxR.sp);
+      return *this;
     }
 
     T** operator&(){
@@ -93,7 +110,9 @@ namespace mvc {
     }
 
     ~DxResource(){
-      SafeRelease(m_pResource);
+      if (sp.unique()){
+        SafeRelease(m_pResource);
+      }
     }
 
     inline REFIID GetGUID(){
@@ -113,6 +132,19 @@ namespace mvc {
       R* pS;
       HRESULT hr = S_OK;
       hr = m_pResource->QueryInterface(__uuidof(R), (void **)&pS);
+
+      if (hr != S_OK){
+        throw std::runtime_error("Failed to query the interface.");
+      }
+
+      return pS;
+    }
+
+    template<typename R, typename OP, typename... Args>
+    DxResource<R> Query(OP op, Args... args){
+      R* pS;
+      HRESULT hr = S_OK;
+      hr = (m_pResource->*op)(args..., __uuidof(R), (void **)&pS);
 
       if (hr != S_OK){
         throw std::runtime_error("Failed to query the interface.");
@@ -146,10 +178,6 @@ namespace mvc {
       }
 
       return resource;
-    }
-
-    template<typename R, typename... Args>
-    void Test(R r, Args... args){
     }
 
     template<typename R, typename... Args, typename... Args2>

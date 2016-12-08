@@ -12,6 +12,12 @@ namespace mvc {
     HANDLE m_drawThread;
     HANDLE m_drawThreadExitSignal;
 
+    DxResource<ID3D11Device> m_d3dDevice;
+    DxResource<ID3D11DeviceContext> m_d3dContext;
+    DxResource<ID2D1Device> m_d2dDevice;
+    DxResource<IDXGISwapChain1> m_dxgiSwapChain;
+    DxResource<ID2D1Bitmap1> m_d2dBuffer;
+
     // controller method
     static LRESULT Handle_SIZE(shared_ptr<Window> wnd, WPARAM wParam, LPARAM lParam) {
       wnd->m_right = LOWORD(lParam);
@@ -29,6 +35,13 @@ namespace mvc {
       return 1;
     }
 
+    HRESULT PresentBackBuffer(){
+      // 将绘制在缓冲区上的图像切换到前台
+      DXGI_PRESENT_PARAMETERS param = { 0 };
+      return m_dxgiSwapChain->Present1(1, 0, &param);
+    }
+
+
     // 一个描画线程以60FPS的速度描画窗口
     static DWORD WINAPI DrawWindow(LPVOID lpParam) {
       //HDC hdc;
@@ -40,19 +53,23 @@ namespace mvc {
 
         do {
           GetClientRect(pWnd->m_hwnd, &rect);
-          pWnd->m_pRenderTarget->Resize(D2D1::SizeU(rect.right, rect.bottom));
+          //pWnd->m_pContext->Resize(D2D1::SizeU(rect.right, rect.bottom));
 
-          pWnd->m_pRenderTarget->BeginDraw();
+          pWnd->m_pContext->BeginDraw();
 
           // 调用基类ViewBase的方法.
           pWnd->Draw();
 
-          hr = pWnd->m_pRenderTarget->EndDraw();
+          hr = pWnd->m_pContext->EndDraw();
+
 
           if (hr == D2DERR_RECREATE_TARGET) {
             // 出现绘制错误的情况则尝试重建整个D2D环境
             pWnd->DestroyD2DEnvironment();
             pWnd->CreateD2DEnvironment();
+          }
+          else{
+            hr = pWnd->PresentBackBuffer();
           }
 
           GetClientRect(pWnd->m_hwnd, &rect1);
@@ -90,31 +107,26 @@ namespace mvc {
       D3D_FEATURE_LEVEL retFeatureLevel;
 
       // 用DxResource封装的资源，当发生异常时会自动调用SafeRelease函数释放资源。
-      DxResource<ID3D11Device> device;
-      DxResource<ID3D11DeviceContext> context;
-
-      D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 
-        0, D3D11_CREATE_DEVICE_BGRA_SUPPORT, 
+      D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE,
+        0, D3D11_CREATE_DEVICE_BGRA_SUPPORT,
         fls, ARRAYSIZE(fls), D3D11_SDK_VERSION,
-        &device, &retFeatureLevel, &context);
+        &m_d3dDevice, &retFeatureLevel, &m_d3dContext);
 
       // 2. 获取特定的设备和设备环境的接口。
-      auto device1 = device.Query<ID3D11Device1>(); 
-      auto context1 = context.Query<ID3D11DeviceContext1>();
+      auto device1 = m_d3dDevice.Query<ID3D11Device1>();
+      auto context1 = m_d3dContext.Query<ID3D11DeviceContext1>();
       auto dxgiDevice = device1.Query<IDXGIDevice>();
 
       // 3. 创建Direct2D的设备和设备环境
-      auto d2dDevice = App::s_pDirect2dFactory.GetResource<ID2D1Device>(&ID2D1Factory1::CreateDevice, dxgiDevice.ptr());
+      m_d2dDevice = App::s_pDirect2dFactory.GetResource<ID2D1Device>(&ID2D1Factory1::CreateDevice, dxgiDevice.ptr());
 
       // 实验：用模板把参数传递和错误处理等不自然的地方封装起来
       // d2dDevice = GetXResource<ID2D1Device>(App::s_pDirect2dFactory, &ID2D1Factory1::CreateDevice, dxgiDevice);
-      m_pContext = d2dDevice.GetResource<ID2D1DeviceContext>(&ID2D1Device::CreateDeviceContext, D2D1_DEVICE_CONTEXT_OPTIONS_NONE);
+      m_pContext = m_d2dDevice.GetResource<ID2D1DeviceContext>(&ID2D1Device::CreateDeviceContext, D2D1_DEVICE_CONTEXT_OPTIONS_NONE);
 
       // 4. 创建和窗口大小相关的资源
       auto dxgiAdapter = dxgiDevice.GetResource(&IDXGIDevice::GetAdapter);
       auto dxgiFactory = dxgiAdapter.GetParent<IDXGIFactory2>();
-      //dxgiDevice->GetAdapter(&dxgiAdapter);
-      //dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory));
 
       // Swap chain
       DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
@@ -130,38 +142,24 @@ namespace mvc {
       swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
       swapChainDesc.Flags = 0;
 
-      IDXGISwapChain1 *dxgiSwapChain;
-      dxgiFactory->CreateSwapChainForHwnd(device1.ptr(), m_hwnd, 
-        &swapChainDesc, nullptr, nullptr, &dxgiSwapChain);
+      m_dxgiSwapChain = dxgiFactory.GetResource<IDXGISwapChain1>(&IDXGIFactory2::CreateSwapChainForHwnd,
+        device1.ptr(), m_hwnd, &swapChainDesc, nullptr, nullptr);
 
-      IDXGISurface *dxgiBackBuffer;
-      dxgiSwapChain->GetBuffer(0, IID_PPV_ARGS(&dxgiBackBuffer));
+      auto dxgiBackBuffer = m_dxgiSwapChain.Query<IDXGISurface>(&IDXGISwapChain1::GetBuffer, 0);
 
       FLOAT dpiX, dpiY;
       App::s_pDirect2dFactory->GetDesktopDpi(&dpiX, &dpiY);
 
-      ID2D1Bitmap1 *d2dBuffer;
       D2D1_BITMAP_PROPERTIES1 bmpProp = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
         D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE), dpiX, dpiY);
-      m_pContext->CreateBitmapFromDxgiSurface(dxgiBackBuffer, &bmpProp, &d2dBuffer);
-      m_pContext->SetTarget(d2dBuffer);
 
-      if (!m_pRenderTarget) {
-        RECT rc;
-        GetClientRect(m_hwnd, &rc);
+      m_d2dBuffer = m_pContext.GetResource<ID2D1Bitmap1>(&ID2D1DeviceContext::CreateBitmapFromDxgiSurface,
+        dxgiBackBuffer.ptr(), &bmpProp);
 
-        D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
-
-        hr = App::s_pDirect2dFactory->CreateHwndRenderTarget(
-          D2D1::RenderTargetProperties(),
-          D2D1::HwndRenderTargetProperties(m_hwnd, size),
-          &m_pRenderTarget);
-      }
-
+      m_pContext->SetTarget(m_d2dBuffer.ptr());
     }
 
     virtual void DestroyD2DResource() {
-      SafeRelease(m_pRenderTarget);
     }
 
   public:
@@ -243,8 +241,8 @@ namespace mvc {
     }
 
     virtual void DrawSelf() {
-      m_pRenderTarget->SetTransform(D2D1::Matrix3x2F::Identity());
-      m_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+      m_pContext->SetTransform(D2D1::Matrix3x2F::Identity());
+      m_pContext->Clear(D2D1::ColorF(D2D1::ColorF::White));
     }
 
     void Update() {
