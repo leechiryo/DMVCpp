@@ -36,7 +36,7 @@ namespace mvc {
       D2D1_FACTORY_OPTIONS options;
       ZeroMemory(&options, sizeof(D2D1_FACTORY_OPTIONS));
       hr = D2D1CreateFactory(
-        D2D1_FACTORY_TYPE_SINGLE_THREADED, 
+        D2D1_FACTORY_TYPE_SINGLE_THREADED,
         s_pDirect2dFactory.GetGUID(), 
         &options, 
         reinterpret_cast<void**>(&s_pDirect2dFactory));

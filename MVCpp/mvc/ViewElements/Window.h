@@ -33,17 +33,25 @@ namespace mvc {
     }
 
     static LRESULT Handle_DESTROY(shared_ptr<Window> wnd, WPARAM wParam, LPARAM lParam) {
+
+      // 当程序结束时，终止绘制窗口的线程。
+      SetEvent(wnd->m_drawThreadExitSignal);
+
+      // 等待绘制线程结束
+      WaitForSingleObject(wnd->m_drawThread, INFINITE);
+
       PostQuitMessage(0);
       return 1;
+
     }
 
     // 将绘制在缓冲区上的图像切换到前台
-    HRESULT PresentBackBuffer(){
+    HRESULT PresentBackBuffer() {
       DXGI_PRESENT_PARAMETERS param = { 0 };
-      return m_dxgiSwapChain->Present1(1, 0, &param);
+      return m_dxgiSwapChain->Present1(0, 0, &param);
     }
 
-    void Resize(){
+    void Resize() {
 
       auto device1 = m_d3dDevice.Query<ID3D11Device1>();
       auto dxgiDevice = device1.Query<IDXGIDevice>();
@@ -81,7 +89,6 @@ namespace mvc {
         dxgiBackBuffer.ptr(), bmpProp);
 
       m_pContext->SetTarget(m_d2dBuffer.ptr());
-
     }
 
 
@@ -89,19 +96,23 @@ namespace mvc {
     static DWORD WINAPI DrawWindow(LPVOID lpParam) {
       //HDC hdc;
       Window *pWnd = (Window*)lpParam;
-      RECT rect, rect1;
+      RECT rect{ 0 }, rect1{ 0 };
       HRESULT hr;
 
       while (true) {
 
-        do {
-          GetClientRect(pWnd->m_hwnd, &rect);
+        GetClientRect(pWnd->m_hwnd, &rect);
 
-          pWnd->Resize();
+        do {
+          if (rect.right != rect1.right || rect.bottom != rect1.bottom) {
+            pWnd->Resize();
+            rect.right = rect1.right;
+            rect.bottom = rect1.bottom;
+          }
 
           pWnd->m_pContext->BeginDraw();
 
-          // 调用基类ViewBase的方法.
+          // 调用基类ViewBase的方法绘制.
           pWnd->Draw();
 
           hr = pWnd->m_pContext->EndDraw();
@@ -112,7 +123,7 @@ namespace mvc {
             pWnd->DestroyD2DEnvironment();
             pWnd->CreateD2DEnvironment();
           }
-          else{
+          else {
             hr = pWnd->PresentBackBuffer();
           }
 
@@ -279,12 +290,6 @@ namespace mvc {
           TranslateMessage(&msg);
           DispatchMessage(&msg);
         }
-
-        // 当程序结束时，终止绘制窗口的线程。
-        SetEvent(m_drawThreadExitSignal);
-
-        // 等待绘制线程结束
-        WaitForSingleObject(m_drawThread, INFINITE);
       }
     }
 
@@ -346,7 +351,7 @@ namespace mvc {
             // return 0;
             return DefWindowProc(hwnd, message, wParam, lParam);
           }
-          else if (message == WM_SIZE){
+          else if (message == WM_SIZE) {
             return DefWindowProc(hwnd, message, wParam, lParam);
           }
           else {
