@@ -96,7 +96,7 @@ namespace mvc {
 
         do {
           GetClientRect(pWnd->m_hwnd, &rect);
-          //pWnd->m_pContext->Resize(D2D1::SizeU(rect.right, rect.bottom));
+
           pWnd->Resize();
 
           pWnd->m_pContext->BeginDraw();

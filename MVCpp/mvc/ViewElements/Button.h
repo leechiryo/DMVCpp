@@ -60,29 +60,19 @@ namespace mvc {
       HRESULT(ID2D1DeviceContext::*CreateSolidColorBrush)(const D2D1_COLOR_F &, ID2D1SolidColorBrush **)
         = &ID2D1DeviceContext::CreateSolidColorBrush;
 
-      m_pNormalBackgroundBrush = m_pContext.GetResource<ID2D1SolidColorBrush>(CreateSolidColorBrush, 
-        D2D1::ColorF(0xcccccc));
+      m_pNormalBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0xcccccc));
 
-      m_pHoverBackgroundBrush = m_pContext.GetResource<ID2D1SolidColorBrush>(CreateSolidColorBrush,
-        D2D1::ColorF(0x999999));
+      m_pHoverBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x999999));
 
-      m_pClickBackgroundBrush = m_pContext.GetResource<ID2D1SolidColorBrush>(CreateSolidColorBrush,
-        D2D1::ColorF(0x666666));
+      m_pClickBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x666666));
 
       m_pTextFormat = App::s_pDWriteFactory.GetResource<IDWriteTextFormat>(&IDWriteFactory::CreateTextFormat,
-        m_font,
-        nullptr,
-        m_fontWeight,
-        m_fontStyle,
-        m_fontStretch,
-        m_fontSize,
-        L"ja-JP");
+        m_font, nullptr, m_fontWeight, m_fontStyle, m_fontStretch, m_fontSize, L"ja-JP");
 
       m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
       m_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 
-      m_pBrush = m_pContext.GetResource<ID2D1SolidColorBrush>(CreateSolidColorBrush,
-        D2D1::ColorF(m_color));
+      m_pBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(m_color));
 
       m_pBackgroundBrush = m_pNormalBackgroundBrush;
     }
@@ -104,6 +94,7 @@ namespace mvc {
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
       AddEventHandler(WM_LBUTTONUP, Handle_LBUTTONUP);
 
+      // 设置点击的动画
       m_spAniPressed = make_shared<AniButtonPressed>();
 
       m_subViews.insert(m_spAniPressed);

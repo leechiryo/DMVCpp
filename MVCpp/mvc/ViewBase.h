@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Types.h"
+#include "D2DContext.h"
 #include "App.h"
 
 using namespace std;
@@ -29,7 +30,7 @@ namespace mvc {
 
     // 指向Window对象的D2DRenderTarget字段的指针。每个Window都有一个独立的D2DRenderTarget对象，
     // 其内部的所有subview将共享这一对象，并利用该对象进行绘制。
-    DxResource<ID2D1DeviceContext> m_pContext;
+    D2DContext m_pContext;
 
     virtual void CreateD2DResource() = 0;
     virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result) = 0;

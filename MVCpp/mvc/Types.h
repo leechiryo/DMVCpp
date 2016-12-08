@@ -72,6 +72,7 @@ namespace mvc {
   // DirectX 资源管理
   template <typename T>
   class DxResource{
+    friend class D2DContext;
   private:
     T* m_pResource;
     std::shared_ptr<int> sp;
