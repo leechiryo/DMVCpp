@@ -12,7 +12,7 @@ namespace mvc {
 
   protected:
     virtual void CreateD2DResource() {
-      HRESULT hr = m_pRenderTarget->CreateSolidColorBrush(
+      HRESULT hr = m_pContext->CreateSolidColorBrush(
         D2D1::ColorF(0xcccccc),
         &m_pBrush);
 
@@ -43,9 +43,9 @@ namespace mvc {
           D2D1::Point2F(m_clickX, m_clickY),
           tof(radius), tof(radius));
 
-      m_pRenderTarget->PushAxisAlignedClip(RectD(m_left, m_top, m_right, m_bottom), D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-      m_pRenderTarget->FillEllipse(ellipse, m_pBrush);
-      m_pRenderTarget->PopAxisAlignedClip();
+      m_pContext->PushAxisAlignedClip(RectD(m_left, m_top, m_right, m_bottom), D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+      m_pContext->FillEllipse(ellipse, m_pBrush);
+      m_pContext->PopAxisAlignedClip();
 
       if(frameIdx == 6) return true;
       else return false;

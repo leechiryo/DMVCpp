@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "..\Types.h"
 #include "..\View.h"
@@ -10,10 +10,14 @@ namespace mvc {
   {
   private:
 
-    ID2D1SolidColorBrush* m_pNormalBackgroundBrush;
-    ID2D1SolidColorBrush* m_pHoverBackgroundBrush;
-    ID2D1SolidColorBrush* m_pClickBackgroundBrush;
-    ID2D1SolidColorBrush* m_pBackgroundBrush;
+    // D2D 资源(离开作用域是会自动销毁)
+    DxResource<ID2D1SolidColorBrush> m_pNormalBackgroundBrush;
+    DxResource<ID2D1SolidColorBrush> m_pHoverBackgroundBrush;
+    DxResource<ID2D1SolidColorBrush> m_pClickBackgroundBrush;
+    DxResource<ID2D1SolidColorBrush> m_pBackgroundBrush;
+    DxResource<ID2D1SolidColorBrush> m_pBrush;
+    DxResource<IDWriteTextFormat> m_pTextFormat;
+
     shared_ptr<AniButtonPressed> m_spAniPressed;
 
     static const int MAX_CHARS = 256;
@@ -24,9 +28,6 @@ namespace mvc {
     DWRITE_FONT_STRETCH m_fontStretch;
 
     UINT32 m_color;
-
-    ID2D1SolidColorBrush* m_pBrush;
-    IDWriteTextFormat* m_pTextFormat;
 
     // controller method
     static LRESULT Handle_LBUTTONDOWN(shared_ptr<Button> btn, WPARAM wParam, LPARAM lParam) {
@@ -54,74 +55,29 @@ namespace mvc {
     }
 
     virtual void CreateD2DResource() {
-      HRESULT hr = m_pRenderTarget->CreateSolidColorBrush(
-        D2D1::ColorF(0xcccccc),
-        &m_pNormalBackgroundBrush);
 
-      if (!SUCCEEDED(hr)) {
-        throw std::runtime_error("Failed to create the background brush.");
-      }
+      // CreateSolidColorBrush有多个重载版本，这里要先指定使用哪一个，否则编译出错
+      HRESULT(ID2D1DeviceContext::*CreateSolidColorBrush)(const D2D1_COLOR_F &, ID2D1SolidColorBrush **)
+        = &ID2D1DeviceContext::CreateSolidColorBrush;
 
-      hr = m_pRenderTarget->CreateSolidColorBrush(
-        D2D1::ColorF(0x999999),
-        &m_pHoverBackgroundBrush);
+      m_pNormalBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0xcccccc));
 
-      if (!SUCCEEDED(hr)) {
-        SafeRelease(m_pNormalBackgroundBrush);
-        throw std::runtime_error("Failed to create the background brush.");
-      }
+      m_pHoverBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x999999));
 
-      hr = m_pRenderTarget->CreateSolidColorBrush(
-        D2D1::ColorF(0x666666),
-        &m_pClickBackgroundBrush);
+      m_pClickBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x666666));
 
-      if (!SUCCEEDED(hr)) {
-        SafeRelease(m_pNormalBackgroundBrush);
-        SafeRelease(m_pHoverBackgroundBrush);
-        throw std::runtime_error("Failed to create the background brush.");
-      }
-
-      hr = App::s_pDWriteFactory->CreateTextFormat(
-        m_font,
-        NULL,
-        m_fontWeight,
-        m_fontStyle,
-        m_fontStretch,
-        m_fontSize,
-        L"ja-JP",
-        &m_pTextFormat);
+      m_pTextFormat = App::s_pDWriteFactory.GetResource<IDWriteTextFormat>(&IDWriteFactory::CreateTextFormat,
+        m_font, nullptr, m_fontWeight, m_fontStyle, m_fontStretch, m_fontSize, L"ja-JP");
 
       m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
       m_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 
-      if (!SUCCEEDED(hr)) {
-        SafeRelease(m_pNormalBackgroundBrush);
-        SafeRelease(m_pHoverBackgroundBrush);
-        SafeRelease(m_pClickBackgroundBrush);
-        throw new std::runtime_error("Failed to create the text format.");
-      }
-
-      hr = m_pRenderTarget->CreateSolidColorBrush(
-        D2D1::ColorF(m_color),
-        &m_pBrush);
-
-      if (!SUCCEEDED(hr)) {
-        SafeRelease(m_pNormalBackgroundBrush);
-        SafeRelease(m_pHoverBackgroundBrush);
-        SafeRelease(m_pClickBackgroundBrush);
-        SafeRelease(m_pTextFormat);
-        throw new std::runtime_error("Failed to create the brush.");
-      }
+      m_pBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(m_color));
 
       m_pBackgroundBrush = m_pNormalBackgroundBrush;
     }
 
     virtual void DestroyD2DResource() {
-      SafeRelease(m_pNormalBackgroundBrush);
-      SafeRelease(m_pHoverBackgroundBrush);
-      SafeRelease(m_pClickBackgroundBrush);
-      SafeRelease(m_pTextFormat);
-      SafeRelease(m_pBrush);
     }
 
   public:
@@ -138,6 +94,7 @@ namespace mvc {
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
       AddEventHandler(WM_LBUTTONUP, Handle_LBUTTONUP);
 
+      // 设置点击的动画
       m_spAniPressed = make_shared<AniButtonPressed>();
 
       m_subViews.insert(m_spAniPressed);
@@ -148,14 +105,14 @@ namespace mvc {
 
     virtual void DrawSelf() {
       D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
-      m_pRenderTarget->FillRectangle(textRect, m_pBackgroundBrush);
+      m_pContext->FillRectangle(textRect, m_pBackgroundBrush.ptr());
 
-      m_pRenderTarget->DrawText(
+      m_pContext->DrawText(
         title->c_str(),
         title->length(),
-        m_pTextFormat,
+        m_pTextFormat.ptr(),
         textRect,
-        m_pBrush);
+        m_pBrush.ptr());
 
       m_spAniPressed->SetPos(m_left, m_top, m_right, m_bottom);
     }

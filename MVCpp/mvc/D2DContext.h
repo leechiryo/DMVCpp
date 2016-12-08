@@ -1,0 +1,40 @@
+﻿#pragma once
+
+#include "Types.h"
+
+namespace mvc {
+  class D2DContext : public DxResource<ID2D1DeviceContext> {
+  public:
+    D2DContext& operator=(const D2DContext& dxR){
+      m_pResource = dxR.m_pResource;
+      sp = dxR.sp;
+      return *this;
+    }
+
+    D2DContext& operator=(D2DContext&& dxR){
+      std::swap(m_pResource, dxR.m_pResource);
+      std::swap(sp, dxR.sp);
+      return *this;
+    }
+
+    D2DContext& operator=(DxResource<ID2D1DeviceContext>&& dxR){
+      std::swap(m_pResource, dxR.m_pResource);
+      std::swap(sp, dxR.sp);
+      return *this;
+    }
+
+    template <typename... Args>
+    DxResource<ID2D1SolidColorBrush> CreateSolidColorBrush(Args... args) {
+      ID2D1SolidColorBrush *resource;
+      HRESULT hr = S_OK;
+
+      hr = m_pResource->CreateSolidColorBrush(args..., &resource);
+
+      if (hr != S_OK){
+        throw std::runtime_error("Failed to create the solid color brush");
+      }
+
+      return resource;
+    }
+  };
+}

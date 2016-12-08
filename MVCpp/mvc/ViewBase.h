@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Types.h"
+#include "D2DContext.h"
 #include "App.h"
 
 using namespace std;
@@ -15,12 +16,6 @@ namespace mvc {
 
     template<typename T>
     friend class View;
-  private:
-    ID3D11Device1 *m_d3dDevice;
-    ID3D11DeviceContext1 *m_d3dContext;
-    ID2D1Device *m_d2dDevice;
-    IDXGISwapChain1 *m_dxgiSwapChain;
-    ID2D1Bitmap1 *m_d2dBuffer;
 
   protected:
     weak_ptr<ViewBase> m_wpThis;
@@ -35,12 +30,11 @@ namespace mvc {
 
     // 指向Window对象的D2DRenderTarget字段的指针。每个Window都有一个独立的D2DRenderTarget对象，
     // 其内部的所有subview将共享这一对象，并利用该对象进行绘制。
-    ID2D1HwndRenderTarget* m_pRenderTarget = nullptr;
-    ID2D1DeviceContext* m_pContext = nullptr;
+    D2DContext m_pContext;
 
     virtual void CreateD2DResource() = 0;
-    virtual void DestroyD2DResource() = 0;
     virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result) = 0;
+    virtual void DestroyD2DResource() = 0;
 
     // 如果需要处理鼠标进入事件，可以重载此函数
     virtual void MouseEnter(double x, double y) {
@@ -63,7 +57,7 @@ namespace mvc {
       for (auto e : m_subViews) {
         auto spv = e.lock();
         if (spv){
-          spv->m_pRenderTarget = m_pRenderTarget;
+          spv->m_pContext = m_pContext;
           spv->CreateD2DEnvironment();
         }
       }

@@ -18,8 +18,8 @@ namespace mvc {
 
   public:
 
-    static ID2D1Factory1* s_pDirect2dFactory;
-    static IDWriteFactory1* s_pDWriteFactory;
+    static DxResource<ID2D1Factory1> s_pDirect2dFactory;
+    static DxResource<IDWriteFactory1> s_pDWriteFactory;
 
     static double DPI_SCALE_X;
     static double DPI_SCALE_Y;
@@ -37,7 +37,7 @@ namespace mvc {
       ZeroMemory(&options, sizeof(D2D1_FACTORY_OPTIONS));
       hr = D2D1CreateFactory(
         D2D1_FACTORY_TYPE_SINGLE_THREADED, 
-        __uuidof(s_pDirect2dFactory), 
+        s_pDirect2dFactory.GetGUID(), 
         &options, 
         reinterpret_cast<void**>(&s_pDirect2dFactory));
 
@@ -49,11 +49,10 @@ namespace mvc {
       // create the dwrite factory.
       hr = DWriteCreateFactory(
         DWRITE_FACTORY_TYPE_SHARED,
-        __uuidof(IDWriteFactory),
+        s_pDWriteFactory.GetGUID(),
         reinterpret_cast<IUnknown**>(&s_pDWriteFactory));
 
       if (!SUCCEEDED(hr)) {
-        SafeRelease(s_pDirect2dFactory);
         CoUninitialize();
         throw std::system_error(EINTR, std::system_category(), "DirectWrite is not initialized successfully.");
       }
@@ -66,8 +65,6 @@ namespace mvc {
     }
 
     static void Uninitialize() {
-      SafeRelease(s_pDWriteFactory);
-      SafeRelease(s_pDirect2dFactory);
       CoUninitialize();
     }
 

@@ -39,7 +39,7 @@ namespace mvc{
     }
 
     virtual void CreateD2DResource() {
-      HRESULT hr = m_pRenderTarget->CreateSolidColorBrush(
+      HRESULT hr = m_pContext->CreateSolidColorBrush(
         D2D1::ColorF(0xffffff),
         &m_pBackgroundBrush);
 
@@ -47,7 +47,7 @@ namespace mvc{
         throw std::runtime_error("Failed to create the background brush.");
       }
 
-      hr = m_pRenderTarget->CreateSolidColorBrush(
+      hr = m_pContext->CreateSolidColorBrush(
         D2D1::ColorF(0x333333),
         &m_pTextBrush);
 
@@ -56,7 +56,7 @@ namespace mvc{
         throw std::runtime_error("Failed to create the background brush.");
       }
 
-      hr = m_pRenderTarget->CreateSolidColorBrush(
+      hr = m_pContext->CreateSolidColorBrush(
         D2D1::ColorF(0x333333),
         &m_pBorderBrush);
 
@@ -93,9 +93,9 @@ namespace mvc{
       stops[1].color = D2D1::ColorF(D2D1::ColorF::ForestGreen, 1);
       stops[1].position = 1.0f;
 
-      hr = m_pRenderTarget->CreateGradientStopCollection(stops, 2, D2D1_GAMMA_2_2, D2D1_EXTEND_MODE_CLAMP, &pStops);
+      hr = m_pContext->CreateGradientStopCollection(stops, 2, D2D1_GAMMA_2_2, D2D1_EXTEND_MODE_CLAMP, &pStops);
 
-      hr = m_pRenderTarget->CreateRadialGradientBrush(
+      hr = m_pContext->CreateRadialGradientBrush(
         D2D1::RadialGradientBrushProperties(
         D2D1::Point2F(75, 75),
         D2D1::Point2F(0, 0),
@@ -140,12 +140,12 @@ namespace mvc{
 
     virtual void DrawSelf() {
       D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
-      m_pRenderTarget->FillRectangle(textRect, m_pBackgroundBrush);
-      m_pRenderTarget->DrawRectangle(textRect, m_pFocusBorderBrush);
+      m_pContext->FillRectangle(textRect, m_pBackgroundBrush);
+      m_pContext->DrawRectangle(textRect, m_pFocusBorderBrush);
 
       textRect.left += 10;
 
-      m_pRenderTarget->DrawText(
+      m_pContext->DrawText(
         text->c_str(),
         text->length(),
         m_pTextFormat,

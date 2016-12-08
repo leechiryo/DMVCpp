@@ -72,6 +72,9 @@
     <ClInclude Include="mvc\ViewElements\TextBox.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="mvc\D2DContext.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MVCpp.cpp">

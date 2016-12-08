@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <memory>
 #include <set>
@@ -69,12 +69,139 @@ namespace mvc {
     return static_cast<float>(x);
   }
 
-  template<class T, class S>
-  T* QueryInterface(S* pS){
-    T *pT;
-    pS->QueryInterface(__uuidof(T), (void **)&pT);
-    return pT;
-  }
+  // DirectX 资源管理
+  template <typename T>
+  class DxResource{
+    friend class D2DContext;
+  private:
+    T* m_pResource;
+    std::shared_ptr<int> sp;
+
+  public:
+    DxResource(){
+      m_pResource = nullptr;
+      sp = std::make_shared<int>();
+    }
+
+    DxResource(T* pResource){
+      m_pResource = pResource;
+      sp = std::make_shared<int>();
+    }
+
+    DxResource(const DxResource& dxR) = delete;
+
+    DxResource& operator=(const DxResource& dxR){
+      m_pResource = dxR.m_pResource;
+      sp = dxR.sp;
+      return *this;
+    }
+
+    DxResource(DxResource&& dxR){
+      std::swap(m_pResource, dxR.m_pResource);
+      std::swap(sp, dxR.sp);
+    }
+
+    DxResource& operator=(DxResource&& dxR){
+      std::swap(m_pResource, dxR.m_pResource);
+      std::swap(sp, dxR.sp);
+      return *this;
+    }
+
+    T** operator&(){
+      return &m_pResource;
+    }
+
+    void Clear(){
+      if (sp.unique()){
+        SafeRelease(m_pResource);
+      }
+    }
+
+    ~DxResource(){
+      if (sp.unique()){
+        SafeRelease(m_pResource);
+      }
+    }
+
+    inline REFIID GetGUID(){
+      return __uuidof(T);
+    }
+
+    T* operator->(){
+      return m_pResource;
+    }
+
+    T* ptr(){
+      return m_pResource;
+    }
+
+    template<typename R>
+    DxResource<R> Query(){
+      R* pS;
+      HRESULT hr = S_OK;
+      hr = m_pResource->QueryInterface(__uuidof(R), (void **)&pS);
+
+      if (hr != S_OK){
+        throw std::runtime_error("Failed to query the interface.");
+      }
+
+      return pS;
+    }
+
+    template<typename R, typename OP, typename... Args>
+    DxResource<R> Query(OP op, Args... args){
+      R* pS;
+      HRESULT hr = S_OK;
+      hr = (m_pResource->*op)(args..., __uuidof(R), (void **)&pS);
+
+      if (hr != S_OK){
+        throw std::runtime_error("Failed to query the interface.");
+      }
+
+      return pS;
+    }
+
+    template<typename R>
+    DxResource<R> GetParent(){
+      R* pS;
+      HRESULT hr = S_OK;
+      hr = m_pResource->GetParent(__uuidof(R), (void **)&pS);
+
+      if (hr != S_OK){
+        throw std::runtime_error("Failed to get the parent of the interface.");
+      }
+
+      return pS;
+    }
+
+    template<typename R>
+    DxResource<R> GetResource(HRESULT(__stdcall T::*op)(R**)) {
+      R *resource;
+      HRESULT hr = S_OK;
+
+      hr = (m_pResource->*op)(&resource);
+
+      if (hr != S_OK){
+        throw std::runtime_error("Failed to get the directx resource.");
+      }
+
+      return resource;
+    }
+
+    template<typename R, typename OP, typename... Args>
+    DxResource<R> GetResource(OP op, Args... args) {
+      R *resource;
+      HRESULT hr = S_OK;
+
+      hr = (m_pResource->*op)(args..., &resource);
+
+      if (hr != S_OK){
+        throw std::runtime_error("Failed to get the directx resource.");
+      }
+
+      return resource;
+    }
+  };
 
 #ifndef Assert
 #if defined( DEBUG ) || defined( _DEBUG )
