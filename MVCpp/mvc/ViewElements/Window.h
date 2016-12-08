@@ -35,10 +35,49 @@ namespace mvc {
       return 1;
     }
 
+    // 将绘制在缓冲区上的图像切换到前台
     HRESULT PresentBackBuffer(){
-      // 将绘制在缓冲区上的图像切换到前台
       DXGI_PRESENT_PARAMETERS param = { 0 };
       return m_dxgiSwapChain->Present1(1, 0, &param);
+    }
+
+    void Resize(){
+
+      auto device1 = m_d3dDevice.Query<ID3D11Device1>();
+      auto dxgiDevice = device1.Query<IDXGIDevice>();
+      auto dxgiAdapter = dxgiDevice.GetResource(&IDXGIDevice::GetAdapter);
+      auto dxgiFactory = dxgiAdapter.GetParent<IDXGIFactory2>();
+
+      // Swap chain
+      DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
+      swapChainDesc.Width = 0;
+      swapChainDesc.Height = 0;
+      swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+      swapChainDesc.Stereo = false;
+      swapChainDesc.SampleDesc.Count = 1;
+      swapChainDesc.SampleDesc.Quality = 0;
+      swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+      swapChainDesc.BufferCount = 2;
+      swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
+      swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+      swapChainDesc.Flags = 0;
+
+      m_dxgiSwapChain = dxgiFactory.GetResource<IDXGISwapChain1>(&IDXGIFactory2::CreateSwapChainForHwnd,
+        device1.ptr(), m_hwnd, &swapChainDesc, nullptr, nullptr);
+
+      auto dxgiBackBuffer = m_dxgiSwapChain.Query<IDXGISurface>(&IDXGISwapChain1::GetBuffer, 0);
+
+      FLOAT dpiX, dpiY;
+      App::s_pDirect2dFactory->GetDesktopDpi(&dpiX, &dpiY);
+
+      D2D1_BITMAP_PROPERTIES1 bmpProp = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
+        D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE), dpiX, dpiY);
+
+      m_d2dBuffer = m_pContext.GetResource<ID2D1Bitmap1>(&ID2D1DeviceContext::CreateBitmapFromDxgiSurface,
+        dxgiBackBuffer.ptr(), &bmpProp);
+
+      m_pContext->SetTarget(m_d2dBuffer.ptr());
+
     }
 
 
@@ -54,6 +93,7 @@ namespace mvc {
         do {
           GetClientRect(pWnd->m_hwnd, &rect);
           //pWnd->m_pContext->Resize(D2D1::SizeU(rect.right, rect.bottom));
+          pWnd->Resize();
 
           pWnd->m_pContext->BeginDraw();
 
