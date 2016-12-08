@@ -79,6 +79,7 @@ namespace mvc {
   public:
     DxResource(){
       m_pResource = nullptr;
+      sp = std::make_shared<int>();
     }
 
     DxResource(T* pResource){
@@ -107,6 +108,12 @@ namespace mvc {
 
     T** operator&(){
       return &m_pResource;
+    }
+
+    void Clear(){
+      if (sp.unique()){
+        SafeRelease(m_pResource);
+      }
     }
 
     ~DxResource(){
@@ -180,8 +187,8 @@ namespace mvc {
       return resource;
     }
 
-    template<typename R, typename... Args, typename... Args2>
-    DxResource<R> GetResource(HRESULT(__stdcall T::*op)(Args2...), Args... args) {
+    template<typename R, typename OP, typename... Args>
+    DxResource<R> GetResource(OP op, Args... args) {
       R *resource;
       HRESULT hr = S_OK;
 

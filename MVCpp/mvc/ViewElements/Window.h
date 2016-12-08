@@ -18,6 +18,8 @@ namespace mvc {
     DxResource<IDXGISwapChain1> m_dxgiSwapChain;
     DxResource<ID2D1Bitmap1> m_d2dBuffer;
 
+    typedef HRESULT(ID2D1DeviceContext::*CreateBitmapFromDxgiSurfaceType)(IDXGISurface*, const D2D1_BITMAP_PROPERTIES1&, ID2D1Bitmap1**);
+
     // controller method
     static LRESULT Handle_SIZE(shared_ptr<Window> wnd, WPARAM wParam, LPARAM lParam) {
       wnd->m_right = LOWORD(lParam);
@@ -73,8 +75,10 @@ namespace mvc {
       D2D1_BITMAP_PROPERTIES1 bmpProp = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
         D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE), dpiX, dpiY);
 
-      m_d2dBuffer = m_pContext.GetResource<ID2D1Bitmap1>(&ID2D1DeviceContext::CreateBitmapFromDxgiSurface,
-        dxgiBackBuffer.ptr(), &bmpProp);
+      // CreateBitmapFromDxgiSurface 有多个重载版本，这里要先指定使用哪一个，否则编译出错
+      CreateBitmapFromDxgiSurfaceType memFunc = &ID2D1DeviceContext::CreateBitmapFromDxgiSurface;
+      m_d2dBuffer = m_pContext.GetResource<ID2D1Bitmap1>(memFunc,
+        dxgiBackBuffer.ptr(), bmpProp);
 
       m_pContext->SetTarget(m_d2dBuffer.ptr());
 
@@ -146,22 +150,26 @@ namespace mvc {
 
       D3D_FEATURE_LEVEL retFeatureLevel;
 
-      // 用DxResource封装的资源，当发生异常时会自动调用SafeRelease函数释放资源。
+      // 在保存Direct3D设备和环境之前，先将之前保存的设备和环境删除(如果有的话)
+      m_d3dContext.Clear();
+      m_d3dDevice.Clear();
+
+      // 获取Direct3D设备和环境
       D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE,
         0, D3D11_CREATE_DEVICE_BGRA_SUPPORT,
         fls, ARRAYSIZE(fls), D3D11_SDK_VERSION,
         &m_d3dDevice, &retFeatureLevel, &m_d3dContext);
 
-      // 2. 获取特定的设备和设备环境的接口。
+      // 2. 查询特定的设备和设备环境的接口。
+      // 一下返回的都是用DxResource封装的资源，当发生异常时会自动调用SafeRelease函数释放资源。
       auto device1 = m_d3dDevice.Query<ID3D11Device1>();
       auto context1 = m_d3dContext.Query<ID3D11DeviceContext1>();
       auto dxgiDevice = device1.Query<IDXGIDevice>();
 
       // 3. 创建Direct2D的设备和设备环境
+      // 更新成员变量。这里实现了针对右值引用的移动语义，如果赋值前成员变量已经保存有其他资源，
+      // 赋值会把这些资源交换给临时变量，并随着临时变量的释放而被释放掉。
       m_d2dDevice = App::s_pDirect2dFactory.GetResource<ID2D1Device>(&ID2D1Factory1::CreateDevice, dxgiDevice.ptr());
-
-      // 实验：用模板把参数传递和错误处理等不自然的地方封装起来
-      // d2dDevice = GetXResource<ID2D1Device>(App::s_pDirect2dFactory, &ID2D1Factory1::CreateDevice, dxgiDevice);
       m_pContext = m_d2dDevice.GetResource<ID2D1DeviceContext>(&ID2D1Device::CreateDeviceContext, D2D1_DEVICE_CONTEXT_OPTIONS_NONE);
 
       // 4. 创建和窗口大小相关的资源
@@ -182,6 +190,7 @@ namespace mvc {
       swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
       swapChainDesc.Flags = 0;
 
+      // 更新成员变量。同上这里实现了右值引用的移动而非拷贝
       m_dxgiSwapChain = dxgiFactory.GetResource<IDXGISwapChain1>(&IDXGIFactory2::CreateSwapChainForHwnd,
         device1.ptr(), m_hwnd, &swapChainDesc, nullptr, nullptr);
 
@@ -193,8 +202,11 @@ namespace mvc {
       D2D1_BITMAP_PROPERTIES1 bmpProp = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
         D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE), dpiX, dpiY);
 
-      m_d2dBuffer = m_pContext.GetResource<ID2D1Bitmap1>(&ID2D1DeviceContext::CreateBitmapFromDxgiSurface,
-        dxgiBackBuffer.ptr(), &bmpProp);
+      // 更新成员变量。同上这里实现了右值引用的移动而非拷贝
+      // CreateBitmapFromDxgiSurface 有多个重载版本，这里要先指定使用哪一个，否则编译出错
+      CreateBitmapFromDxgiSurfaceType memFunc = &ID2D1DeviceContext::CreateBitmapFromDxgiSurface;
+      m_d2dBuffer = m_pContext.GetResource<ID2D1Bitmap1>(memFunc,
+        dxgiBackBuffer.ptr(), bmpProp);
 
       m_pContext->SetTarget(m_d2dBuffer.ptr());
     }
