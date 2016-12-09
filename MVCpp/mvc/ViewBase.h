@@ -34,7 +34,10 @@ namespace mvc {
 
     virtual void CreateD2DResource() = 0;
     virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result) = 0;
-    virtual void DestroyD2DResource() = 0;
+
+    // 以前是需要的，在引入了DxResource以后就变得不太需要了。
+    // 但是谨慎起见，暂时先保留。
+    virtual void DestroyD2DResource(){};
 
     // 如果需要处理鼠标进入事件，可以重载此函数
     virtual void MouseEnter(double x, double y) {

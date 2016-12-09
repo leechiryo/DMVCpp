@@ -36,5 +36,19 @@ namespace mvc {
 
       return resource;
     }
+
+    DxResource<ID2D1Bitmap1> CreateBitmap(IDXGISurface* surface, const D2D1_BITMAP_PROPERTIES1& prop)
+    {
+      ID2D1Bitmap1 *resource;
+      HRESULT hr = S_OK;
+
+      hr = m_pResource->CreateBitmapFromDxgiSurface(surface, prop, &resource);
+
+      if (hr != S_OK){
+        throw std::runtime_error("Failed to create the bitmap from DXGI surface.");
+      }
+
+      return resource;
+    }
   };
 }

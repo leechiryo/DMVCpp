@@ -71,9 +71,6 @@ namespace mvc {
       m_pBackgroundBrush = m_pNormalBackgroundBrush;
     }
 
-    virtual void DestroyD2DResource() {
-    }
-
   public:
     ModelRef<wstring> title;
 

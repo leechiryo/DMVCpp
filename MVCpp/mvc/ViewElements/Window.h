@@ -83,10 +83,8 @@ namespace mvc {
       D2D1_BITMAP_PROPERTIES1 bmpProp = D2D1::BitmapProperties1(D2D1_BITMAP_OPTIONS_TARGET | D2D1_BITMAP_OPTIONS_CANNOT_DRAW,
         D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE), dpiX, dpiY);
 
-      // CreateBitmapFromDxgiSurface 有多个重载版本，这里要先指定使用哪一个，否则编译出错
-      CreateBitmapFromDxgiSurfaceType memFunc = &ID2D1DeviceContext::CreateBitmapFromDxgiSurface;
-      m_d2dBuffer = m_pContext.GetResource<ID2D1Bitmap1>(memFunc,
-        dxgiBackBuffer.ptr(), bmpProp);
+      // 更新成员变量。同上这里实现了右值引用的移动而非拷贝
+      m_d2dBuffer = m_pContext.CreateBitmap(dxgiBackBuffer.ptr(), bmpProp);
 
       m_pContext->SetTarget(m_d2dBuffer.ptr());
     }
@@ -214,15 +212,9 @@ namespace mvc {
         D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_IGNORE), dpiX, dpiY);
 
       // 更新成员变量。同上这里实现了右值引用的移动而非拷贝
-      // CreateBitmapFromDxgiSurface 有多个重载版本，这里要先指定使用哪一个，否则编译出错
-      CreateBitmapFromDxgiSurfaceType memFunc = &ID2D1DeviceContext::CreateBitmapFromDxgiSurface;
-      m_d2dBuffer = m_pContext.GetResource<ID2D1Bitmap1>(memFunc,
-        dxgiBackBuffer.ptr(), bmpProp);
+      m_d2dBuffer = m_pContext.CreateBitmap(dxgiBackBuffer.ptr(), bmpProp);
 
       m_pContext->SetTarget(m_d2dBuffer.ptr());
-    }
-
-    virtual void DestroyD2DResource() {
     }
 
   public:

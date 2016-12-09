@@ -48,9 +48,6 @@ namespace mvc{
       m_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
     }
 
-    virtual void DestroyD2DResource() {
-    }
-
   public:
 
     ModelRef<wstring> text;
