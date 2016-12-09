@@ -64,6 +64,15 @@ namespace mvc {
       DPI_SCALE_Y = dpiY / 96.0f;
     }
 
+    static DxResource<IDWriteTextFormat> CreateTextFormat(const WCHAR* fontName, float fontSize, 
+      DWRITE_FONT_WEIGHT fontWeight = DWRITE_FONT_WEIGHT_NORMAL,
+      DWRITE_FONT_STYLE fontStyle = DWRITE_FONT_STYLE_NORMAL, 
+      DWRITE_FONT_STRETCH fontStretch = DWRITE_FONT_STRETCH_NORMAL, 
+      const WCHAR *localeName=L"ja-JP"){
+      return App::s_pDWriteFactory.GetResource<IDWriteTextFormat>(&IDWriteFactory::CreateTextFormat,
+        fontName, nullptr, fontWeight, fontStyle, fontStretch, fontSize, localeName);
+    }
+
     static void Uninitialize() {
       CoUninitialize();
     }

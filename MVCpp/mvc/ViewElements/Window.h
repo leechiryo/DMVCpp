@@ -226,7 +226,7 @@ namespace mvc {
     }
 
   public:
-    Window() {
+    Window(const WCHAR * title, int width, int height) {
       m_hwnd = nullptr;
 
       // Register message handler methods.
@@ -248,20 +248,20 @@ namespace mvc {
       wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
       wcex.hbrBackground = (HBRUSH)::GetStockObject(BLACK_BRUSH);
       wcex.lpszMenuName = NULL;
-      wcex.lpszClassName = L"NativeWPFWindow";
+      wcex.lpszClassName = L"MVC++ Window";
       wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
       RegisterClassEx(&wcex);
 
       m_hwnd = CreateWindowEx(
         0,
-        L"NativeWPFWindow",
-        TEXT("Native WPF Demo"),
+        L"MVC++ Window",
+        title,
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
+        width,
+        height,
         NULL,
         NULL,
         HINST_THISCOMPONENT,

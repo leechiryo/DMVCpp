@@ -56,19 +56,13 @@ namespace mvc {
 
     virtual void CreateD2DResource() {
 
-      // CreateSolidColorBrush有多个重载版本，这里要先指定使用哪一个，否则编译出错
-      HRESULT(ID2D1DeviceContext::*CreateSolidColorBrush)(const D2D1_COLOR_F &, ID2D1SolidColorBrush **)
-        = &ID2D1DeviceContext::CreateSolidColorBrush;
-
       m_pNormalBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0xcccccc));
 
       m_pHoverBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x999999));
 
       m_pClickBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x666666));
 
-      m_pTextFormat = App::s_pDWriteFactory.GetResource<IDWriteTextFormat>(&IDWriteFactory::CreateTextFormat,
-        m_font, nullptr, m_fontWeight, m_fontStyle, m_fontStretch, m_fontSize, L"ja-JP");
-
+      m_pTextFormat = App::CreateTextFormat(m_font, m_fontSize, m_fontWeight, m_fontStyle, m_fontStretch);
       m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
       m_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 

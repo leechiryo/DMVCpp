@@ -17,7 +17,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 {
   App::Initialize();
 
-  auto view = v<Window>("main_window", {});
+  auto view = v<Window>("main_window", { L"MVC++ テスト", 800, 600 });
   auto model = m<std::wstring>("my_model", L"Hello!");
 
   auto btn = view->AddSubView<Button>("btnStart", L"START");
