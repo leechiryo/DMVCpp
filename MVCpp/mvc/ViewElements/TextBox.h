@@ -3,6 +3,7 @@
 #include "../Types.h"
 #include "../View.h"
 #include "../ModelRef.h"
+#include "AniCaretFlicker.h"
 
 namespace mvc{
   class TextBox : public View<TextBox>{
@@ -12,6 +13,8 @@ namespace mvc{
     DxResource<ID2D1SolidColorBrush> m_pTextBrush;
     DxResource<ID2D1SolidColorBrush> m_pBorderBrush;
     DxResource<IDWriteTextFormat> m_pTextFormat;
+
+    shared_ptr<AniCaretFlicker> m_spAniCaret;
 
     static const int MAX_CHARS = 256;
     wchar_t m_font[MAX_CHARS + 1];
@@ -61,6 +64,13 @@ namespace mvc{
       m_fontSize = 16.0;
 
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
+
+      // 设置光标的动画
+      m_spAniCaret = make_shared<AniCaretFlicker>();
+      m_subViews.insert(m_spAniCaret);
+
+      m_spAniCaret->SetPos(m_left + 5, m_top, m_right, m_bottom);
+      m_spAniCaret->PlayRepeatly();
     }
 
     ~TextBox() {
