@@ -12,7 +12,7 @@ namespace mvc {
 
   protected:
     virtual void CreateD2DResource() {
-      m_pBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x333333));
+      m_pBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x666666));
     }
 
   public:
@@ -22,23 +22,30 @@ namespace mvc {
     }
 
     virtual bool DrawFrame(int frameIdx) {
-      // TODO:用30帧(0.5秒)在指定的位置绘制一条竖线。
-      if (frameIdx < 19)
+      // TODO:用60帧(1秒)在指定的位置绘制一条竖线。
+      if (frameIdx <= 48)
       {
-        if (frameIdx <= 6) {
-          m_pBrush->SetOpacity(frameIdx / 6.0f);
+        if (frameIdx <= 12) {
+          // 前12帧淡入效果
+          m_pBrush->SetOpacity(frameIdx / 12.0f);
         }
-        else if (frameIdx > 12) {
-          m_pBrush->SetOpacity((frameIdx - 12) / 6.0f);
+        else if (frameIdx > 36) {
+          // 后12帧淡出效果
+          m_pBrush->SetOpacity((48 - frameIdx) / 12.0f);
         }
         else {
+          // 中间24帧完全显示
           m_pBrush->SetOpacity(1.0f);
         }
 
-        m_pContext->DrawLine(Point2D(m_posX, m_posY), Point2D(m_posX, m_posY), m_pBrush.ptr());
+        m_pContext->DrawLine(
+          Point2D(m_left+m_posX, m_top+m_posY-20), 
+          Point2D(m_left + m_posX, m_top+m_posY), 
+          m_pBrush.ptr(),
+          2.0f);
       }
 
-      if (frameIdx == 30) return true;
+      if (frameIdx == 72) return true;
       else return false;
     }
   };

@@ -69,7 +69,7 @@ namespace mvc{
       m_spAniCaret = make_shared<AniCaretFlicker>();
       m_subViews.insert(m_spAniCaret);
 
-      m_spAniCaret->SetPos(m_left + 5, m_top, m_right, m_bottom);
+      m_spAniCaret->SetPosition(100, 30);
       m_spAniCaret->PlayRepeatly();
     }
 
@@ -89,6 +89,8 @@ namespace mvc{
         m_pTextFormat.ptr(),
         textRect,
         m_pTextBrush.ptr());
+
+      m_spAniCaret->SetPos(m_left + 5, m_top, m_right, m_bottom);
     }
   };
 }
