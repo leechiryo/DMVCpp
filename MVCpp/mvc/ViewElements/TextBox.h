@@ -25,9 +25,11 @@ namespace mvc{
 
     UINT32 m_color;
 
+    bool m_focused;
 
     static LRESULT Handle_LBUTTONDOWN(shared_ptr<TextBox> tbx, WPARAM wParam, LPARAM lParam) {
       // 设置Focus，改变边框的样式。
+      tbx->m_focused = true;
       return 0;
     }
 
@@ -56,6 +58,9 @@ namespace mvc{
     ModelRef<wstring> text;
 
     TextBox(wstring text) : text{ text }{
+
+      m_focused = false;
+
       m_color = 0x333333;
       m_fontWeight = DWRITE_FONT_WEIGHT_REGULAR;
       m_fontStyle = DWRITE_FONT_STYLE_NORMAL;
@@ -80,6 +85,11 @@ namespace mvc{
       D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
       m_pContext->FillRectangle(textRect, m_pBackgroundBrush.ptr());
       m_pContext->DrawRectangle(textRect, m_pBorderBrush.ptr());
+
+      if (m_focused) {
+        // 如果处在选中状态，则在边框周围绘制一个阴影。
+
+      }
 
       textRect.left += 10;
 

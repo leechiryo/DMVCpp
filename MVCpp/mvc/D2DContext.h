@@ -50,5 +50,18 @@ namespace mvc {
 
       return resource;
     }
+
+    DxResource<ID2D1Effect> CreateEffect(REFCLSID effectId) {
+      ID2D1Effect *resource;
+      HRESULT hr = S_OK;
+
+      hr = m_pResource->CreateEffect(effectId, &resource);
+
+      if (hr != S_OK){
+        throw std::runtime_error("Failed to create the effect.");
+      }
+
+      return resource;
+    }
   };
 }
