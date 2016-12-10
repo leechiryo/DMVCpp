@@ -16,9 +16,6 @@ namespace mvc {
       m_pBrush->SetOpacity(0.2f);
     }
 
-    virtual void DestroyD2DResource() {
-    }
-
   public:
     void SetCenter(double x, double y) {
       m_clickX = tof(x);

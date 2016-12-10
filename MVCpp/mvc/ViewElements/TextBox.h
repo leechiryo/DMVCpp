@@ -39,7 +39,7 @@ namespace mvc{
 
     virtual void CreateD2DResource() {
 
-      m_pBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0xeeeeee));
+      m_pBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0xfdfdfd));
       m_pTextBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x333333));
       m_pBorderBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x555555));
 

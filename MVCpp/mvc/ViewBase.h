@@ -17,6 +17,9 @@ namespace mvc {
     template<typename T>
     friend class View;
 
+  private:
+    bool m_hidden;
+
   protected:
     weak_ptr<ViewBase> m_wpThis;
     WPViewSet m_subViews;
@@ -107,7 +110,9 @@ namespace mvc {
 
   public:
 
-    ViewBase() { }
+    ViewBase() { 
+      m_hidden = false;
+    }
 
     virtual ~ViewBase() { }
 
@@ -115,7 +120,14 @@ namespace mvc {
 
     virtual void DrawSelf() = 0;
 
+    void SetHidden(bool hidden) {
+      m_hidden = hidden;
+    }
+
     void Draw() {
+
+      if (m_hidden) return;
+
       DrawSelf();
 
       for (auto it = m_subViews.begin(); it != m_subViews.end(); ++it) {
