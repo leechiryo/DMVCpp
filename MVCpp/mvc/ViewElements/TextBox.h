@@ -96,6 +96,7 @@ namespace mvc{
         auto bmpRT = m_pContext.CreateCompatibleRenderTarget();
 
         bmpRT->BeginDraw();
+        bmpRT->Clear(D2D1::ColorF(0xffffff, 0.0f));
         bmpRT->FillRectangle(textRect, m_pBackgroundBrush.ptr());
         bmpRT->EndDraw();
 
