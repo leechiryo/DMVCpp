@@ -13,6 +13,7 @@ namespace mvc{
     DxResource<ID2D1SolidColorBrush> m_pTextBrush;
     DxResource<ID2D1SolidColorBrush> m_pBorderBrush;
     DxResource<IDWriteTextFormat> m_pTextFormat;
+    DxResource<ID2D1Effect> m_shadowEffect;
 
     shared_ptr<AniCaretFlicker> m_spAniCaret;
 
@@ -30,6 +31,9 @@ namespace mvc{
     static LRESULT Handle_LBUTTONDOWN(shared_ptr<TextBox> tbx, WPARAM wParam, LPARAM lParam) {
       // 设置Focus，改变边框的样式。
       tbx->m_focused = true;
+
+      // 改变边框的颜色
+      tbx->m_pBorderBrush = tbx->m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x66afe9));
       return 0;
     }
 
@@ -51,6 +55,9 @@ namespace mvc{
       m_pTextFormat = App::CreateTextFormat(m_font, m_fontSize, m_fontWeight, m_fontStyle, m_fontStretch);
       m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
       m_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+
+      m_shadowEffect = m_pContext.CreateEffect(CLSID_D2D1Shadow);
+      m_shadowEffect->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66afe9));
     }
 
   public:
@@ -83,13 +90,23 @@ namespace mvc{
 
     virtual void DrawSelf() {
       D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
-      m_pContext->FillRectangle(textRect, m_pBackgroundBrush.ptr());
-      m_pContext->DrawRectangle(textRect, m_pBorderBrush.ptr());
 
       if (m_focused) {
         // 如果处在选中状态，则在边框周围绘制一个阴影。
+        auto bmpRT = m_pContext.CreateCompatibleRenderTarget();
 
+        bmpRT->BeginDraw();
+        bmpRT->FillRectangle(textRect, m_pBackgroundBrush.ptr());
+        bmpRT->EndDraw();
+
+        auto bmp = bmpRT.GetResource<ID2D1Bitmap>(&ID2D1BitmapRenderTarget::GetBitmap);
+
+        m_shadowEffect->SetInput(0, bmp.ptr());
+        m_pContext->DrawImage(m_shadowEffect.ptr());
       }
+
+      m_pContext->DrawRectangle(textRect, m_pBorderBrush.ptr());
+      m_pContext->FillRectangle(textRect, m_pBackgroundBrush.ptr());
 
       textRect.left += 10;
 

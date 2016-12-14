@@ -63,5 +63,19 @@ namespace mvc {
 
       return resource;
     }
+
+    DxResource<ID2D1BitmapRenderTarget> CreateCompatibleRenderTarget() {
+      ID2D1BitmapRenderTarget *resource;
+      HRESULT hr = S_OK;
+
+      hr = m_pResource->CreateCompatibleRenderTarget(&resource);
+
+      if (hr != S_OK){
+        throw std::runtime_error("Failed to create the bitmap render target.");
+      }
+
+      return resource;
+    }
+
   };
 }
