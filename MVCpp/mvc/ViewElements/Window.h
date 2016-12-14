@@ -11,6 +11,7 @@ namespace mvc {
     HWND m_hwnd;
     HANDLE m_drawThread;
     HANDLE m_drawThreadExitSignal;
+    CRITICAL_SECTION m_drawAndResizeSection;
 
     DxResource<ID3D11Device> m_d3dDevice;
     DxResource<ID3D11DeviceContext> m_d3dContext;
@@ -24,6 +25,10 @@ namespace mvc {
     static LRESULT Handle_SIZE(shared_ptr<Window> wnd, WPARAM wParam, LPARAM lParam) {
       wnd->m_right = LOWORD(lParam);
       wnd->m_bottom = HIWORD(lParam);
+
+      // 窗口大小发生改变时等待绘制线程重绘画面完成
+      EnterCriticalSection(&wnd->m_drawAndResizeSection);
+      LeaveCriticalSection(&wnd->m_drawAndResizeSection);
       return 0;
     }
 
@@ -60,8 +65,10 @@ namespace mvc {
 
       // Swap chain
       DXGI_SWAP_CHAIN_DESC1 swapChainDesc = { 0 };
-      swapChainDesc.Width = 0;
-      swapChainDesc.Height = 0;
+      RECT rect;
+      GetClientRect(m_hwnd, &rect);
+      swapChainDesc.Width = rect.right;
+      swapChainDesc.Height = rect.bottom;
       swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
       swapChainDesc.Stereo = false;
       swapChainDesc.SampleDesc.Count = 1;
@@ -74,6 +81,7 @@ namespace mvc {
 
       m_dxgiSwapChain = dxgiFactory.GetResource<IDXGISwapChain1>(&IDXGIFactory2::CreateSwapChainForHwnd,
         device1.ptr(), m_hwnd, &swapChainDesc, nullptr, nullptr);
+      GetClientRect(m_hwnd, &rect);
 
       auto dxgiBackBuffer = m_dxgiSwapChain.Query<IDXGISurface>(&IDXGISwapChain1::GetBuffer, 0);
 
@@ -99,7 +107,8 @@ namespace mvc {
 
       while (true) {
 
-        GetClientRect(pWnd->m_hwnd, &rect);
+        EnterCriticalSection(&pWnd->m_drawAndResizeSection);
+        GetClientRect(pWnd->m_hwnd, &rect1);
 
         do {
           if (rect.right != rect1.right || rect.bottom != rect1.bottom) {
@@ -115,14 +124,10 @@ namespace mvc {
 
           hr = pWnd->m_pContext->EndDraw();
 
-
           if (hr == D2DERR_RECREATE_TARGET) {
             // 出现绘制错误的情况则尝试重建整个D2D环境
             pWnd->DestroyD2DEnvironment();
             pWnd->CreateD2DEnvironment();
-          }
-          else {
-            hr = pWnd->PresentBackBuffer();
           }
 
           GetClientRect(pWnd->m_hwnd, &rect1);
@@ -130,16 +135,19 @@ namespace mvc {
           || rect.bottom != rect1.bottom
           || hr == D2DERR_RECREATE_TARGET);
 
-        // 检查线程是否已经被主线程终止，如果是，则终止绘制循环并推出函数，否则等待17毫秒并进行
+        hr = pWnd->PresentBackBuffer();
+        LeaveCriticalSection(&pWnd->m_drawAndResizeSection);
+
+        // 检查线程是否已经被主线程终止，如果是，则终止绘制循环并退出函数，否则等待17毫秒并进行
         // 下一次绘制循环。（等待17毫秒意味着每秒钟可以绘制1000 / 17 = 60）
-        if (WaitForSingleObject(pWnd->m_drawThreadExitSignal, 17) == WAIT_OBJECT_0) {
+        HANDLE signals[] = {pWnd->m_drawThreadExitSignal};
+        if (WaitForMultipleObjects(1, signals, false, 170) == WAIT_OBJECT_0) {
           break;
         }
       }
 
       return 0;
     }
-
 
   protected:
     // 初始化D2D的设备相关的资源
@@ -263,6 +271,10 @@ namespace mvc {
     void Show() {
       if (m_hwnd) {
 
+        // 创建线程同步用的信号量
+        m_drawThreadExitSignal = CreateEvent(NULL, false, false, nullptr);
+        InitializeCriticalSection(&m_drawAndResizeSection);
+
         // 创建D2D的绘制环境
         CreateD2DEnvironment();
 
@@ -270,7 +282,6 @@ namespace mvc {
         UpdateWindow(m_hwnd);
 
         // 启动一个新的线程以60FPS的速度更新画面。
-        m_drawThreadExitSignal = CreateEvent(NULL, false, false, nullptr);
         m_drawThread = CreateThread(NULL, 0, DrawWindow, this, 0, NULL);
 
         // 处理消息
@@ -343,9 +354,6 @@ namespace mvc {
             // return 0;
             return DefWindowProc(hwnd, message, wParam, lParam);
           }
-          else if (message == WM_SIZE) {
-            return DefWindowProc(hwnd, message, wParam, lParam);
-          }
           else {
             char processed = pWnd->HandleMessage(message, wParam, lParam, result);
             if (!processed) {
@@ -360,7 +368,5 @@ namespace mvc {
 
       return result;
     }
-
-
   };
 }
