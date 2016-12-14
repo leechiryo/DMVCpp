@@ -25,7 +25,10 @@ namespace mvc {
     static LRESULT Handle_SIZE(shared_ptr<Window> wnd, WPARAM wParam, LPARAM lParam) {
       wnd->m_right = LOWORD(lParam);
       wnd->m_bottom = HIWORD(lParam);
+      return 0;
+    }
 
+    static LRESULT Handle_SIZING(shared_ptr<Window> wnd, WPARAM wParam, LPARAM lParam) {
       // 窗口大小发生改变时等待绘制线程重绘画面完成
       EnterCriticalSection(&wnd->m_drawAndResizeSection);
       LeaveCriticalSection(&wnd->m_drawAndResizeSection);
@@ -141,7 +144,7 @@ namespace mvc {
         // 检查线程是否已经被主线程终止，如果是，则终止绘制循环并退出函数，否则等待17毫秒并进行
         // 下一次绘制循环。（等待17毫秒意味着每秒钟可以绘制1000 / 17 = 60）
         HANDLE signals[] = {pWnd->m_drawThreadExitSignal};
-        if (WaitForMultipleObjects(1, signals, false, 170) == WAIT_OBJECT_0) {
+        if (WaitForMultipleObjects(1, signals, false, 17) == WAIT_OBJECT_0) {
           break;
         }
       }
@@ -231,6 +234,7 @@ namespace mvc {
 
       // Register message handler methods.
       AddEventHandler(WM_SIZE, Handle_SIZE);
+      AddEventHandler(WM_SIZING, Handle_SIZING);
       AddEventHandler(WM_DISPLAYCHANGE, Handle_DISPLAYCHANGE);
       AddEventHandler(WM_DESTROY, Handle_DESTROY);
 
