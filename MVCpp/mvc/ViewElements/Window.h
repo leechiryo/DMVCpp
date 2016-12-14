@@ -25,12 +25,17 @@ namespace mvc {
     static LRESULT Handle_SIZE(shared_ptr<Window> wnd, WPARAM wParam, LPARAM lParam) {
       wnd->m_right = LOWORD(lParam);
       wnd->m_bottom = HIWORD(lParam);
+
+      EnterCriticalSection(&wnd->m_drawAndResizeSection);
+      Sleep(17);
+      LeaveCriticalSection(&wnd->m_drawAndResizeSection);
       return 0;
     }
 
     static LRESULT Handle_SIZING(shared_ptr<Window> wnd, WPARAM wParam, LPARAM lParam) {
       // 窗口大小发生改变时等待绘制线程重绘画面完成
       EnterCriticalSection(&wnd->m_drawAndResizeSection);
+      Sleep(17);
       LeaveCriticalSection(&wnd->m_drawAndResizeSection);
       return 0;
     }
