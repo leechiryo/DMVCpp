@@ -40,11 +40,11 @@ namespace mvc {
           double dipY = PixelsToDipsY(pixelY);
 
           if (!spv->HitTest(dipX, dipY)) {
+            // 仅当鼠标事件发生时的坐标在元素所在区域内才处理它。
             if (spv->m_mouseIn) {
               spv->m_mouseIn = 0;
               spv->MouseLeft(dipX, dipY);
             }
-            // 仅当鼠标事件发生时的坐标在元素所在区域内才处理它。
             continue;
           }
           else {
