@@ -23,28 +23,29 @@ namespace mvc {
       bool isMouseEvent = 0;
       int pixelX = 0;
       int pixelY = 0;
+      double dipX = 0.0;
+      double dipY = 0.0;
       if (msg == WM_MOUSEMOVE || msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP) {
         // 当鼠标事件发生时，先获取鼠标的坐标信息。
         pixelX = GET_X_LPARAM(lParam);
         pixelY = GET_Y_LPARAM(lParam);
+        dipX = PixelsToDipsX(pixelX);
+        dipY = PixelsToDipsY(pixelY);
         isMouseEvent = true;
       }
 
       for (auto v : m_subViews) {
-        auto spv = v.lock(); 
-        if (!spv) continue; 
+        auto spv = v.lock();
+        if (!spv) continue;
         if (isMouseEvent) {
-          // TODO: 遇到mouse事件，判断该事件是否表示进入某个子view，
-          // 如果是，则向该子view发送WM_MOUSEHOVER消息或WM_MOUSELEAVE消息
-          double dipX = PixelsToDipsX(pixelX);
-          double dipY = PixelsToDipsY(pixelY);
-
+          // 遇到mouse事件，判断该事件是否表示进入某个子view，
           if (!spv->HitTest(dipX, dipY)) {
-            // 仅当鼠标事件发生时的坐标在元素所在区域内才处理它。
             if (spv->m_mouseIn) {
               spv->m_mouseIn = 0;
               spv->MouseLeft(dipX, dipY);
             }
+            // 如果鼠标事件发生时的坐标不在字View的内部，则跳过之后的事件处理(continue)，
+            // 仅当鼠标的坐标在元素所在区域内才处理它。
             continue;
           }
           else {

@@ -22,6 +22,7 @@ namespace mvc {
 
   protected:
     weak_ptr<ViewBase> m_wpThis;
+    weak_ptr<ViewBase> m_wpParent;
     WPViewSet m_subViews;
 
     double m_left;
@@ -116,8 +117,6 @@ namespace mvc {
 
     virtual ~ViewBase() { }
 
-    double left, top, width, height;
-
     virtual void DrawSelf() = 0;
 
     void SetHidden(bool hidden) {
@@ -146,11 +145,14 @@ namespace mvc {
     template <typename T>
     shared_ptr<T> AddSubView(string id, const ConstructorProxy<T> &cp) {
       auto v = App::CreateView<T>(id, cp);
+      dynamic_pointer_cast<ViewBase>(v)->m_wpParent = m_wpThis;
       m_subViews.insert(v);
       return v;
     }
 
     void RemoveSubView(const WPView &v) {
+      auto ptr = v.lock();
+      ptr->m_wpParent.reset();
       m_subViews.erase(v);
     }
 
