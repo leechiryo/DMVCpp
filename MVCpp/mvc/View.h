@@ -38,13 +38,13 @@ namespace mvc {
         auto spv = v.lock();
         if (!spv) continue;
         if (isMouseEvent) {
-          // 遇到mouse事件，判断该事件是否表示进入某个子view，
+          // 遇到 mouse 事件，判断该事件是否表示进入某个子 view
           if (!spv->HitTest(dipX, dipY)) {
             if (spv->m_mouseIn) {
               spv->m_mouseIn = 0;
               spv->MouseLeft(dipX, dipY);
             }
-            // 如果鼠标事件发生时的坐标不在字View的内部，则跳过之后的事件处理(continue)，
+            // 如果鼠标事件发生时的坐标不在子 View 的内部，则跳过之后的事件处理(continue)，
             // 仅当鼠标的坐标在元素所在区域内才处理它。
             continue;
           }
@@ -52,6 +52,10 @@ namespace mvc {
             if (!spv->m_mouseIn) {
               spv->m_mouseIn = 1;
               spv->MouseEnter(dipX, dipY);
+            }
+
+            if (msg == WM_LBUTTONDOWN && spv->m_canBeFocused){
+              spv->m_focused = true;
             }
           }
         }

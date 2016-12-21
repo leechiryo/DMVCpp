@@ -26,8 +26,6 @@ namespace mvc{
 
     UINT32 m_color;
 
-    bool m_focused;
-
     static LRESULT Handle_LBUTTONDOWN(shared_ptr<TextBox> tbx, WPARAM wParam, LPARAM lParam) {
       // 设置Focus，改变边框的样式。
       tbx->m_focused = true;
