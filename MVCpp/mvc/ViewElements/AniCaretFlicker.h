@@ -16,7 +16,7 @@ namespace mvc {
     }
 
   public:
-    void SetPosition(double x, double y) {
+    void SetCaretPos(double x, double y) {
       m_posX = tof(x);
       m_posY = tof(y);
     }

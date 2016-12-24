@@ -23,7 +23,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   auto btn = view->AddSubView<Button>("btnStart", L"START");
   btn->SetPos(100, 200, 200, 240);
 
-  auto tbx = view->AddSubView<TextBox>("tbxInput", L"Input ...");
+  auto tbx = view->AddSubView<TextBox>("tbxInput", L"入力 ...");
   tbx->SetPos(100, 100, 400, 140);
 
   btn->title.Bind("my_model");

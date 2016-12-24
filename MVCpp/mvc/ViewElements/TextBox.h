@@ -70,7 +70,7 @@ namespace mvc {
       m_spAniCaret = make_shared<AniCaretFlicker>();
       m_subViews.insert(m_spAniCaret);
 
-      m_spAniCaret->SetPosition(100, 30);
+      m_spAniCaret->SetCaretPos(100, 30);
       m_spAniCaret->PlayRepeatly();
     }
 
