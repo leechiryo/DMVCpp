@@ -150,7 +150,7 @@ namespace mvc {
 
         // 检查线程是否已经被主线程终止，如果是，则终止绘制循环并退出函数，否则等待17毫秒并进行
         // 下一次绘制循环。（等待17毫秒意味着每秒钟可以绘制1000 / 17 = 60）
-        HANDLE signals[] = {pWnd->m_drawThreadExitSignal};
+        HANDLE signals[] = { pWnd->m_drawThreadExitSignal };
         if (WaitForMultipleObjects(1, signals, false, 17) == WAIT_OBJECT_0) {
           break;
         }
@@ -366,6 +366,24 @@ namespace mvc {
             return DefWindowProc(hwnd, message, wParam, lParam);
           }
           else {
+
+            if (message == WM_LBUTTONDOWN) {
+              int pixelX = GET_X_LPARAM(lParam);
+              int pixelY = GET_Y_LPARAM(lParam);
+              auto clickedV = pWnd->GetClickedSubView(pixelX, pixelY);
+              auto v = clickedV.lock();
+              if (v) {
+                if (v->m_canBeFocused) {
+                  auto v2 = pWnd->m_focusedView.lock();
+                  if (v2) {
+                    v2->m_focused = false;
+                  }
+                  pWnd->m_focusedView = clickedV;
+                  v->m_focused = true;
+                }
+              }
+            }
+
             WPView ev;
             char processed = pWnd->HandleMessage(message, wParam, lParam, result, ev);
             if (!processed) {

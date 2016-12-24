@@ -17,6 +17,8 @@ namespace mvc {
     template<typename T>
     friend class View;
 
+    friend class Window;
+
   private:
     bool m_hidden;
 
@@ -39,6 +41,7 @@ namespace mvc {
 
     virtual void CreateD2DResource() = 0;
     virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result, WPView &eventView) = 0;
+    virtual WPView GetClickedSubView(int pixelX, int pixelY) = 0;
 
     // 以前是需要的，在引入了DxResource以后就变得不太需要了。
     // 但是谨慎起见，暂时先保留。

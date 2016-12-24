@@ -18,6 +18,27 @@ namespace mvc {
 
   protected:
 
+    virtual WPView GetClickedSubView(int pixelX, int pixelY) {
+
+      double dipX = PixelsToDipsX(pixelX);
+      double dipY = PixelsToDipsY(pixelY);
+
+      // 查询所有的子view，看其是否被选中。
+      for (auto v : m_subViews) {
+        auto spv = v.lock();
+        if (!spv) continue;
+        if (spv->HitTest(dipX, dipY)) {
+          // 如果鼠标事件发生时的坐标在子 View 的内部，
+          // 则在该子view中进一步查询内部的子view。
+          return spv->GetClickedSubView(pixelX, pixelY);
+        }
+      }
+
+      // 如果内部的所有子view都没有被选中，则说明自身被选中，
+      // 于是返回自身。
+      return m_wpThis;
+    }
+
     virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result, WPView &eventView) {
 
       bool isMouseEvent = 0;
@@ -67,8 +88,8 @@ namespace mvc {
       auto it = m_eventHandlers.find(msg);
       if (it != m_eventHandlers.end()) {
         auto spThis = m_wpThis.lock();
-        if (spThis){
-          for (auto handler : it->second){
+        if (spThis) {
+          for (auto handler : it->second) {
             result = handler(dynamic_pointer_cast<DerivedType>(spThis), wParam, lParam);
           }
           eventView = m_wpThis;
@@ -92,7 +113,7 @@ namespace mvc {
         handlers->push_back(method);
         m_eventHandlers.insert({ msg, *handlers });
       }
-      else{
+      else {
         m_eventHandlers[msg].push_back(method);
       }
 
@@ -102,7 +123,7 @@ namespace mvc {
       if (m_eventHandlers.find(msg) != m_eventHandlers.end()) {
         auto spThis = m_wpThis.lock();
         if (spThis) {
-          for (auto handler : m_eventHandlers[msg]){
+          for (auto handler : m_eventHandlers[msg]) {
             handler(dynamic_pointer_cast<DerivedType>(spThis), msg, 0);
           }
         }

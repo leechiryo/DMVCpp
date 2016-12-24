@@ -5,13 +5,14 @@
 #include "../ModelRef.h"
 #include "AniCaretFlicker.h"
 
-namespace mvc{
-  class TextBox : public View<TextBox>{
+namespace mvc {
+  class TextBox : public View<TextBox> {
 
   private:
     DxResource<ID2D1SolidColorBrush> m_pBackgroundBrush;
     DxResource<ID2D1SolidColorBrush> m_pTextBrush;
     DxResource<ID2D1SolidColorBrush> m_pBorderBrush;
+    DxResource<ID2D1SolidColorBrush> m_pBorderFocusedBrush;
     DxResource<IDWriteTextFormat> m_pTextFormat;
     DxResource<ID2D1Effect> m_shadowEffect;
 
@@ -25,15 +26,6 @@ namespace mvc{
     DWRITE_FONT_STRETCH m_fontStretch;
 
     UINT32 m_color;
-
-    static LRESULT Handle_LBUTTONDOWN(shared_ptr<TextBox> tbx, WPARAM wParam, LPARAM lParam) {
-      // 设置Focus，改变边框的样式。
-      tbx->m_focused = true;
-
-      // 改变边框的颜色
-      tbx->m_pBorderBrush = tbx->m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x66afe9));
-      return 0;
-    }
 
   protected:
     virtual void MouseEnter(double x, double y) {
@@ -49,6 +41,7 @@ namespace mvc{
       m_pBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0xfdfdfd));
       m_pTextBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x333333));
       m_pBorderBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x555555));
+      m_pBorderFocusedBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x66afe9));
 
       m_pTextFormat = App::CreateTextFormat(m_font, m_fontSize, m_fontWeight, m_fontStyle, m_fontStretch);
       m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
@@ -62,7 +55,7 @@ namespace mvc{
 
     ModelRef<wstring> text;
 
-    TextBox(wstring text) : text{ text }{
+    TextBox(wstring text) : text{ text } {
 
       m_focused = false;
 
@@ -72,8 +65,6 @@ namespace mvc{
       m_fontStretch = DWRITE_FONT_STRETCH_NORMAL;
       wcscpy_s(m_font, MAX_CHARS + 1, L"Source Code Pro");
       m_fontSize = 16.0;
-
-      AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
 
       // 设置光标的动画
       m_spAniCaret = make_shared<AniCaretFlicker>();
@@ -102,9 +93,20 @@ namespace mvc{
 
         m_shadowEffect->SetInput(0, bmp.ptr());
         m_pContext->DrawImage(m_shadowEffect.ptr());
-      }
 
-      m_pContext->DrawRectangle(textRect, m_pBorderBrush.ptr());
+        // 改变边框的颜色
+        m_pContext->DrawRectangle(textRect, m_pBorderFocusedBrush.ptr());
+
+        // 显示输入光标
+        m_spAniCaret->SetHidden(false);
+      }
+      else {
+        // 改变边框的颜色
+        m_pContext->DrawRectangle(textRect, m_pBorderBrush.ptr());
+
+        // 隐藏输入光标
+        m_spAniCaret->SetHidden(true);
+      }
       m_pContext->FillRectangle(textRect, m_pBackgroundBrush.ptr());
 
       textRect.left += 10;
