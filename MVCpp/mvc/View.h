@@ -18,7 +18,7 @@ namespace mvc {
 
   protected:
 
-    virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result) {
+    virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result, WPView &eventView) {
 
       bool isMouseEvent = 0;
       int pixelX = 0;
@@ -61,7 +61,7 @@ namespace mvc {
         }
 
         // 子元素先尝试处理该消息。
-        char processed = spv->HandleMessage(msg, wParam, lParam, result);
+        char processed = spv->HandleMessage(msg, wParam, lParam, result, eventView);
 
         // 如果子元素处理了该消息，则跳过本元素的消息处理并直接返回。
         if (processed) return 1;
@@ -75,6 +75,7 @@ namespace mvc {
           for (auto handler : it->second){
             result = handler(dynamic_pointer_cast<DerivedType>(spThis), wParam, lParam);
           }
+          eventView = m_wpThis;
           return 1;  // 向父元素返回1表示本元素已经处理该消息。
         }
       }

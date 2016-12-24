@@ -364,7 +364,8 @@ namespace mvc {
             return DefWindowProc(hwnd, message, wParam, lParam);
           }
           else {
-            char processed = pWnd->HandleMessage(message, wParam, lParam, result);
+            WPView ev;
+            char processed = pWnd->HandleMessage(message, wParam, lParam, result, ev);
             if (!processed) {
               result = DefWindowProc(hwnd, message, wParam, lParam);
             }

@@ -32,10 +32,6 @@ namespace mvc{
 
       // 改变边框的颜色
       tbx->m_pBorderBrush = tbx->m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x66afe9));
-
-      // 显示闪烁的插入符号
-      tbx->m_spAniCaret->SetHidden(false);
-
       return 0;
     }
 
@@ -84,7 +80,6 @@ namespace mvc{
       m_subViews.insert(m_spAniCaret);
 
       m_spAniCaret->SetPosition(100, 30);
-      m_spAniCaret->SetHidden(true);
       m_spAniCaret->PlayRepeatly();
     }
 

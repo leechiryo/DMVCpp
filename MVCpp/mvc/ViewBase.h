@@ -21,8 +21,7 @@ namespace mvc {
     bool m_hidden;
 
   protected:
-    weak_ptr<ViewBase> m_wpThis;
-    weak_ptr<ViewBase> m_wpParent;
+    WPView m_wpThis;
     WPViewSet m_subViews;
 
     double m_left;
@@ -39,7 +38,7 @@ namespace mvc {
     D2DContext m_pContext;
 
     virtual void CreateD2DResource() = 0;
-    virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result) = 0;
+    virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result, WPView &eventView) = 0;
 
     // 以前是需要的，在引入了DxResource以后就变得不太需要了。
     // 但是谨慎起见，暂时先保留。
@@ -119,6 +118,8 @@ namespace mvc {
 
     virtual ~ViewBase() { }
 
+    double left, top, width, height;
+
     virtual void DrawSelf() = 0;
 
     void SetHidden(bool hidden) {
@@ -147,14 +148,11 @@ namespace mvc {
     template <typename T>
     shared_ptr<T> AddSubView(string id, const ConstructorProxy<T> &cp) {
       auto v = App::CreateView<T>(id, cp);
-      dynamic_pointer_cast<ViewBase>(v)->m_wpParent = m_wpThis;
       m_subViews.insert(v);
       return v;
     }
 
     void RemoveSubView(const WPView &v) {
-      auto ptr = v.lock();
-      ptr->m_wpParent.reset();
       m_subViews.erase(v);
     }
 
