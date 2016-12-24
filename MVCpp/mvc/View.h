@@ -30,13 +30,18 @@ namespace mvc {
         if (spv->HitTest(dipX, dipY)) {
           // 如果鼠标事件发生时的坐标在子 View 的内部，
           // 则在该子view中进一步查询内部的子view。
-          return spv->GetClickedSubView(pixelX, pixelY);
+          auto csv = spv->GetClickedSubView(pixelX, pixelY);
+          if (!csv.expired()) return csv;
         }
       }
 
       // 如果内部的所有子view都没有被选中，则说明自身被选中，
       // 于是返回自身。
-      return m_wpThis;
+      if(m_canBeFocused) return m_wpThis;
+      else {
+        WPView emptyV;
+        return emptyV;
+      }
     }
 
     virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result, WPView &eventView) {

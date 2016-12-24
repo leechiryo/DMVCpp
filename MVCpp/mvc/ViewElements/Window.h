@@ -238,6 +238,7 @@ namespace mvc {
   public:
     Window(const WCHAR * title, int width, int height) {
       m_hwnd = nullptr;
+      m_canBeFocused = false;
 
       // Register message handler methods.
       AddEventHandler(WM_SIZE, Handle_SIZE);
@@ -370,10 +371,13 @@ namespace mvc {
             if (message == WM_LBUTTONDOWN) {
               int pixelX = GET_X_LPARAM(lParam);
               int pixelY = GET_Y_LPARAM(lParam);
+              // 获得选中的子view对象
               auto clickedV = pWnd->GetClickedSubView(pixelX, pixelY);
               auto v = clickedV.lock();
               if (v) {
+                // 如果子view对象可以聚焦，则将当前焦点转移到选中的子view对象上
                 if (v->m_canBeFocused) {
+                  // 放弃以前的焦点
                   auto v2 = pWnd->m_focusedView.lock();
                   if (v2) {
                     v2->m_focused = false;

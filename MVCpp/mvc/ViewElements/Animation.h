@@ -32,6 +32,7 @@ namespace mvc {
     Animation() {
       m_frameIdx = 0;
       m_rotation = 0;
+      m_canBeFocused = false;
       m_status = AniStatus::Stoped;
       OnFinished = nullptr;
     }
