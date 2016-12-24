@@ -53,10 +53,6 @@ namespace mvc {
               spv->m_mouseIn = 1;
               spv->MouseEnter(dipX, dipY);
             }
-
-            if (msg == WM_LBUTTONDOWN && spv->m_canBeFocused){
-              spv->m_focused = true;
-            }
           }
         }
 

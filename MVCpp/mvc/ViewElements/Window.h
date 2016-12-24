@@ -13,6 +13,8 @@ namespace mvc {
     HANDLE m_drawThreadExitSignal;
     CRITICAL_SECTION m_drawAndResizeSection;
 
+    WPView m_focusedView;
+
     DxResource<ID3D11Device> m_d3dDevice;
     DxResource<ID3D11DeviceContext> m_d3dContext;
     DxResource<ID2D1Device> m_d2dDevice;
