@@ -79,14 +79,18 @@ namespace mvc {
 
     DxResource<IDWriteTextLayout> DrawText(const wstring *text, IDWriteTextFormat *textFormat,
       const D2D1_RECT_F &rect, ID2D1SolidColorBrush *brush) {
+      return DrawText(text, text->length(), textFormat, rect, brush);
+    }
+
+    DxResource<IDWriteTextLayout> DrawText(const wstring *text, size_t charCnt, IDWriteTextFormat *textFormat,
+      const D2D1_RECT_F &rect, ID2D1SolidColorBrush *brush) {
       auto layout = App::s_pDWriteFactory.GetResource<IDWriteTextLayout>(&IDWriteFactory::CreateTextLayout,
-        text->c_str(), text->length(), textFormat, rect.right - rect.left, rect.bottom - rect.top);
+        text->c_str(), charCnt, textFormat, rect.right - rect.left, rect.bottom - rect.top);
       D2D1_POINT_2F o;
       o.x = rect.left;
       o.y = rect.top;
       m_pResource->DrawTextLayout(o, layout.ptr(), brush);
       return layout;
     }
-
   };
 }

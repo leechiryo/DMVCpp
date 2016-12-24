@@ -17,6 +17,7 @@ namespace mvc {
     DxResource<ID2D1Effect> m_shadowEffect;
 
     shared_ptr<AniCaretFlicker> m_spAniCaret;
+    size_t m_insertPos;
 
     static const int MAX_CHARS = 256;
     wchar_t m_font[MAX_CHARS + 1];
@@ -26,6 +27,43 @@ namespace mvc {
     DWRITE_FONT_STRETCH m_fontStretch;
 
     UINT32 m_color;
+
+    static LRESULT Handle_CHAR(shared_ptr<TextBox> tbx, WPARAM wParam, LPARAM lParam) {
+      if (wParam > 31 && wParam != 127) {
+        tbx->text->insert(tbx->m_insertPos, 1, wParam);
+        tbx->m_insertPos++;
+      }
+      return 0;
+    }
+
+    static LRESULT Handle_KEYDOWN(shared_ptr<TextBox> tbx, WPARAM wParam, LPARAM lParam) {
+      switch (wParam) {
+      case VK_BACK:
+        if (tbx->m_insertPos > 0) {
+          tbx->text->erase(tbx->m_insertPos - 1, 1);
+          tbx->m_insertPos--;
+        }
+        break;
+      case VK_DELETE:
+        if (tbx->m_insertPos < tbx->text->length()) {
+          tbx->text->erase(tbx->m_insertPos, 1);
+        }
+        break;
+      case VK_HOME:
+        tbx->m_insertPos = 0;
+        break;
+      case VK_END:
+        tbx->m_insertPos = tbx->text->length();
+        break;
+      case VK_LEFT:
+        tbx->m_insertPos = tbx->m_insertPos > 0 ? tbx->m_insertPos - 1 : 0;
+        break;
+      case VK_RIGHT:
+        tbx->m_insertPos = tbx->m_insertPos < tbx->text->length() ? tbx->m_insertPos + 1 : tbx->text->length();
+        break;
+      }
+      return 0;
+    }
 
   protected:
     virtual void MouseEnter(double x, double y) {
@@ -66,12 +104,15 @@ namespace mvc {
       wcscpy_s(m_font, MAX_CHARS + 1, L"Source Code Pro");
       m_fontSize = 16.0;
 
+      m_insertPos = text.length();
+
       // 设置光标的动画
       m_spAniCaret = make_shared<AniCaretFlicker>();
+      m_spAniCaret->PlayRepeatly();
       m_subViews.insert(m_spAniCaret);
 
-      //m_spAniCaret->SetCaretPos(100, 30);
-      m_spAniCaret->PlayRepeatly();
+      AddEventHandler(WM_CHAR, Handle_CHAR);
+      AddEventHandler(WM_KEYDOWN, Handle_KEYDOWN);
     }
 
     ~TextBox() {
@@ -111,13 +152,23 @@ namespace mvc {
 
       textRect.left += 10;
 
+      m_spAniCaret->SetPos(m_left + 5, m_top, m_right, m_bottom);
       auto layout = m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
 
-      DWRITE_TEXT_METRICS tm;
-      layout->GetMetrics(&tm);
-
-      m_spAniCaret->SetPos(m_left + 5, m_top, m_right, m_bottom);
-      m_spAniCaret->SetCaretPos(tm.width + 10, 30);
+      if (m_insertPos == 0) {
+        m_spAniCaret->SetCaretPos(5, 30);
+      }
+      else if (m_insertPos == text->length()) {
+        DWRITE_TEXT_METRICS tm;
+        layout->GetMetrics(&tm);
+        m_spAniCaret->SetCaretPos(tm.widthIncludingTrailingWhitespace + 5, 30);
+      }
+      else {
+        auto layout = m_pContext.DrawText(text.SafePtr(), m_insertPos, m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
+        DWRITE_TEXT_METRICS tm;
+        layout->GetMetrics(&tm);
+        m_spAniCaret->SetCaretPos(tm.widthIncludingTrailingWhitespace + 5, 30);
+      }
     }
   };
 }
