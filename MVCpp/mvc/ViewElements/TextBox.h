@@ -70,7 +70,7 @@ namespace mvc {
       m_spAniCaret = make_shared<AniCaretFlicker>();
       m_subViews.insert(m_spAniCaret);
 
-      m_spAniCaret->SetCaretPos(100, 30);
+      //m_spAniCaret->SetCaretPos(100, 30);
       m_spAniCaret->PlayRepeatly();
     }
 
@@ -111,14 +111,13 @@ namespace mvc {
 
       textRect.left += 10;
 
-      m_pContext->DrawText(
-        text->c_str(),
-        text->length(),
-        m_pTextFormat.ptr(),
-        textRect,
-        m_pTextBrush.ptr());
+      auto layout = m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
+
+      DWRITE_TEXT_METRICS tm;
+      layout->GetMetrics(&tm);
 
       m_spAniCaret->SetPos(m_left + 5, m_top, m_right, m_bottom);
+      m_spAniCaret->SetCaretPos(tm.width + 10, 30);
     }
   };
 }

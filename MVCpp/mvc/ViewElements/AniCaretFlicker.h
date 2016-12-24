@@ -25,13 +25,13 @@ namespace mvc {
       // TODO:用60帧(1秒)在指定的位置绘制一条竖线。
       if (frameIdx <= 48)
       {
-        if (frameIdx <= 12) {
-          // 前12帧淡入效果
-          m_pBrush->SetOpacity(frameIdx / 12.0f);
+        if (frameIdx <= 8) {
+          // 前8帧淡入效果
+          m_pBrush->SetOpacity(frameIdx / 8.0f);
         }
-        else if (frameIdx > 36) {
-          // 后12帧淡出效果
-          m_pBrush->SetOpacity((48 - frameIdx) / 12.0f);
+        else if (frameIdx > 40) {
+          // 后8帧淡出效果
+          m_pBrush->SetOpacity((48 - frameIdx) / 8.0f);
         }
         else {
           // 中间24帧完全显示
