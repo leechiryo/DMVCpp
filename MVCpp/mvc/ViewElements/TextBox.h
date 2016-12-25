@@ -154,22 +154,23 @@ namespace mvc {
 
       m_spAniCaret->SetPos(m_left + 5, m_top, m_right, m_bottom);
 
+      auto layout = m_pContext.GetTextLayout(text.SafePtr(), m_insertPos, m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
+      DWRITE_TEXT_METRICS tm;
+      layout->GetMetrics(&tm);
       m_pContext->PushAxisAlignedClip(textRect, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-      m_pContext->SetTransform(D2D1::Matrix3x2F::Translation(-20.0f, 0.0f));
-      auto layout = m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
+      m_pContext->SetTransform(D2D1::Matrix3x2F::Translation(textRect.right-textRect.left-tm.widthIncludingTrailingWhitespace, 0.0f));
+      layout = m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
       m_pContext->PopAxisAlignedClip();
 
       if (m_insertPos == 0) {
         m_spAniCaret->SetCaretPos(5, 30);
       }
       else if (m_insertPos == text->length()) {
-        DWRITE_TEXT_METRICS tm;
         layout->GetMetrics(&tm);
         m_spAniCaret->SetCaretPos(tm.widthIncludingTrailingWhitespace + 5, 30);
       }
       else {
-        auto layout = m_pContext.GetTextLayout(text.SafePtr(), m_insertPos, m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
-        DWRITE_TEXT_METRICS tm;
+        layout = m_pContext.GetTextLayout(text.SafePtr(), m_insertPos, m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
         layout->GetMetrics(&tm);
         m_spAniCaret->SetCaretPos(tm.widthIncludingTrailingWhitespace + 5, 30);
       }
