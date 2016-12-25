@@ -153,7 +153,11 @@ namespace mvc {
       textRect.left += 10;
 
       m_spAniCaret->SetPos(m_left + 5, m_top, m_right, m_bottom);
+
+      m_pContext->PushAxisAlignedClip(textRect, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+      m_pContext->SetTransform(D2D1::Matrix3x2F::Translation(-20.0f, 0.0f));
       auto layout = m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
+      m_pContext->PopAxisAlignedClip();
 
       if (m_insertPos == 0) {
         m_spAniCaret->SetCaretPos(5, 30);

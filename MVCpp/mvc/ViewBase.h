@@ -45,7 +45,7 @@ namespace mvc {
 
     // 以前是需要的，在引入了DxResource以后就变得不太需要了。
     // 但是谨慎起见，暂时先保留。
-    virtual void DestroyD2DResource(){};
+    virtual void DestroyD2DResource() {};
 
     // 如果需要处理鼠标进入事件，可以重载此函数
     virtual void MouseEnter(double x, double y) {
@@ -67,7 +67,7 @@ namespace mvc {
 
       for (auto e : m_subViews) {
         auto spv = e.lock();
-        if (spv){
+        if (spv) {
           spv->m_pContext = m_pContext;
           spv->CreateD2DEnvironment();
         }
@@ -115,7 +115,7 @@ namespace mvc {
 
   public:
 
-    ViewBase() { 
+    ViewBase() {
       m_hidden = false;
     }
 
@@ -146,6 +146,8 @@ namespace mvc {
           m_subViews.erase(it);
         }
       }
+
+      m_pContext->SetTransform(D2D1::Matrix3x2F::Identity());
     }
 
     template <typename T>

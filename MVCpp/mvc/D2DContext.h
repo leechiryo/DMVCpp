@@ -86,6 +86,7 @@ namespace mvc {
       const D2D1_RECT_F &rect, ID2D1SolidColorBrush *brush) {
       auto layout = App::s_pDWriteFactory.GetResource<IDWriteTextLayout>(&IDWriteFactory::CreateTextLayout,
         text->c_str(), charCnt, textFormat, rect.right - rect.left, rect.bottom - rect.top);
+      layout->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
       D2D1_POINT_2F o;
       o.x = rect.left;
       o.y = rect.top;
