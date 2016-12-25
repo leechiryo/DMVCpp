@@ -388,6 +388,17 @@ namespace mvc {
               }
             }
 
+            // 如果是键盘事件，则之间将消息发给当前的焦点view上，并指定其处理该消息
+            // 如果不存在焦点view，或者该view无法处理此事件，也不会在转发给下一级view。
+            if (message == WM_CHAR || message == WM_KEYDOWN) {
+              auto v = pWnd->m_focusedView.lock();
+              if (v) {
+                WPView ev;
+                v->HandleMessage(message, wParam, lParam, result, ev);
+              }
+              return 0;
+            }
+
             WPView ev;
             char processed = pWnd->HandleMessage(message, wParam, lParam, result, ev);
             if (!processed) {
