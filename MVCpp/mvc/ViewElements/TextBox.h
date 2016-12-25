@@ -164,7 +164,7 @@ namespace mvc {
         m_spAniCaret->SetCaretPos(tm.widthIncludingTrailingWhitespace + 5, 30);
       }
       else {
-        auto layout = m_pContext.DrawText(text.SafePtr(), m_insertPos, m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
+        auto layout = m_pContext.GetTextLayout(text.SafePtr(), m_insertPos, m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
         DWRITE_TEXT_METRICS tm;
         layout->GetMetrics(&tm);
         m_spAniCaret->SetCaretPos(tm.widthIncludingTrailingWhitespace + 5, 30);
