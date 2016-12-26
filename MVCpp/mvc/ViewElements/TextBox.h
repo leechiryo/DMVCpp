@@ -44,23 +44,29 @@ namespace mvc {
           tbx->text->erase(tbx->m_insertPos - 1, 1);
           tbx->m_insertPos--;
         }
+        tbx->m_spAniCaret->SetFrameIndex(9);
         break;
       case VK_DELETE:
         if (tbx->m_insertPos < tbx->text->length()) {
           tbx->text->erase(tbx->m_insertPos, 1);
         }
+        tbx->m_spAniCaret->SetFrameIndex(9);
         break;
       case VK_HOME:
         tbx->m_insertPos = 0;
+        tbx->m_spAniCaret->SetFrameIndex(9);
         break;
       case VK_END:
         tbx->m_insertPos = tbx->text->length();
+        tbx->m_spAniCaret->SetFrameIndex(9);
         break;
       case VK_LEFT:
         tbx->m_insertPos = tbx->m_insertPos > 0 ? tbx->m_insertPos - 1 : 0;
+        tbx->m_spAniCaret->SetFrameIndex(9);
         break;
       case VK_RIGHT:
         tbx->m_insertPos = tbx->m_insertPos < tbx->text->length() ? tbx->m_insertPos + 1 : tbx->text->length();
+        tbx->m_spAniCaret->SetFrameIndex(9);
         break;
       }
       return 0;
@@ -173,12 +179,7 @@ namespace mvc {
       m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
       m_pContext->PopAxisAlignedClip();
 
-      if (m_insertPos == 0) {
-        m_spAniCaret->SetCaretPos(5, 30);
-      }
-      else {
-        m_spAniCaret->SetCaretPos(tm.widthIncludingTrailingWhitespace + 5, 30);
-      }
+      m_spAniCaret->SetCaretPos(tm.widthIncludingTrailingWhitespace + 5, 30);
     }
   };
 }
