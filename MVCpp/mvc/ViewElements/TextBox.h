@@ -18,6 +18,7 @@ namespace mvc {
 
     shared_ptr<AniCaretFlicker> m_spAniCaret;
     size_t m_insertPos;
+    float m_hTranslation;
 
     static const int MAX_CHARS = 256;
     wchar_t m_font[MAX_CHARS + 1];
@@ -105,6 +106,7 @@ namespace mvc {
       m_fontSize = 16.0;
 
       m_insertPos = text.length();
+      m_hTranslation = 0.0f;
 
       // 设置光标的动画
       m_spAniCaret = make_shared<AniCaretFlicker>();
@@ -157,21 +159,24 @@ namespace mvc {
       auto layout = m_pContext.GetTextLayout(text.SafePtr(), m_insertPos, m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
       DWRITE_TEXT_METRICS tm;
       layout->GetMetrics(&tm);
+      float w = tm.widthIncludingTrailingWhitespace;
+      float tbxw = textRect.right - textRect.left;
+      if (w > tbxw + m_hTranslation){
+        m_hTranslation = w - tbxw;
+      }
+      else if (w < m_hTranslation){
+        m_hTranslation = w;
+      }
+
       m_pContext->PushAxisAlignedClip(textRect, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-      m_pContext->SetTransform(D2D1::Matrix3x2F::Translation(textRect.right-textRect.left-tm.widthIncludingTrailingWhitespace, 0.0f));
-      layout = m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
+      m_pContext->SetTransform(D2D1::Matrix3x2F::Translation(-m_hTranslation, 0.0f));
+      m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
       m_pContext->PopAxisAlignedClip();
 
       if (m_insertPos == 0) {
         m_spAniCaret->SetCaretPos(5, 30);
       }
-      else if (m_insertPos == text->length()) {
-        layout->GetMetrics(&tm);
-        m_spAniCaret->SetCaretPos(tm.widthIncludingTrailingWhitespace + 5, 30);
-      }
       else {
-        layout = m_pContext.GetTextLayout(text.SafePtr(), m_insertPos, m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
-        layout->GetMetrics(&tm);
         m_spAniCaret->SetCaretPos(tm.widthIncludingTrailingWhitespace + 5, 30);
       }
     }
