@@ -159,6 +159,7 @@ namespace mvc {
       m_pContext->FillRectangle(textRect, m_pBackgroundBrush.ptr());
 
       textRect.left += 10;
+      textRect.right -= 10;
 
       m_spAniCaret->SetPos(m_left + 5, m_top, m_right, m_bottom);
 
