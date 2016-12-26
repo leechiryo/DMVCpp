@@ -29,6 +29,13 @@ namespace mvc {
 
     UINT32 m_color;
 
+    static LRESULT Handle_MOUSEMOVE(shared_ptr<TextBox> tbx, WPARAM wParam, LPARAM lParam) {
+      // 变更鼠标图标
+      HCURSOR cursor = LoadCursor(NULL, IDC_IBEAM);
+      SetCursor(cursor);
+      return 0;
+    }
+
     static LRESULT Handle_CHAR(shared_ptr<TextBox> tbx, WPARAM wParam, LPARAM lParam) {
       if (wParam > 31 && wParam != 127) {
         tbx->text->insert(tbx->m_insertPos, 1, wParam);
@@ -75,10 +82,14 @@ namespace mvc {
   protected:
     virtual void MouseEnter(double x, double y) {
       // 变更鼠标图标
+      HCURSOR cursor = LoadCursor(NULL, IDC_IBEAM);
+      SetCursor(cursor);
     }
 
     virtual void MouseLeft(double x, double y) {
       // 变更鼠标图标
+      HCURSOR cursor = LoadCursor(NULL, IDC_ARROW);
+      SetCursor(cursor);
     }
 
     virtual void CreateD2DResource() {
@@ -121,6 +132,7 @@ namespace mvc {
 
       AddEventHandler(WM_CHAR, Handle_CHAR);
       AddEventHandler(WM_KEYDOWN, Handle_KEYDOWN);
+      AddEventHandler(WM_MOUSEMOVE, Handle_MOUSEMOVE);
     }
 
     ~TextBox() {
