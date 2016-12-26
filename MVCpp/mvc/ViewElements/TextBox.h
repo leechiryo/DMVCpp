@@ -80,17 +80,6 @@ namespace mvc {
     }
 
   protected:
-    virtual void MouseEnter(double x, double y) {
-      // 变更鼠标图标
-      HCURSOR cursor = LoadCursor(NULL, IDC_IBEAM);
-      SetCursor(cursor);
-    }
-
-    virtual void MouseLeft(double x, double y) {
-      // 变更鼠标图标
-      HCURSOR cursor = LoadCursor(NULL, IDC_ARROW);
-      SetCursor(cursor);
-    }
 
     virtual void CreateD2DResource() {
 
