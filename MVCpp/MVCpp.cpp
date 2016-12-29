@@ -23,11 +23,14 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   auto lbl = view->AddSubView<Label>("lblInput", L"Some item:");
   lbl->SetPos(100, 100, 200, 140);
 
+  auto tbx = view->AddSubView<TextBox>("tbxInput", L"Input ...");
+  tbx->SetPos(250, 100, 600, 140);
+
   auto btn = view->AddSubView<Button>("btnStart", L"START");
   btn->SetPos(100, 200, 200, 240);
 
-  auto tbx = view->AddSubView<TextBox>("tbxInput", L"Input ...");
-  tbx->SetPos(250, 100, 600, 140);
+  auto cbx = view->AddSubView<CheckBox>("cbxInput", L"这是一个CheckBox.");
+  cbx->SetPos(100, 160, 500, 180);
 
   btn->title.Bind("my_model");
   btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);

@@ -72,6 +72,11 @@ namespace mvc {
       return SafePtr();
     }
 
-  };
+    operator T () {
+      auto spModel = m_wpModel.lock();
+      if (!spModel) UnBind();
+      return *m_fieldPtr;
+    }
 
+  };
 }

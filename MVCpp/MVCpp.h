@@ -22,3 +22,4 @@
 #include "mvc\ViewElements\Button.h"
 #include "mvc\ViewElements\TextBox.h"
 #include "mvc\ViewElements\Label.h"
+#include "mvc\ViewElements\CheckBox.h"

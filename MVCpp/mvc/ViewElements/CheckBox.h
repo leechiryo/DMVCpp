@@ -5,7 +5,8 @@
 #include "..\ModelRef.h"
 
 namespace mvc {
-  class Label : public View<Label>
+
+  class CheckBox : public View<CheckBox>
   {
   private:
 
@@ -23,13 +24,20 @@ namespace mvc {
 
     UINT32 m_color;
 
+    // controller method
+    static LRESULT Handle_LBUTTONDOWN(shared_ptr<CheckBox> cbx, WPARAM wParam, LPARAM lParam) {
+      if (cbx->checked) cbx->checked = false;
+      else cbx->checked = true;
+      return 0;
+    }
+
   protected:
 
     virtual void CreateD2DResource() {
 
       // 背景设为白色透明
-      m_pBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0xffffff));
-      m_pBackgroundBrush->SetOpacity(0.0f);
+      m_pBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0xcccccc));
+      m_pBackgroundBrush->SetOpacity(1.0f);
 
       m_pTextFormat = App::CreateTextFormat(m_font, m_fontSize, m_fontWeight, m_fontStyle, m_fontStretch);
       m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
@@ -40,27 +48,42 @@ namespace mvc {
 
   public:
 
-    ModelRef<wstring> text;
+    ModelRef<bool> checked;
+    ModelRef<wstring> title;
 
-    Label(wstring ttl) : text{ ttl }{
+    CheckBox(wstring ttl) : title{ ttl } {
       m_color = 0x333333;
       m_fontWeight = DWRITE_FONT_WEIGHT_REGULAR;
       m_fontStyle = DWRITE_FONT_STYLE_NORMAL;
       m_fontStretch = DWRITE_FONT_STRETCH_NORMAL;
       wcscpy_s(m_font, MAX_CHARS + 1, L"Source Code Pro");
       m_fontSize = 16.0;
+
+      AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
+
+      checked = false;
     }
 
-    ~Label() {
+    ~CheckBox() {
     }
 
     virtual void DrawSelf() {
-      D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
+      D2D1_RECT_F textRect = RectD(m_left + 20, m_top, m_right, m_bottom);
       m_pContext->FillRectangle(textRect, m_pBackgroundBrush.ptr());
 
+      double vstart = (m_bottom + m_top) / 2 - 5;
+      double vend = (m_bottom + m_top) / 2 + 5;
+
+      m_pContext->DrawRectangle(RectD(m_left, vstart, m_left + 10, vend), m_pBrush.ptr(), 2.0f);
+
+      if (checked) {
+        m_pContext->DrawLine(Point2D(m_left, vstart+5), Point2D(m_left+5, vend), m_pBrush.ptr(), 2.0f);
+        m_pContext->DrawLine(Point2D(m_left+5, vend), Point2D(m_left+10, vstart), m_pBrush.ptr(), 2.0f);
+      }
+
       m_pContext->DrawText(
-        text->c_str(),
-        text->length(),
+        title->c_str(),
+        title->length(),
         m_pTextFormat.ptr(),
         textRect,
         m_pBrush.ptr());

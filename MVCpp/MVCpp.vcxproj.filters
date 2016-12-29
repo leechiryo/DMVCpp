@@ -81,6 +81,9 @@
     <ClInclude Include="mvc\ViewElements\Label.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="mvc\ViewElements\CheckBox.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MVCpp.cpp">
