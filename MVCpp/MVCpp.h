@@ -21,3 +21,4 @@
 #include "mvc\ViewElements\Window.h"
 #include "mvc\ViewElements\Button.h"
 #include "mvc\ViewElements\TextBox.h"
+#include "mvc\ViewElements\Label.h"

@@ -20,11 +20,14 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   auto view = v<Window>("main_window", { L"MVC++ テスト", 800, 600 });
   auto model = m<std::wstring>("my_model", L"Hello!");
 
+  auto lbl = view->AddSubView<Label>("lblInput", L"Some item:");
+  lbl->SetPos(100, 100, 200, 140);
+
   auto btn = view->AddSubView<Button>("btnStart", L"START");
   btn->SetPos(100, 200, 200, 240);
 
   auto tbx = view->AddSubView<TextBox>("tbxInput", L"Input ...");
-  tbx->SetPos(100, 100, 400, 140);
+  tbx->SetPos(250, 100, 600, 140);
 
   btn->title.Bind("my_model");
   btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);
