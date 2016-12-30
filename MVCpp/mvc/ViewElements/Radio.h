@@ -36,8 +36,8 @@ namespace mvc {
     virtual void CreateD2DResource() {
 
       // 背景设为白色透明
-      m_pBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0xcccccc));
-      m_pBackgroundBrush->SetOpacity(1.0f);
+      m_pBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0xffffff));
+      m_pBackgroundBrush->SetOpacity(0.0f);
 
       m_pTextFormat = App::CreateTextFormat(m_font, m_fontSize, m_fontWeight, m_fontStyle, m_fontStretch);
       m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
