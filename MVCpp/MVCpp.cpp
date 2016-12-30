@@ -32,6 +32,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   auto cbx = view->AddSubView<CheckBox>("cbxInput", L"这是一个CheckBox.");
   cbx->SetPos(100, 160, 500, 180);
 
+  auto radio = view->AddSubView<Radio>("rdoInput", L"这是一个RadioBox.");
+  radio->SetPos(100, 260, 500, 280);
+
   btn->title.Bind("my_model");
   btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);
   view->Show();

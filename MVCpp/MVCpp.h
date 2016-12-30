@@ -23,3 +23,4 @@
 #include "mvc\ViewElements\TextBox.h"
 #include "mvc\ViewElements\Label.h"
 #include "mvc\ViewElements\CheckBox.h"
+#include "mvc\ViewElements\Radio.h"

@@ -97,6 +97,7 @@
     <ClInclude Include="mvc\ViewElements\Button.h" />
     <ClInclude Include="mvc\ViewElements\CheckBox.h" />
     <ClInclude Include="mvc\ViewElements\Label.h" />
+    <ClInclude Include="mvc\ViewElements\Radio.h" />
     <ClInclude Include="mvc\ViewElements\TextBox.h" />
     <ClInclude Include="mvc\ViewElements\Window.h" />
     <ClInclude Include="MyController.h" />

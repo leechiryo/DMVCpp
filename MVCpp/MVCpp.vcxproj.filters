@@ -84,6 +84,9 @@
     <ClInclude Include="mvc\ViewElements\CheckBox.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="mvc\ViewElements\Radio.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MVCpp.cpp">
