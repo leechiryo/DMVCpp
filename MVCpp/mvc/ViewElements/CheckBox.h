@@ -61,7 +61,7 @@ namespace mvc {
 
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
 
-      checked = false;
+      checked = true;
     }
 
     ~CheckBox() {
@@ -77,8 +77,8 @@ namespace mvc {
       m_pContext->DrawRectangle(RectD(m_left, vstart, m_left + 10, vend), m_pBrush.ptr(), 2.0f);
 
       if (checked) {
-        m_pContext->DrawLine(Point2D(m_left, vstart+5), Point2D(m_left+5, vend), m_pBrush.ptr(), 2.0f);
-        m_pContext->DrawLine(Point2D(m_left+5, vend), Point2D(m_left+10, vstart), m_pBrush.ptr(), 2.0f);
+        m_pContext->DrawLine(Point2D(m_left+2, vstart+5), Point2D(m_left+4.5, vend-2), m_pBrush.ptr(), 2.0f);
+        m_pContext->DrawLine(Point2D(m_left+4.5, vend-2), Point2D(m_left+8, vstart+2), m_pBrush.ptr(), 2.0f);
       }
 
       m_pContext->DrawText(
