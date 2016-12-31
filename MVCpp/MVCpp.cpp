@@ -32,8 +32,19 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   auto cbx = view->AddSubView<CheckBox>("cbxInput", L"这是一个CheckBox.");
   cbx->SetPos(100, 160, 500, 180);
 
-  auto radio = view->AddSubView<Radio>("rdoInput", L"这是一个RadioBox.");
-  radio->SetPos(100, 260, 500, 280);
+  auto rdo1 = view->AddSubView<Radio>("rdo1Input", { 1, L"这是一个RadioBox1." });
+  rdo1->SetPos(100, 260, 500, 280);
+
+  auto rdo2 = view->AddSubView<Radio>("rdo2Input", { 2, L"这是一个RadioBox2." });
+  rdo2->SetPos(100, 300, 500, 320);
+
+  auto rdo3 = view->AddSubView<Radio>("rdo3Input", { 3, L"这是一个RadioBox3." });
+  rdo3->SetPos(100, 340, 500, 360);
+
+  auto groupVal = m<int>("groupVal", 0);
+  rdo1->selectedValue.Bind("groupVal");
+  rdo2->selectedValue.Bind("groupVal");
+  rdo3->selectedValue.Bind("groupVal");
 
   btn->title.Bind("my_model");
   btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);

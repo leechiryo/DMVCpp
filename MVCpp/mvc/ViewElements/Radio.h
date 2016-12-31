@@ -24,10 +24,11 @@ namespace mvc {
 
     UINT32 m_color;
 
+    int m_value;
+
     // controller method
-    static LRESULT Handle_LBUTTONDOWN(shared_ptr<Radio> cbx, WPARAM wParam, LPARAM lParam) {
-      if (cbx->checked) cbx->checked = false;
-      else cbx->checked = true;
+    static LRESULT Handle_LBUTTONDOWN(shared_ptr<Radio> rdo, WPARAM wParam, LPARAM lParam) {
+      rdo->selectedValue = rdo->m_value;
       return 0;
     }
 
@@ -48,10 +49,10 @@ namespace mvc {
 
   public:
 
-    ModelRef<bool> checked;
+    ModelRef<int> selectedValue;
     ModelRef<wstring> title;
 
-    Radio(wstring ttl) : title{ ttl } {
+    Radio(int val, wstring ttl) : title{ ttl } {
       m_color = 0x333333;
       m_fontWeight = DWRITE_FONT_WEIGHT_REGULAR;
       m_fontStyle = DWRITE_FONT_STYLE_NORMAL;
@@ -61,7 +62,8 @@ namespace mvc {
 
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
 
-      checked = true;
+      m_value = val;
+      selectedValue = 0;
     }
 
     ~Radio() {
@@ -81,7 +83,7 @@ namespace mvc {
         tof(radius), tof(radius));
       m_pContext->DrawEllipse(ellipse, m_pBrush.ptr(), 2.0f);
 
-      if (checked) {
+      if (m_value == selectedValue) {
         D2D1_ELLIPSE ellipseChecked = D2D1::Ellipse(
           D2D1::Point2F(tof(centerX), tof(centerY)),
           tof(radiusChecked), tof(radiusChecked));
