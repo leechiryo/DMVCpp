@@ -17,9 +17,13 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 {
   App::Initialize();
 
-  auto view = v<Window>("main_window", { L"MVC++ テスト", 800, 600 });
-  auto model = m<std::wstring>("my_model", L"Hello!");
+  // 准备 Model
+  m<wstring>("my_model", L"Hello!");
+  m<int>("groupVal", 0);
+  m<wstring>("strGroupVal", L"Selected radio value.");
 
+  // 准备 View
+  auto view = v<Window>("main_window", { L"MVC++ テスト", 800, 600 });
   auto lbl = view->AddSubView<Label>("lblInput", L"Some item:");
   lbl->SetPos(100, 100, 200, 140);
 
@@ -41,13 +45,22 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   auto rdo3 = view->AddSubView<Radio>("rdo3Input", { 3, L"这是一个RadioBox3." });
   rdo3->SetPos(100, 340, 500, 360);
 
-  auto groupVal = m<int>("groupVal", 0);
+  auto lbl2 = view->AddSubView<Label>("lbl2", L"");
+  lbl2->SetPos(100, 400, 500, 420);
+
+  // 绑定 Model 和 View
+  btn->title.Bind("my_model");
   rdo1->selectedValue.Bind("groupVal");
   rdo2->selectedValue.Bind("groupVal");
   rdo3->selectedValue.Bind("groupVal");
+  lbl2->text.Bind("strGroupVal");
 
-  btn->title.Bind("my_model");
+  // 设置事件处理 Controller
+  rdo1->AddEventHandler(WM_LBUTTONDOWN, MyController::ShowSelectRadio);
+  rdo2->AddEventHandler(WM_LBUTTONDOWN, MyController::ShowSelectRadio);
+  rdo3->AddEventHandler(WM_LBUTTONDOWN, MyController::ShowSelectRadio);
   btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);
+
   view->Show();
 
   App::Uninitialize();

@@ -13,4 +13,11 @@ public:
     }
     return 0;
   }
+
+  static LRESULT ShowSelectRadio(shared_ptr<mvc::Radio> btn, WPARAM wParam, LPARAM lParam) {
+    auto m1 = mvc::getm<int>("groupVal");
+    auto m2 = mvc::getm<wstring>("strGroupVal");
+    (*m2) = move(to_wstring(*m1));
+    return 0;
+  }
 };
