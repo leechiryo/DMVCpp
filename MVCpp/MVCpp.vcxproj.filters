@@ -87,6 +87,18 @@
     <ClInclude Include="mvc\ViewElements\Radio.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="rapidxml\rapidxml.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml\rapidxml_iterators.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml\rapidxml_print.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="rapidxml\rapidxml_utils.hpp">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MVCpp.cpp">
@@ -108,5 +120,16 @@
     <Image Include="MVCpp.ico">
       <Filter>リソース ファイル</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="views.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="xml2.bin">
+      <Filter>リソース ファイル</Filter>
+    </None>
+    <None Include="data1.bin">
+      <Filter>リソース ファイル</Filter>
+    </None>
   </ItemGroup>
 </Project>

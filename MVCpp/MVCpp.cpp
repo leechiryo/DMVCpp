@@ -17,6 +17,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 {
   App::Initialize();
 
+  load_views(IDR_RCDATA1);
+
   // 准备 Model
   m<wstring>("my_model", L"Hello!");
   m<int>("groupVal", 0);

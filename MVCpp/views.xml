@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<window id="main_window">
+  <layout gridline="true">
+    <rows>
+      <row id="r1" height="20"/>
+      <row id="r2" height="50"/>
+      <row id="r3" height="*"/>
+      <row id="r4" height="20%"/>
+    </rows>
+    <cols>
+      <col id="c1" width="20"/>
+      <col id="c2" width="10%"/>
+      <col id="c3" width="*"/>
+      <col id="c4" width="40"/>
+    </cols>
+  </layout>
+  <label id="lbl1" row="r1" col="c1" text="input:" right="0"/>
+  <button id="btn1" row="r1" col="c3" text="OK" left="0" />
+</window>
