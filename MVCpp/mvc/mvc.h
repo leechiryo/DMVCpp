@@ -35,7 +35,9 @@ namespace mvc {
   }
 
   void load_xml(xml_node<> *node){
-    MessageBoxA(NULL, node->name(), "node name", MB_OK);
+    if (node->name() == "row") {
+
+    }
     for (xml_node<> *child_node = node->first_node(); child_node; child_node = child_node->next_sibling()){
       load_xml(child_node);
     }
