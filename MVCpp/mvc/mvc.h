@@ -6,6 +6,7 @@
 #include "App.h"
 #include "Model.h"
 #include "ModelRef.h"
+#include "Layout.h"
 
 #include "..\rapidxml\rapidxml.hpp"
 
@@ -34,12 +35,32 @@ namespace mvc {
     return App::GetModel<T>(id);
   }
 
-  void load_xml(xml_node<> *node){
-    if (node->name() == "row") {
-
+  void load_layout(xml_node<> *layoutNode, Layout * layout) {
+    xml_node<> *rowsNode = layoutNode->first_node("rows");
+    for (xml_node<> *row_node = rowsNode->first_node(); row_node; row_node = row_node->next_sibling()) {
+      xml_attribute<> * attr = row_node->first_attribute("height");
+      char * heightStr = attr->value();
+      layout->AddRow(heightStr);
     }
-    for (xml_node<> *child_node = node->first_node(); child_node; child_node = child_node->next_sibling()){
-      load_xml(child_node);
+
+    xml_node<> * colsNode = layoutNode->first_node("cols");
+    for (xml_node<> *col_node = colsNode->first_node(); col_node; col_node = col_node->next_sibling()) {
+      xml_attribute<> * attr = col_node->first_attribute("width");
+      char * widthStr = attr->value();
+      layout->AddCol(widthStr);
+    }
+  }
+
+  void load_xml(xml_node<> *node){
+    if (!strcmp(node->name(), "layout")) {
+      Layout layout;
+      load_layout(node, &layout);
+      layout.SetWidth(600);
+    }
+    else {
+      for (xml_node<> *child_node = node->first_node(); child_node; child_node = child_node->next_sibling()){
+        load_xml(child_node);
+      }
     }
   }
 

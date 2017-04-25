@@ -11,6 +11,10 @@ namespace mvc {
     float left = NAN;
     float bottom = NAN;
     float right = NAN;
+
+    float width = NAN;
+    float height = NAN;
+
     char widthStr[10] = { 0 };
     char heightStr[10] = { 0 };
 
@@ -37,6 +41,29 @@ namespace mvc {
     int rowCnt = 0;
     int colCnt = 0;
 
+    float m_width = NAN;
+    float m_height = NAN;
+
+    bool isNumber(const char *str) {
+      int len = strlen(str);
+      bool retval = true;
+      for (int i = 0; i < len; i++) {
+        retval = retval && (str[i] >= '0') && (str[i] <= '9');
+      }
+      return retval;
+    }
+
+    bool isPercent(const char *str) {
+      int len = strlen(str);
+      bool retval = true;
+      for (int i = 0; i < len - 1; i++) {
+        retval = retval && (str[i] >= '0') && (str[i] <= '9');
+      }
+
+      retval = retval && (str[len - 1] == '%');
+      return retval;
+    }
+
   public:
     void AddRow(const char *height) {
       if (!rowCnt && !colCnt) {
@@ -47,7 +74,7 @@ namespace mvc {
         cells.push_back(row);
       }
       else if (!rowCnt && colCnt) {
-        for (auto c : cells[0]) {
+        for (auto &c : cells[0]) {
           c.SetHeight(height);
         }
       }
@@ -60,7 +87,7 @@ namespace mvc {
       }
       else {
         vector<GridCell> row = cells[0];
-        for (auto c : row) {
+        for (auto &c : row) {
           c.SetHeight(height);
         }
         cells.push_back(row);
@@ -88,14 +115,14 @@ namespace mvc {
         // 已经存在行，但是还没有列的时候，
         // 直接对已经存在的行设置其宽度
         // 将其转换为列。
-        for (auto r : cells) {
+        for (auto &r : cells) {
           r[0].SetWidth(width);
         }
       }
       else {
         // 有行有列时，从第一列拷贝出新的一列，
         // 该列的高度与其他列相同但是宽度具有自己的值
-        for (auto r : cells) {
+        for (auto &r : cells) {
           GridCell c = r[0];
           c.SetWidth(width);
           r.push_back(c);
@@ -107,8 +134,8 @@ namespace mvc {
     const string ToString() {
       string retval;
 
-      for (auto r : cells) {
-        for (auto c : r) {
+      for (auto &r : cells) {
+        for (auto &c : r) {
           retval += c.ToString();
           retval += ' ';
         }
@@ -118,7 +145,60 @@ namespace mvc {
       return retval;
     }
 
-    void SetSize(float width, float height) {
+    void SetWidth(float width) {
+
+      if (cells.size() == 0) return;
+
+      float ttlWidth = 0.0;
+      int nonWidthColsCnt = 0;
+      for (auto &c : cells[0]) {
+        if (isNumber(c.widthStr)) {
+          c.width = (float)atoi(c.widthStr);
+          ttlWidth += c.width;
+        }
+        else if (isPercent(c.widthStr)) {
+          char dg[10] = { 0 };
+          strcpy_s(dg, strlen(c.widthStr) + 1, c.widthStr);
+          dg[strlen(c.widthStr) - 1] = 0;
+          int a = atoi(dg);
+          c.width = a * width / 100.0f;
+          ttlWidth += c.width;
+        }
+        else {
+          nonWidthColsCnt++;
+        }
+      }
+
+      if (ttlWidth > width) {
+        for (auto &c : cells[0]) {
+          if (!isnan(c.width)) {
+            c.width = c.width * width / ttlWidth;
+          }
+          else {
+            c.width = 0.0f;
+          }
+        }
+      }
+      else if (ttlWidth < width && !nonWidthColsCnt) {
+        for (auto &c : cells[0]) {
+          c.width = c.width * width / ttlWidth;
+        }
+      }
+      else if (ttlWidth < width && nonWidthColsCnt) {
+        for (auto &c : cells[0]) {
+          if (isnan(c.width)) {
+            c.width = (width - ttlWidth) / nonWidthColsCnt;
+          }
+        }
+      }
+
+      for (int i = 1; i < rowCnt; i++) {
+        for (int j = 0; j < colCnt; j++) {
+          cells[i][j].width = cells[0][j].width;
+        }
+      }
+
+      m_width = width;
     }
   };
 }
