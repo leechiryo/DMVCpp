@@ -94,7 +94,6 @@ namespace mvc {
       return layout;
     }
 
-
     DxResource<IDWriteTextLayout> GetTextLayout(const wstring *text, size_t charCnt, IDWriteTextFormat *textFormat,
       const D2D1_RECT_F &rect, ID2D1SolidColorBrush *brush) {
       auto layout = App::s_pDWriteFactory.GetResource<IDWriteTextLayout>(&IDWriteFactory::CreateTextLayout,
