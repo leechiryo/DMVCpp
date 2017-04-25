@@ -46,6 +46,8 @@ namespace mvc {
 
     bool isNumber(const char *str) {
       int len = strlen(str);
+      // check for empty string.
+      if (len == 0) return false;
       bool retval = true;
       for (int i = 0; i < len; i++) {
         retval = retval && (str[i] >= '0') && (str[i] <= '9');
@@ -55,6 +57,9 @@ namespace mvc {
 
     bool isPercent(const char *str) {
       int len = strlen(str);
+      // check for empty and the only one character '%' 
+      // should return false.
+      if (len <= 1) return false;
       bool retval = true;
       for (int i = 0; i < len - 1; i++) {
         retval = retval && (str[i] >= '0') && (str[i] <= '9');
