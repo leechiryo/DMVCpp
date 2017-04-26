@@ -56,6 +56,23 @@ namespace mvc {
       Layout layout;
       load_layout(node, &layout);
       layout.SetWidth(600);
+      layout.SetHeight(400);
+      string layoutstr1 = layout.ToDebugString();
+
+      layout.SetWidth(300);
+      layout.SetHeight(200);
+      string layoutstr2 = layout.ToDebugString();
+
+      layout.SetWidth(150);
+      layout.SetHeight(100);
+      string layoutstr3 = layout.ToDebugString();
+
+      layout.SetWidth(100);
+      layout.SetHeight(50);
+      string layoutstr4 = layout.ToDebugString();
+
+      layout.SetWidth(50);
+      string layoutstr5 = layout.ToDebugString();
     }
     else {
       for (xml_node<> *child_node = node->first_node(); child_node; child_node = child_node->next_sibling()){

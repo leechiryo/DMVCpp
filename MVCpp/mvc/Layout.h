@@ -15,22 +15,32 @@ namespace mvc {
     float width = NAN;
     float height = NAN;
 
-    char widthStr[10] = { 0 };
-    char heightStr[10] = { 0 };
+    char widthStr[10];
+    char heightStr[10];
 
-    void SetWidth(const char *width) {
+    void SetWidthStr(const char *width) {
       strcpy_s(widthStr, 10, width);
     }
 
-    void SetHeight(const char *height) {
+    void SetHeightStr(const char *height) {
       strcpy_s(heightStr, 10, height);
+    }
+
+    void ClearWidth(){
+      width = NAN;
+    }
+
+    void ClearHeight(){
+      height = NAN;
     }
 
     string ToString() {
       string retval;
-      retval += widthStr;
-      retval += ",";
-      retval += heightStr;
+      char buf[100];
+      sprintf_s(buf, 100, "(%f, %f)", width, height);
+      retval += buf;
+      sprintf_s(buf, 100, "(%s, %s)", widthStr, heightStr);
+      retval += buf;
       return retval;
     }
   };
@@ -73,19 +83,19 @@ namespace mvc {
     void AddRow(const char *height) {
       if (!rowCnt && !colCnt) {
         GridCell cell;
-        cell.SetHeight(height);
+        cell.SetHeightStr(height);
         vector<GridCell> row;
         row.push_back(cell);
         cells.push_back(row);
       }
       else if (!rowCnt && colCnt) {
         for (auto &c : cells[0]) {
-          c.SetHeight(height);
+          c.SetHeightStr(height);
         }
       }
       else if (rowCnt && !colCnt) {
         GridCell cell;
-        cell.SetHeight(height);
+        cell.SetHeightStr(height);
         vector<GridCell> row;
         row.push_back(cell);
         cells.push_back(row);
@@ -93,7 +103,7 @@ namespace mvc {
       else {
         vector<GridCell> row = cells[0];
         for (auto &c : row) {
-          c.SetHeight(height);
+          c.SetHeightStr(height);
         }
         cells.push_back(row);
       }
@@ -104,7 +114,7 @@ namespace mvc {
       if (!rowCnt && !colCnt) {
         // 既没有行也没有列时，生成一个cell，仅设置其宽度
         GridCell cell;
-        cell.SetWidth(width);
+        cell.SetWidthStr(width);
         vector<GridCell> row;
         row.push_back(cell);
         cells.push_back(row);
@@ -113,7 +123,7 @@ namespace mvc {
         // 已经存在列，但是还没有行的时候，
         // 直接对第一行追加列并设置其宽度
         GridCell cell;
-        cell.SetWidth(width);
+        cell.SetWidthStr(width);
         cells[0].push_back(cell);
       }
       else if (rowCnt && !colCnt) {
@@ -121,7 +131,7 @@ namespace mvc {
         // 直接对已经存在的行设置其宽度
         // 将其转换为列。
         for (auto &r : cells) {
-          r[0].SetWidth(width);
+          r[0].SetWidthStr(width);
         }
       }
       else {
@@ -129,15 +139,19 @@ namespace mvc {
         // 该列的高度与其他列相同但是宽度具有自己的值
         for (auto &r : cells) {
           GridCell c = r[0];
-          c.SetWidth(width);
+          c.SetWidthStr(width);
           r.push_back(c);
         }
       }
       colCnt++;
     }
 
-    const string ToString() {
+    const string ToDebugString() {
       string retval;
+      char buf[100];
+
+      sprintf_s(buf, 100, "(%f, %f)\n", m_width, m_height);
+      retval += buf;
 
       for (auto &r : cells) {
         for (auto &c : r) {
@@ -153,6 +167,11 @@ namespace mvc {
     void SetWidth(float width) {
 
       if (cells.size() == 0) return;
+
+      // clear the width info (if exist.)
+      for (auto &c : cells[0]){
+        c.ClearWidth();
+      }
 
       float ttlWidth = 0.0;
       int nonWidthColsCnt = 0;
@@ -204,6 +223,72 @@ namespace mvc {
       }
 
       m_width = width;
+    }
+
+
+    void SetHeight(float height) {
+
+      if (cells.size() == 0) return;
+
+      // clear the height info (if exists.)
+      for (auto &r : cells){
+        r[0].ClearHeight();
+      }
+
+      float ttlHeight = 0.0;
+      int nonHeightRowsCnt = 0;
+      for (auto &r : cells) {
+        auto &c = r[0];
+        if (isNumber(c.heightStr)) {
+          c.height = (float)atoi(c.heightStr);
+          ttlHeight += c.height;
+        }
+        else if (isPercent(c.heightStr)) {
+          char dg[10] = { 0 };
+          strcpy_s(dg, strlen(c.heightStr) + 1, c.heightStr);
+          dg[strlen(c.heightStr) - 1] = 0;
+          int a = atoi(dg);
+          c.height = a * height / 100.0f;
+          ttlHeight += c.height;
+        }
+        else {
+          nonHeightRowsCnt++;
+        }
+      }
+
+      if (ttlHeight > height) {
+        for (auto &r : cells) {
+          auto &c = r[0];
+          if (!isnan(c.height)) {
+            c.height = c.height * height / ttlHeight;
+          }
+          else {
+            c.height = 0.0f;
+          }
+        }
+      }
+      else if (ttlHeight < height && !nonHeightRowsCnt) {
+        for (auto &r : cells) {
+          auto &c = r[0];
+          c.height = c.height * height / ttlHeight;
+        }
+      }
+      else if (ttlHeight < height && nonHeightRowsCnt) {
+        for (auto &r : cells) {
+          auto &c = r[0];
+          if (isnan(c.height)) {
+            c.height = (height - ttlHeight) / nonHeightRowsCnt;
+          }
+        }
+      }
+
+      for (int i = 0; i < rowCnt; i++) {
+        for (int j = 1; j < colCnt; j++) {
+          cells[i][j].height = cells[i][0].height;
+        }
+      }
+
+      m_height = height;
     }
   };
 }
