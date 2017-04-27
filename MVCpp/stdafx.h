@@ -17,10 +17,3 @@
 // TODO: プログラムに必要な追加ヘッダーをここで参照してください。
 #include "resource.h"
 
-#include "mvc\mvc.h"
-#include "mvc\ViewElements\Window.h"
-#include "mvc\ViewElements\Button.h"
-#include "mvc\ViewElements\TextBox.h"
-#include "mvc\ViewElements\Label.h"
-#include "mvc\ViewElements\CheckBox.h"
-#include "mvc\ViewElements\Radio.h"

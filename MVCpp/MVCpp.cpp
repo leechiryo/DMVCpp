@@ -1,7 +1,13 @@
 ﻿// MVCpp.cpp : アプリケーションのエントリ ポイントを定義します。
 //
 
-#include "MVCpp.h"
+#include "mvc\mvc.h"
+#include "mvc\ViewElements\Window.h"
+#include "mvc\ViewElements\Button.h"
+#include "mvc\ViewElements\TextBox.h"
+#include "mvc\ViewElements\Label.h"
+#include "mvc\ViewElements\CheckBox.h"
+#include "mvc\ViewElements\Radio.h"
 #include "MyController.h"
 #include <system_error>
 #pragma comment(lib, "d2d1.lib")
