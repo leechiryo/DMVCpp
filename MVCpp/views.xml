@@ -10,7 +10,7 @@
     <cols>
       <col id="c1" width="20"/>
       <col id="c2" width="10%"/>
-      <col id="c3" width="*"/>
+      <col id="c3" width="20%"/>
       <col id="c4" width="40"/>
     </cols>
   </layout>
