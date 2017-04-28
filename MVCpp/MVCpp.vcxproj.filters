@@ -102,6 +102,9 @@
     <ClInclude Include="stdafx.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="mvc\ViewElements\Text.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MVCpp.cpp">
@@ -129,13 +132,5 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="views.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="xml2.bin">
-      <Filter>リソース ファイル</Filter>
-    </None>
-    <None Include="data1.bin">
-      <Filter>リソース ファイル</Filter>
-    </None>
   </ItemGroup>
 </Project>

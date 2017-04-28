@@ -1,0 +1,95 @@
+﻿#pragma once
+
+#include "..\Types.h"
+#include "..\View.h"
+#include "..\ModelRef.h"
+
+namespace mvc {
+  class Text : public View<Text>
+  {
+  private:
+
+    // D2D 资源(离开作用域时会自动销毁)
+    DxResource<ID2D1SolidColorBrush> m_pBrush;
+    DxResource<IDWriteTextFormat> m_pTextFormat;
+
+    static const int MAX_CHARS = 256;
+    wchar_t m_font[MAX_CHARS + 1];
+    float m_fontSize;
+    DWRITE_FONT_WEIGHT m_fontWeight;
+    DWRITE_FONT_STYLE m_fontStyle;
+    DWRITE_FONT_STRETCH m_fontStretch;
+
+    UINT32 m_color;
+
+    void ResetTextFormat(){
+      m_pTextFormat.Clear();
+      m_pTextFormat = App::CreateTextFormat(m_font, m_fontSize, m_fontWeight, m_fontStyle, m_fontStretch);
+      m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+      m_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+    }
+
+  protected:
+
+    virtual void CreateD2DResource() {
+      m_pTextFormat = App::CreateTextFormat(m_font, m_fontSize, m_fontWeight, m_fontStyle, m_fontStretch);
+      m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
+      m_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
+      m_pBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(m_color));
+    }
+
+
+  public:
+
+    ModelRef<wstring> text;
+
+    void SetFontName(const WCHAR *fontName){
+      wcscpy_s(m_font, MAX_CHARS + 1, fontName);
+      ResetTextFormat();
+    }
+
+    void SetFontSize(float fontSize){
+      m_fontSize = fontSize;
+      ResetTextFormat();
+    }
+
+    void SetFontWeight(DWRITE_FONT_WEIGHT fontWeight){
+      m_fontWeight = fontWeight;
+      ResetTextFormat();
+    }
+
+    void SetFontStyle(DWRITE_FONT_STYLE fontStyle){
+      m_fontStyle = fontStyle;
+      ResetTextFormat();
+    }
+
+    void SetFontStretch(DWRITE_FONT_STRETCH fontStretch){
+      m_fontStretch = fontStretch;
+      ResetTextFormat();
+    }
+
+    void SetColor(unsigned color){
+      m_color = color;
+      m_pBrush->SetColor(D2D1::ColorF(m_color));
+    }
+
+    Text(wstring ttl) : text{ ttl }{
+      m_color = 0x333333;
+      m_fontWeight = DWRITE_FONT_WEIGHT_REGULAR;
+      m_fontStyle = DWRITE_FONT_STYLE_NORMAL;
+      m_fontStretch = DWRITE_FONT_STRETCH_NORMAL;
+      wcscpy_s(m_font, MAX_CHARS + 1, L"Source Code Pro");
+      m_fontSize = 16.0;
+    }
+
+    virtual void DrawSelf() {
+      D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
+      auto layout = m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pBrush.ptr());
+      DWRITE_TEXT_METRICS tm;
+      layout->GetMetrics(&tm);
+
+      m_right = m_left + tm.width;
+      m_bottom = m_top + tm.height;
+    }
+  };
+}
