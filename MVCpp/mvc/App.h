@@ -73,6 +73,12 @@ namespace mvc {
         fontName, nullptr, fontWeight, fontStyle, fontStretch, fontSize, localeName);
     }
 
+    static DxResource<IDWriteTextLayout> CreateTextLayout(const WCHAR* text, unsigned length,
+      IDWriteTextFormat *textFormat, float maxWidth, float maxHeight ){
+      return App::s_pDWriteFactory.GetResource<IDWriteTextLayout>(&IDWriteFactory::CreateTextLayout,
+        text, length, textFormat, maxWidth, maxHeight);
+    }
+
     static void Uninitialize() {
       CoUninitialize();
     }
