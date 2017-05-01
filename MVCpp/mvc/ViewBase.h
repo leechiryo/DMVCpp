@@ -26,6 +26,9 @@ namespace mvc {
     WPView m_wpThis;
     WPViewSet m_subViews;
 
+    double m_absLeft;
+    double m_absTop;
+
     double m_left;
     double m_top;
     double m_right;
@@ -83,6 +86,14 @@ namespace mvc {
       DestroyD2DResource();
     }
 
+    double AbsX2RelX(int absX) {
+      return (absX - m_absLeft) / App::DPI_SCALE_X;
+    }
+
+    double AbsY2RelY(int absY) {
+      return (absY - m_absTop) / App::DPI_SCALE_Y;
+    }
+
     template <typename T>
     double PixelsToDipsX(T x) {
       return static_cast<double>(x) / App::DPI_SCALE_X;
@@ -135,17 +146,25 @@ namespace mvc {
 
       DrawSelf();
 
+      // 開始繪製内部元素，首先移動坐標原點到父元素的左上角
+      m_pContext->SetTransform(TranslationMatrix(m_left, m_top));
+
       for (auto it = m_subViews.begin(); it != m_subViews.end(); ++it) {
         const auto &v = *it;
         auto ptr = v.lock();
 
         if (ptr) {
+          ptr->m_absLeft = m_absLeft + ptr->m_left;
+          ptr->m_absTop = m_absTop + ptr->m_top;
           ptr->Draw();
         }
         else if (v.expired()) {
           m_subViews.erase(it);
         }
       }
+
+      // 内部元素繪製完成，將坐標移回
+      m_pContext->SetTransform(TranslationMatrix(-m_left, -m_top));
 
       m_pContext->SetTransform(D2D1::Matrix3x2F::Identity());
     }

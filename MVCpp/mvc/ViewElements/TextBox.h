@@ -162,7 +162,7 @@ namespace mvc {
       textRect.left += 10;
       textRect.right -= 10;
 
-      m_spAniCaret->SetPos(m_left + 5, m_top, m_right, m_bottom);
+      m_spAniCaret->SetPos(5, 0, m_right - m_left - 5, m_bottom - m_top);
 
       auto layout = m_pContext.GetTextLayout(text.SafePtr(), m_insertPos, m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
       DWRITE_TEXT_METRICS tm;

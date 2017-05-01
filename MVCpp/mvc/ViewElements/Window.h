@@ -121,6 +121,8 @@ namespace mvc {
         GetClientRect(pWnd->m_hwnd, &rect1);
 
         do {
+          pWnd->m_right = rect1.right;
+          pWnd->m_bottom = rect1.bottom;
           if (rect.right != rect1.right || rect.bottom != rect1.bottom) {
             pWnd->Resize();
             rect.right = rect1.right;
@@ -278,6 +280,14 @@ namespace mvc {
         NULL,
         HINST_THISCOMPONENT,
         this); // 将this指针传递给Window创建的参数
+
+      m_left = 0.0f;
+      m_right = width;
+      m_top = 0.0f;
+      m_bottom = height;
+
+      m_absLeft = m_left;
+      m_absTop = m_top;
     }
 
     void Show() {

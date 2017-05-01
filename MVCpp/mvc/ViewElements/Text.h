@@ -74,6 +74,10 @@ namespace mvc {
     }
 
     Text(wstring ttl) : text{ ttl }{
+      m_left = 0.0f;
+      m_right = 0.0f;
+      m_top = 0.0f;
+      m_bottom = 0.0f;
       m_color = 0x333333;
       m_fontWeight = DWRITE_FONT_WEIGHT_REGULAR;
       m_fontStyle = DWRITE_FONT_STYLE_NORMAL;

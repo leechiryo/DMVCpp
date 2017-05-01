@@ -33,7 +33,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   // 准备 View
   auto view = v<Window>("main_window", { L"MVC++ テスト", 800, 600 });
   auto lbl = view->AddSubView<Label>("lblInput", L"Some item:");
-  lbl->SetPos(100, 100, 200, 140);
+  lbl->SetPos(100, 110, 200, 140);
 
   auto tbx = view->AddSubView<TextBox>("tbxInput", L"Input ...");
   tbx->SetPos(250, 100, 600, 140);
@@ -61,7 +61,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   rdo1->selectedValue.Bind("groupVal");
   rdo2->selectedValue.Bind("groupVal");
   rdo3->selectedValue.Bind("groupVal");
-  lbl2->text.Bind("strGroupVal");
+  lbl2->text->Bind("strGroupVal");
 
   // 设置事件处理 Controller
   rdo1->AddEventHandler(WM_LBUTTONDOWN, MyController::ShowSelectRadio);

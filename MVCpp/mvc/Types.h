@@ -65,6 +65,13 @@ namespace mvc {
   }
 
   template<class T>
+  inline D2D1::Matrix3x2F TranslationMatrix(T x, T y) {
+    return D2D1::Matrix3x2F::Translation(
+      static_cast<float>(x),
+      static_cast<float>(y));
+  }
+
+  template<class T>
   inline float tof(T x){
     return static_cast<float>(x);
   }

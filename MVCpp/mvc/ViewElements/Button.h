@@ -32,9 +32,9 @@ namespace mvc {
     // controller method
     static LRESULT Handle_LBUTTONDOWN(shared_ptr<Button> btn, WPARAM wParam, LPARAM lParam) {
       btn->m_pBackgroundBrush = btn->m_pClickBackgroundBrush;
-      int xPos = GET_X_LPARAM(lParam); 
-      int yPos = GET_Y_LPARAM(lParam); 
-      btn->m_spAniPressed->SetCenter(btn->PixelsToDipsX(xPos),btn->PixelsToDipsY(yPos));
+      int xPos = GET_X_LPARAM(lParam);
+      int yPos = GET_Y_LPARAM(lParam);
+      btn->m_spAniPressed->SetCenter(btn->AbsX2RelX(xPos), btn->AbsY2RelY(yPos));
       btn->m_spAniPressed->Stop();
       btn->m_spAniPressed->PlayAndStopAtEnd();
       return 0;
@@ -74,7 +74,7 @@ namespace mvc {
   public:
     ModelRef<wstring> title;
 
-    Button(wstring ttl) : title{ ttl }{
+    Button(wstring ttl) : title{ ttl } {
       m_color = 0x333333;
       m_fontWeight = DWRITE_FONT_WEIGHT_REGULAR;
       m_fontStyle = DWRITE_FONT_STYLE_NORMAL;
@@ -105,7 +105,7 @@ namespace mvc {
         textRect,
         m_pBrush.ptr());
 
-      m_spAniPressed->SetPos(m_left, m_top, m_right, m_bottom);
+      m_spAniPressed->SetPos(0, 0, m_right - m_left, m_bottom - m_top);
     }
 
   };
