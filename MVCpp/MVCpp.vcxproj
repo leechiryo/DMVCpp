@@ -82,6 +82,10 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="mvc\ViewElements\Circle.h" />
+    <ClInclude Include="mvc\ViewElements\Graphic.h" />
+    <ClInclude Include="mvc\ViewElements\Rectangle.h" />
+    <ClInclude Include="mvc\ViewElements\RoundRectangle.h" />
     <ClInclude Include="mvc\ViewElements\Text.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="mvc\App.h" />

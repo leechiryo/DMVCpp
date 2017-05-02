@@ -10,7 +10,7 @@ namespace mvc {
   {
   private:
 
-    // D2D 资源(离开作用域是会自动销毁)
+    // D2D 资源(离开作用域时会自动销毁)
     DxResource<ID2D1SolidColorBrush> m_pBackgroundBrush;
     DxResource<ID2D1SolidColorBrush> m_pBrush;
     DxResource<IDWriteTextFormat> m_pTextFormat;
