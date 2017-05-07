@@ -51,6 +51,27 @@ namespace mvc {
       return resource;
     }
 
+    DxResource<ID2D1Bitmap1> LoadImageFile(wstring filePath) {
+      DxResource<IWICBitmapDecoder> m_pDecoder;
+      DxResource<IWICBitmapFrameDecode> m_pSource;
+      DxResource<IWICFormatConverter> m_pConverter;
+      m_pDecoder = App::s_pImagingFactory.GetResource<IWICBitmapDecoder>(&IWICImagingFactory::CreateDecoderFromFilename, filePath.c_str(), nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad);
+      m_pSource = m_pDecoder.GetResource<IWICBitmapFrameDecode>(&IWICBitmapDecoder::GetFrame, 0);
+      m_pConverter = App::s_pImagingFactory.GetResource<IWICFormatConverter>(&IWICImagingFactory::CreateFormatConverter);
+      HRESULT hr = m_pConverter->Initialize(m_pSource.ptr(), GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, nullptr, 0.0f, WICBitmapPaletteTypeMedianCut);
+      if (!SUCCEEDED(hr)) {
+        throw std::runtime_error("Failed to initialize image format converter.");
+      }
+
+      ID2D1Bitmap1 *pmap;
+      hr = m_pResource->CreateBitmapFromWicBitmap(m_pConverter.ptr(), nullptr, &pmap);
+      if (!SUCCEEDED(hr)) {
+        throw std::runtime_error("Failed to create bitmap from wic bitmap.");
+      }
+
+      return pmap;
+    }
+
     DxResource<ID2D1Effect> CreateEffect(REFCLSID effectId) {
       ID2D1Effect *resource;
       HRESULT hr = S_OK;

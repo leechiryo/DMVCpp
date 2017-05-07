@@ -11,4 +11,5 @@ namespace mvc {
 
   DxResource<ID2D1Factory1> App::s_pDirect2dFactory;
   DxResource<IDWriteFactory1> App::s_pDWriteFactory;
+  DxResource<IWICImagingFactory> App::s_pImagingFactory;
 }

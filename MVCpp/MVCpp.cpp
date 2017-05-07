@@ -8,11 +8,13 @@
 #include "mvc\ViewElements\Label.h"
 #include "mvc\ViewElements\CheckBox.h"
 #include "mvc\ViewElements\Radio.h"
+#include "mvc\ViewElements\\Image.h"
 #include "MyController.h"
 #include <system_error>
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dwrite.lib")
+#pragma comment(lib, "Windowscodecs.lib")
 
 using namespace mvc;
 
@@ -55,6 +57,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   auto lbl2 = view->AddSubView<Label>("lbl2", L"");
   lbl2->SetPos(100, 400, 500, 420);
+
+  auto img = view->AddSubView<Image>("img1", L"C:\\Program Files (x86)\\ASUS\\AI Suite III\\DIP4\\Resource\\number\\normal\\blue\\00.png");
+  //auto img = view->AddSubView<Image>("img1", L"D:\\Works\\agg-2.4\\examples-bin\\1.bmp");
+  img->SetPos(100, 450, 200, 470);
 
   // 绑定 Model 和 View
   btn->title.Bind("my_model");

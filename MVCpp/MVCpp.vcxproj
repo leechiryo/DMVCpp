@@ -84,6 +84,7 @@
   <ItemGroup>
     <ClInclude Include="mvc\ViewElements\Circle.h" />
     <ClInclude Include="mvc\ViewElements\Graphic.h" />
+    <ClInclude Include="mvc\ViewElements\Image.h" />
     <ClInclude Include="mvc\ViewElements\Rectangle.h" />
     <ClInclude Include="mvc\ViewElements\RoundRectangle.h" />
     <ClInclude Include="mvc\ViewElements\Text.h" />

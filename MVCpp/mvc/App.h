@@ -4,6 +4,7 @@
 #include <set>
 #include <string>
 #include <memory>
+#include <wincodec.h>
 #include "Types.h"
 #include "ConstructorProxy.h"
 
@@ -20,6 +21,7 @@ namespace mvc {
 
     static DxResource<ID2D1Factory1> s_pDirect2dFactory;
     static DxResource<IDWriteFactory1> s_pDWriteFactory;
+    static DxResource<IWICImagingFactory> s_pImagingFactory;
 
     static double DPI_SCALE_X;
     static double DPI_SCALE_Y;
@@ -62,6 +64,18 @@ namespace mvc {
 
       DPI_SCALE_X = dpiX / 96.0f;
       DPI_SCALE_Y = dpiY / 96.0f;
+
+      hr = CoCreateInstance(
+        CLSID_WICImagingFactory,
+        NULL,
+        CLSCTX_INPROC_SERVER,
+        IID_IWICImagingFactory,
+        reinterpret_cast<void**>(&s_pImagingFactory));
+
+      if (!SUCCEEDED(hr)) {
+        CoUninitialize();
+        throw std::system_error(EINTR, std::system_category(), "Windows Imaging Component is not initialized successfully.");
+      }
     }
 
     static DxResource<IDWriteTextFormat> CreateTextFormat(const WCHAR* fontName, float fontSize, 

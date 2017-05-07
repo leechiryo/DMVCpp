@@ -15,7 +15,11 @@
 
 
 // TODO: プログラムに必要な追加ヘッダーをここで参照してください。
+#include <map>
+#include <set>
+#include <string>
+#include <memory>
+#include <wincodec.h>
+
 #include "resource.h"
-
-
 #include "rapidxml\rapidxml.hpp"
