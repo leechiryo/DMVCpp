@@ -39,24 +39,32 @@ namespace mvc {
 
     void SetColor(UINT32 color) {
       m_color = color;
-      m_pBrush->SetColor(D2D1::ColorF(m_color));
+      if (m_pBrush.ptr()){
+        m_pBrush->SetColor(D2D1::ColorF(m_color));
+      }
     }
 
     void SetOpacity(float opacity) {
       m_opacity = opacity;
-      m_pBrush->SetOpacity(m_opacity);
+      if (m_pBrush.ptr()){
+        m_pBrush->SetOpacity(m_opacity);
+      }
     }
 
     void SetBackColor(UINT32 color) {
       m_backColor = color;
-      m_pBackBrush->SetColor(D2D1::ColorF(m_backColor));
       m_opacity = 1.0f;
-      m_pBackBrush->SetOpacity(m_opacity);
+      if (m_pBackBrush.ptr()){
+        m_pBackBrush->SetColor(D2D1::ColorF(m_backColor));
+        m_pBackBrush->SetOpacity(m_opacity);
+      }
     }
 
     void SetBackOpacity(float opacity) {
       m_backOpacity = opacity;
-      m_pBackBrush->SetOpacity(m_backOpacity);
+      if (m_pBackBrush.ptr()){
+        m_pBackBrush->SetOpacity(m_backOpacity);
+      }
     }
 
     void SetStroke(float stroke) {

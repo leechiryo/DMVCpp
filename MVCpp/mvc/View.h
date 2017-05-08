@@ -20,14 +20,11 @@ namespace mvc {
 
     virtual WPView GetClickedSubView(int pixelX, int pixelY) {
 
-      double dipX = PixelsToDipsX(pixelX);
-      double dipY = PixelsToDipsY(pixelY);
-
       // 查询所有的子view，看其是否被选中。
       for (auto v : m_subViews) {
         auto spv = v.lock();
         if (!spv) continue;
-        if (spv->HitTest(dipX, dipY)) {
+        if (spv->HitTest(pixelX, pixelY)) {
           // 如果鼠标事件发生时的坐标在子 View 的内部，
           // 则在该子view中进一步查询内部的子view。
           auto csv = spv->GetClickedSubView(pixelX, pixelY);
@@ -55,8 +52,8 @@ namespace mvc {
         // 当鼠标事件发生时，先获取鼠标的坐标信息。
         pixelX = GET_X_LPARAM(lParam);
         pixelY = GET_Y_LPARAM(lParam);
-        dipX = PixelsToDipsX(pixelX);
-        dipY = PixelsToDipsY(pixelY);
+        dipX = AbsX2RelX(pixelX);
+        dipY = AbsY2RelY(pixelY);
         isMouseEvent = true;
       }
 
@@ -65,7 +62,7 @@ namespace mvc {
         if (!spv) continue;
         if (isMouseEvent) {
           // 遇到 mouse 事件，判断该事件是否表示进入某个子 view
-          if (!spv->HitTest(dipX, dipY)) {
+          if (!spv->HitTest(pixelX, pixelY)) {
             if (spv->m_mouseIn) {
               spv->m_mouseIn = 0;
               spv->MouseLeft(dipX, dipY);

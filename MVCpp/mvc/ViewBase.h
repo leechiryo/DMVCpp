@@ -113,13 +113,13 @@ namespace mvc {
     }
 
     virtual bool HitTest(double dipX, double dipY) {
-      return dipX >= m_left && dipX <= m_right
-        && dipY >= m_top && dipY <= m_bottom;
+      return dipX >= 0 && dipX <= (m_right - m_left)
+        && dipY >= 0 && dipY <= (m_bottom - m_top);
     }
 
     bool HitTest(int pixelsX, int pixelsY) {
-      double dipX = PixelsToDipsX(pixelsX);
-      double dipY = PixelsToDipsY(pixelsY);
+      double dipX = AbsX2RelX(pixelsX);
+      double dipY = AbsY2RelY(pixelsY);
 
       return HitTest(dipX, dipY);
     }

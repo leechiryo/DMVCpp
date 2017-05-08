@@ -8,7 +8,8 @@
 #include "mvc\ViewElements\Label.h"
 #include "mvc\ViewElements\CheckBox.h"
 #include "mvc\ViewElements\Radio.h"
-#include "mvc\ViewElements\\Image.h"
+#include "mvc\ViewElements\Image.h"
+#include "mvc\ViewElements\Line.h"
 #include "MyController.h"
 #include <system_error>
 #pragma comment(lib, "d2d1.lib")
@@ -59,8 +60,11 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   lbl2->SetPos(100, 400, 500, 420);
 
   auto img = view->AddSubView<Image>("img1", L"01.png");
-  //auto img = view->AddSubView<Image>("img1", L"D:\\Works\\agg-2.4\\examples-bin\\1.bmp");
   img->SetPos(100, 450, 200, 470);
+
+  auto line = view->AddSubView<Line>("line1", {});
+  //line->SetColor(0x23ff00);
+  line->SetPos(600, 450, 650, 500);
 
   // 绑定 Model 和 View
   btn->title.Bind("my_model");
