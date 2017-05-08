@@ -26,7 +26,11 @@ namespace mvc {
     }
 
     virtual void DrawSelf() {
-      m_pContext->DrawBitmap(m_pBitmap.ptr());
+      auto size = m_pBitmap->GetSize();
+      m_right = m_left + size.width;
+      m_bottom = m_top + size.height;
+      D2D1_RECT_F rect = RectD(m_left, m_top, m_right, m_bottom);
+      m_pContext->DrawBitmap(m_pBitmap.ptr(), &rect);
     }
   };
 }
