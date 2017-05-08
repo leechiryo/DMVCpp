@@ -76,6 +76,21 @@ namespace mvc {
     return static_cast<float>(x);
   }
 
+  // Com 的初始化和销毁管理
+  class ComLibrary{
+  public:
+    ComLibrary(){
+      HRESULT hr = CoInitialize(NULL);
+      if (!SUCCEEDED(hr)) {
+        throw std::system_error(EINTR, std::system_category(), "COM environment is not initialized successfully.");
+      }
+    }
+
+    ~ComLibrary(){
+      CoUninitialize();
+    }
+  };
+
   // DirectX 资源管理
   template <typename T>
   class DxResource{
@@ -121,12 +136,14 @@ namespace mvc {
     void Clear(){
       if (sp.unique()){
         SafeRelease(m_pResource);
+        m_pResource = nullptr;
       }
     }
 
     ~DxResource(){
       if (sp.unique()){
         SafeRelease(m_pResource);
+        m_pResource = nullptr;
       }
     }
 

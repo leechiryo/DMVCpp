@@ -22,7 +22,7 @@ namespace mvc {
 
   public:
 
-    Image(LPCWSTR fileName) : m_fileName{ fileName } {
+    Image(LPCWSTR fileName) : m_fileName( fileName ) {
     }
 
     virtual void DrawSelf() {

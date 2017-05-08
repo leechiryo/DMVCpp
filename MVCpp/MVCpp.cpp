@@ -58,7 +58,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   auto lbl2 = view->AddSubView<Label>("lbl2", L"");
   lbl2->SetPos(100, 400, 500, 420);
 
-  auto img = view->AddSubView<Image>("img1", L"C:\\Program Files (x86)\\ASUS\\AI Suite III\\DIP4\\Resource\\number\\normal\\blue\\00.png");
+  auto img = view->AddSubView<Image>("img1", L"01.png");
   //auto img = view->AddSubView<Image>("img1", L"D:\\Works\\agg-2.4\\examples-bin\\1.bmp");
   img->SetPos(100, 450, 200, 470);
 
@@ -76,6 +76,4 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);
 
   view->Show();
-
-  App::Uninitialize();
 }

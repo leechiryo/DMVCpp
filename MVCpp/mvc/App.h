@@ -14,6 +14,7 @@ namespace mvc {
   class App {
 
   private:
+    static ComLibrary s_comLib;
     static map<string, SPView> s_views;
     static map<string, SPModel> s_models;
 
@@ -30,17 +31,13 @@ namespace mvc {
 
     static void Initialize()
     {
-      HRESULT hr = CoInitialize(NULL);
-      if (!SUCCEEDED(hr)) {
-        throw std::system_error(EINTR, std::system_category(), "COM environment is not initialized successfully.");
-      }
       // create the d2d factory.
       D2D1_FACTORY_OPTIONS options;
       ZeroMemory(&options, sizeof(D2D1_FACTORY_OPTIONS));
-      hr = D2D1CreateFactory(
+      HRESULT hr = D2D1CreateFactory(
         D2D1_FACTORY_TYPE_SINGLE_THREADED,
-        s_pDirect2dFactory.GetGUID(), 
-        &options, 
+        s_pDirect2dFactory.GetGUID(),
+        &options,
         reinterpret_cast<void**>(&s_pDirect2dFactory));
 
       if (!SUCCEEDED(hr)) {
@@ -78,23 +75,19 @@ namespace mvc {
       }
     }
 
-    static DxResource<IDWriteTextFormat> CreateTextFormat(const WCHAR* fontName, float fontSize, 
+    static DxResource<IDWriteTextFormat> CreateTextFormat(const WCHAR* fontName, float fontSize,
       DWRITE_FONT_WEIGHT fontWeight = DWRITE_FONT_WEIGHT_NORMAL,
-      DWRITE_FONT_STYLE fontStyle = DWRITE_FONT_STYLE_NORMAL, 
-      DWRITE_FONT_STRETCH fontStretch = DWRITE_FONT_STRETCH_NORMAL, 
-      const WCHAR *localeName=L"ja-JP"){
+      DWRITE_FONT_STYLE fontStyle = DWRITE_FONT_STYLE_NORMAL,
+      DWRITE_FONT_STRETCH fontStretch = DWRITE_FONT_STRETCH_NORMAL,
+      const WCHAR *localeName = L"ja-JP"){
       return App::s_pDWriteFactory.GetResource<IDWriteTextFormat>(&IDWriteFactory::CreateTextFormat,
         fontName, nullptr, fontWeight, fontStyle, fontStretch, fontSize, localeName);
     }
 
     static DxResource<IDWriteTextLayout> CreateTextLayout(const WCHAR* text, unsigned length,
-      IDWriteTextFormat *textFormat, float maxWidth, float maxHeight ){
+      IDWriteTextFormat *textFormat, float maxWidth, float maxHeight){
       return App::s_pDWriteFactory.GetResource<IDWriteTextLayout>(&IDWriteFactory::CreateTextLayout,
         text, length, textFormat, maxWidth, maxHeight);
-    }
-
-    static void Uninitialize() {
-      CoUninitialize();
     }
 
     template <typename T>

@@ -3,6 +3,7 @@
 #include "Model.h"
 
 namespace mvc {
+  ComLibrary App::s_comLib;
   map<string, SPView> App::s_views;
   map<string, SPModel> App::s_models;
 
