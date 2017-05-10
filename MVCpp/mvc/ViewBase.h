@@ -188,6 +188,25 @@ namespace mvc {
       m_bottom = bottom;
     }
 
-  };
+    DxResource<ID2D1Effect> DrawEffect(REFCLSID effectId, D2DContext &context) {
 
+      auto effect = context.CreateEffect(effectId);
+      D2DContext temp;
+      temp = m_pContext;
+      auto bmpRT = context.CreateCompatibleRenderTarget();
+      m_pContext = bmpRT.Query<ID2D1DeviceContext>();
+
+      m_pContext->BeginDraw();
+      m_pContext->Clear(D2D1::ColorF(0xffffff, 0.0f));
+      DrawSelf();
+      m_pContext->EndDraw();
+
+      m_pContext = temp;
+
+      auto bmp = bmpRT.GetResource<ID2D1Bitmap>(&ID2D1BitmapRenderTarget::GetBitmap);
+      effect->SetInput(0, bmp.ptr());
+
+      return effect;
+    }
+  };
 }

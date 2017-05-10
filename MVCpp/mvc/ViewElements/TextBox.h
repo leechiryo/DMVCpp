@@ -4,6 +4,7 @@
 #include "../View.h"
 #include "../ModelRef.h"
 #include "AniCaretFlicker.h"
+#include "Rectangle.h"
 
 namespace mvc {
   class TextBox : public View<TextBox> {
@@ -93,7 +94,7 @@ namespace mvc {
       m_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 
       m_shadowEffect = m_pContext.CreateEffect(CLSID_D2D1Shadow);
-      m_shadowEffect->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66afe9));
+      //m_shadowEffect->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66afe9));
     }
 
   public:
@@ -132,17 +133,24 @@ namespace mvc {
 
       if (m_focused) {
         // 如果处在选中状态，则在边框周围绘制一个阴影。
-        auto bmpRT = m_pContext.CreateCompatibleRenderTarget();
+        Rectangle rect;
+        rect.SetPos(m_left, m_top, m_right, m_bottom);
+        auto shadowEffect = rect.DrawEffect(CLSID_D2D1Shadow, m_pContext);
+        shadowEffect->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66af00));
+        m_pContext->DrawImage(shadowEffect.ptr());
+        //auto bmpRT = m_pContext.CreateCompatibleRenderTarget();
+        //auto bmpContext = bmpRT.Query<ID2D1DeviceContext>();
 
-        bmpRT->BeginDraw();
-        bmpRT->Clear(D2D1::ColorF(0xffffff, 0.0f));
-        bmpRT->FillRectangle(textRect, m_pBackgroundBrush.ptr());
-        bmpRT->EndDraw();
+        //bmpContext->BeginDraw();
+        //bmpContext->Clear(D2D1::ColorF(0xffffff, 0.0f));
+        //bmpContext->FillRectangle(textRect, m_pBackgroundBrush.ptr());
+        //bmpContext->EndDraw();
 
-        auto bmp = bmpRT.GetResource<ID2D1Bitmap>(&ID2D1BitmapRenderTarget::GetBitmap);
+        //auto bmp = bmpRT.GetResource<ID2D1Bitmap>(&ID2D1BitmapRenderTarget::GetBitmap);
 
-        m_shadowEffect->SetInput(0, bmp.ptr());
-        m_pContext->DrawImage(m_shadowEffect.ptr());
+        //m_shadowEffect->SetInput(0, bmp.ptr());
+        //m_shadowEffect->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66af00));
+        //m_pContext->DrawImage(m_shadowEffect.ptr());
 
         // 改变边框的颜色
         m_pContext->DrawRectangle(textRect, m_pBorderFocusedBrush.ptr());
