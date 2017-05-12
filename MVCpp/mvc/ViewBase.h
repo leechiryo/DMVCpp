@@ -19,6 +19,8 @@ namespace mvc {
 
     friend class Window;
 
+    friend class Effect;
+
   private:
     bool m_hidden;
 
@@ -46,10 +48,6 @@ namespace mvc {
     virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result, WPView &eventView) = 0;
     virtual WPView GetClickedSubView(int pixelX, int pixelY) = 0;
 
-    // 以前是需要的，在引入了DxResource以后就变得不太需要了。
-    // 但是谨慎起见，暂时先保留。
-    virtual void DestroyD2DResource() {};
-
     // 如果需要处理鼠标进入事件，可以重载此函数
     virtual void MouseEnter(double x, double y) {
     }
@@ -65,25 +63,16 @@ namespace mvc {
       rect.bottom = DipsYToPixels(m_bottom);
     }
 
-    void CreateD2DEnvironment() {
+    void RebuildD2DEnvironment() {
       CreateD2DResource();
 
       for (auto e : m_subViews) {
         auto spv = e.lock();
         if (spv) {
           spv->m_pContext = m_pContext;
-          spv->CreateD2DEnvironment();
+          spv->RebuildD2DEnvironment();
         }
       }
-    }
-
-    void DestroyD2DEnvironment() {
-      for (auto e : m_subViews) {
-        auto spv = e.lock();
-        if (spv)spv->DestroyD2DEnvironment();
-      }
-
-      DestroyD2DResource();
     }
 
     double AbsX2RelX(int absX) {
@@ -126,8 +115,9 @@ namespace mvc {
 
   public:
 
-    ViewBase() {
+    ViewBase(const D2DContext & context) {
       m_hidden = false;
+      m_pContext = context;
     }
 
     virtual ~ViewBase() { }
@@ -147,7 +137,9 @@ namespace mvc {
       DrawSelf();
 
       // 開始繪製内部元素，首先移動坐標原點到父元素的左上角
-      m_pContext->SetTransform(TranslationMatrix(m_left, m_top));
+      D2D1_MATRIX_3X2_F oldMatrix;
+      m_pContext->GetTransform(&oldMatrix);
+      m_pContext->SetTransform(TranslationMatrix(m_absLeft, m_absTop));
 
       for (auto it = m_subViews.begin(); it != m_subViews.end(); ++it) {
         const auto &v = *it;
@@ -164,14 +156,18 @@ namespace mvc {
       }
 
       // 内部元素繪製完成，將坐標移回
-      m_pContext->SetTransform(TranslationMatrix(-m_left, -m_top));
+      m_pContext->SetTransform(oldMatrix);
 
-      m_pContext->SetTransform(D2D1::Matrix3x2F::Identity());
+      //m_pContext->SetTransform(D2D1::Matrix3x2F::Identity());
     }
 
-    template <typename T>
-    shared_ptr<T> AddSubView(string id, const ConstructorProxy<T> &cp) {
-      auto v = App::CreateView<T>(id, cp);
+    template <typename T, typename ...Args>
+    shared_ptr<T> CreateSubView(Args ...args) {
+      auto v = make_shared<T>(m_pContext, args...);
+      v->m_wpThis = v;
+
+      auto vb = static_pointer_cast<ViewBase>(v);
+      vb->CreateD2DResource();
       m_subViews.insert(v);
       return v;
     }
@@ -180,12 +176,19 @@ namespace mvc {
       m_subViews.erase(v);
     }
 
-
     void SetPos(double left, double top, double right, double bottom) {
       m_left = left;
       m_top = top;
       m_right = right;
       m_bottom = bottom;
+    }
+
+    void ClearContext(){
+      m_pContext.Clear();
+    }
+
+    bool NotInitialized(){
+      return m_pContext.NotSet();
     }
 
     DxResource<ID2D1Effect> DrawEffect(REFCLSID effectId, D2DContext &context) {

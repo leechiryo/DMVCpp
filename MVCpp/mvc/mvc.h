@@ -15,9 +15,16 @@ using namespace rapidxml;
 
 namespace mvc {
 
-  template<typename T>
-  shared_ptr<T> v(string id, const ConstructorProxy<T> &cp) {
-    return App::CreateView<T>(id, cp);
+  class Window;
+
+  template<typename ...Args>
+  shared_ptr<Window> v(string id, Args ... args) {
+    auto w = App::CreateView(id, args...);
+    return w;
+  }
+
+  void regsubv(string id, SPView v){
+    App::RegisterSubView(id, v);
   }
 
   template<typename T>

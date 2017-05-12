@@ -140,6 +140,10 @@ namespace mvc {
       }
     }
 
+    bool NotSet(){
+      return m_pResource == nullptr;
+    }
+
     ~DxResource(){
       if (sp.unique()){
         SafeRelease(m_pResource);

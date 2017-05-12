@@ -138,8 +138,7 @@ namespace mvc {
 
           if (hr == D2DERR_RECREATE_TARGET) {
             // 出现绘制错误的情况则尝试重建整个D2D环境
-            pWnd->DestroyD2DEnvironment();
-            pWnd->CreateD2DEnvironment();
+            pWnd->RebuildD2DEnvironment();
           }
 
           GetClientRect(pWnd->m_hwnd, &rect1);
@@ -238,7 +237,7 @@ namespace mvc {
     }
 
   public:
-    Window(const WCHAR * title, int width, int height) {
+    Window(const WCHAR * title, int width, int height) : View({}){
       m_hwnd = nullptr;
       m_canBeFocused = false;
 
@@ -288,6 +287,8 @@ namespace mvc {
 
       m_absLeft = m_left;
       m_absTop = m_top;
+
+      CreateD2DResource();
     }
 
     void Show() {
@@ -296,9 +297,6 @@ namespace mvc {
         // 创建线程同步用的信号量
         m_drawThreadExitSignal = CreateEvent(NULL, false, false, nullptr);
         InitializeCriticalSection(&m_drawAndResizeSection);
-
-        // 创建D2D的绘制环境
-        CreateD2DEnvironment();
 
         ShowWindow(m_hwnd, SW_SHOWNORMAL);
         UpdateWindow(m_hwnd);
@@ -319,16 +317,10 @@ namespace mvc {
     }
 
     virtual ~Window() {
-      DestroyD2DEnvironment();
     }
 
     virtual void DrawSelf() {
-      m_pContext->SetTransform(D2D1::Matrix3x2F::Identity());
       m_pContext->Clear(D2D1::ColorF(D2D1::ColorF::White));
-    }
-
-    void Update() {
-      InvalidateRect(m_hwnd, NULL, false);
     }
 
     void Close() {

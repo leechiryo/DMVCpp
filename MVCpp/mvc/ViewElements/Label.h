@@ -16,9 +16,8 @@ namespace mvc {
 
   public:
     ModelRef<wstring> *text;
-    Label(wstring ttl){
-      m_vtext = make_shared<Text>(ttl);
-      m_subViews.insert(m_vtext);
+    Label(const D2DContext &context, wstring ttl): View(context){
+      m_vtext = CreateSubView<Text>(ttl);
       text = &(m_vtext->text);
       // 如果要設置padding，可以在這裏設置内部對象的位置
       //m_vtext->SetPos(5.0, 5.0, 5.0, 5.0);

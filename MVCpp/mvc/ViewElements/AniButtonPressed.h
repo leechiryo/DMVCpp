@@ -17,6 +17,9 @@ namespace mvc {
     }
 
   public:
+    AniButtonPressed(const D2DContext &context) : Animation(context){
+    }
+
     void SetCenter(double x, double y) {
       m_clickX = tof(x);
       m_clickY = tof(y);

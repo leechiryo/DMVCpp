@@ -10,6 +10,8 @@ namespace mvc {
   class Circle : public Graphic
   {
   public:
+    Circle(const D2DContext &context) : Graphic(context){}
+
     virtual void DrawSelf() {
       double width = m_right - m_left;
       double height = m_bottom - m_top;

@@ -5,6 +5,8 @@
 #include "../ModelRef.h"
 #include "AniCaretFlicker.h"
 #include "Rectangle.h"
+#include "Effect.h"
+#include "Text.h"
 
 namespace mvc {
   class TextBox : public View<TextBox> {
@@ -18,6 +20,11 @@ namespace mvc {
     DxResource<ID2D1Effect> m_shadowEffect;
 
     shared_ptr<AniCaretFlicker> m_spAniCaret;
+    shared_ptr<Effect> m_shadowEffect2;
+    shared_ptr<Rectangle> m_shadowRect;
+    shared_ptr<Rectangle> m_backRect;
+    shared_ptr<Text> m_vtext;
+
     size_t m_insertPos;
     float m_hTranslation;
 
@@ -101,7 +108,7 @@ namespace mvc {
 
     ModelRef<wstring> text;
 
-    TextBox(wstring text) : text{ text } {
+    TextBox(const D2DContext &context, wstring text) : View(context), text{ text } {
 
       m_focused = false;
 
@@ -115,10 +122,25 @@ namespace mvc {
       m_insertPos = text.length();
       m_hTranslation = 0.0f;
 
+
+      m_shadowEffect2 = CreateSubView<Effect>(CLSID_D2D1Shadow);
+      m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66afe9));
+      m_shadowRect = m_shadowEffect2->CreateSubView<Rectangle>();
+      m_shadowRect->SetBackColor(0x0);
+      m_shadowRect->SetBackOpacity(1.0f);
+      m_shadowRect->SetStroke(0.0f);
+
+      m_backRect = CreateSubView<Rectangle>();
+      m_backRect->SetBackColor(0xfdfdfd);
+      m_backRect->SetBackOpacity(1.0f);
+      m_backRect->SetStroke(1.0f);
+      m_backRect->SetColor(0x555555);
+
+      m_vtext = CreateSubView<Text>(text);
+
       // 设置光标的动画
-      m_spAniCaret = make_shared<AniCaretFlicker>();
+      m_spAniCaret = CreateSubView<AniCaretFlicker>();
       m_spAniCaret->PlayRepeatly();
-      m_subViews.insert(m_spAniCaret);
 
       AddEventHandler(WM_CHAR, Handle_CHAR);
       AddEventHandler(WM_KEYDOWN, Handle_KEYDOWN);
@@ -131,13 +153,14 @@ namespace mvc {
     virtual void DrawSelf() {
       D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
 
+      m_backRect->SetPos(0, 0, m_right - m_left, m_bottom - m_top);
+      m_vtext->SetPos(0, 0, 0, 0);
+
       if (m_focused) {
+        m_shadowEffect2->SetPos(0, 0, 0, 0);
+        m_shadowRect->SetPos(0, 0, m_right - m_left, m_bottom - m_top);
+        m_shadowEffect2->SetHidden(false);
         // 如果处在选中状态，则在边框周围绘制一个阴影。
-        Rectangle rect;
-        rect.SetPos(m_left, m_top, m_right, m_bottom);
-        auto shadowEffect = rect.DrawEffect(CLSID_D2D1Shadow, m_pContext);
-        shadowEffect->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66af00));
-        m_pContext->DrawImage(shadowEffect.ptr());
         //auto bmpRT = m_pContext.CreateCompatibleRenderTarget();
         //auto bmpContext = bmpRT.Query<ID2D1DeviceContext>();
 
@@ -149,7 +172,6 @@ namespace mvc {
         //auto bmp = bmpRT.GetResource<ID2D1Bitmap>(&ID2D1BitmapRenderTarget::GetBitmap);
 
         //m_shadowEffect->SetInput(0, bmp.ptr());
-        //m_shadowEffect->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66af00));
         //m_pContext->DrawImage(m_shadowEffect.ptr());
 
         // 改变边框的颜色
@@ -164,6 +186,8 @@ namespace mvc {
 
         // 隐藏输入光标
         m_spAniCaret->SetHidden(true);
+
+        m_shadowEffect2->SetHidden(true);
       }
       m_pContext->FillRectangle(textRect, m_pBackgroundBrush.ptr());
 

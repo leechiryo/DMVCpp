@@ -15,6 +15,8 @@ namespace mvc {
 
   public:
 
+    RoundRectangle(const D2DContext &context) :Graphic(context){}
+
     void SetRoundRadius(float radiusX, float radiusY) {
       m_radiusX = radiusX;
       m_radiusY = radiusY;

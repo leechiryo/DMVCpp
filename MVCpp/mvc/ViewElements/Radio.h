@@ -52,7 +52,7 @@ namespace mvc {
     ModelRef<int> selectedValue;
     ModelRef<wstring> title;
 
-    Radio(int val, wstring ttl) : title{ ttl } {
+    Radio(const D2DContext &context, int val, wstring ttl) : View(context), title{ ttl } {
       m_color = 0x333333;
       m_fontWeight = DWRITE_FONT_WEIGHT_REGULAR;
       m_fontStyle = DWRITE_FONT_STYLE_NORMAL;

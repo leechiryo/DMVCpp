@@ -16,6 +16,9 @@ namespace mvc {
     }
 
   public:
+    AniCaretFlicker(const D2DContext &context) : Animation(context){
+    }
+
     void SetCaretPos(double x, double y) {
       m_posX = tof(x);
       m_posY = tof(y);

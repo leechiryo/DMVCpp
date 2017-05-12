@@ -29,7 +29,7 @@ namespace mvc {
     // 可以设置动画完成时的回调函数
     AnimationCallBack OnFinished;
 
-    Animation() {
+    Animation(const D2DContext &context) : View(context) {
       m_frameIdx = 0;
       m_rotation = 0;
       m_canBeFocused = false;

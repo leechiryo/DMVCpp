@@ -105,7 +105,7 @@ namespace mvc {
 
   public:
 
-    View() : ViewBase() {
+    View(const D2DContext &context) : ViewBase(context) {
     }
 
     void AddEventHandler(int msg, ControllerMethod method) {

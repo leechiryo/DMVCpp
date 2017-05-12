@@ -30,7 +30,7 @@ namespace mvc {
 
   public:
 
-    Graphic() {
+    Graphic(const D2DContext &context) : View(context) {
       m_color = 0x333333;
       m_backColor = 0xffffff;
       m_opacity = 1.0f;

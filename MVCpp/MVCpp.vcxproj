@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mvc\ViewElements\Circle.h" />
+    <ClInclude Include="mvc\ViewElements\Effect.h" />
     <ClInclude Include="mvc\ViewElements\Graphic.h" />
     <ClInclude Include="mvc\ViewElements\Image.h" />
     <ClInclude Include="mvc\ViewElements\Line.h" />

@@ -11,7 +11,11 @@
 using namespace std;
 
 namespace mvc {
+  class Window;
+
   class App {
+
+    friend class ViewBase;
 
   private:
     static ComLibrary s_comLib;
@@ -90,19 +94,19 @@ namespace mvc {
         text, length, textFormat, maxWidth, maxHeight);
     }
 
-    template <typename T>
-    static shared_ptr<T> CreateView(string id, const ConstructorProxy<T> &cp) {
+    template<typename ...Args>
+    static shared_ptr<Window> CreateView(string id, Args ...args){
+      auto w = make_shared<Window>(args...);
+      w->m_wpThis = w;
+      RegisterSubView(id, w);
+      return w;
+    }
+
+    static void RegisterSubView(string id, const SPView &v){
       if (s_views.find(id) != s_views.end()) {
         throw std::runtime_error("The id exists already." + id);
       }
-
-      shared_ptr<T> ptr = cp.GetSP();
-      s_views.insert({ id, ptr });
-
-      // save the weak pointer of T to the object itself.
-      ptr->m_wpThis = ptr;
-
-      return ptr;
+      s_views.insert({ id, v });
     }
 
     template <typename T>

@@ -73,7 +73,7 @@ namespace mvc {
       m_pBrush->SetColor(D2D1::ColorF(m_color));
     }
 
-    Text(wstring ttl) : text{ ttl }{
+    Text(const D2DContext &context, wstring ttl) : View(context), text{ ttl }{
       m_left = 0.0f;
       m_right = 0.0f;
       m_top = 0.0f;

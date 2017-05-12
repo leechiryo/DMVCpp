@@ -74,7 +74,7 @@ namespace mvc {
   public:
     ModelRef<wstring> title;
 
-    Button(wstring ttl) : title{ ttl } {
+    Button(const D2DContext &context, wstring ttl) : View(context), title{ ttl } {
       m_color = 0x333333;
       m_fontWeight = DWRITE_FONT_WEIGHT_REGULAR;
       m_fontStyle = DWRITE_FONT_STYLE_NORMAL;
@@ -86,9 +86,7 @@ namespace mvc {
       AddEventHandler(WM_LBUTTONUP, Handle_LBUTTONUP);
 
       // 设置点击的动画
-      m_spAniPressed = make_shared<AniButtonPressed>();
-
-      m_subViews.insert(m_spAniPressed);
+      m_spAniPressed = CreateSubView<AniButtonPressed>();
     }
 
     ~Button() {

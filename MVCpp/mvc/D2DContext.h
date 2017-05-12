@@ -85,7 +85,6 @@ namespace mvc {
       return resource;
     }
 
-
     DxResource<ID2D1BitmapRenderTarget> CreateCompatibleRenderTarget() {
       ID2D1BitmapRenderTarget *resource;
       HRESULT hr = S_OK;
