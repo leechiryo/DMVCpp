@@ -23,6 +23,7 @@ namespace mvc {
 
   private:
     bool m_hidden;
+    D2D1_RECT_F m_clipArea;
 
   protected:
     WPView m_wpThis;
@@ -118,6 +119,7 @@ namespace mvc {
     ViewBase(const D2DContext & context) {
       m_hidden = false;
       m_pContext = context;
+      m_clipArea = RectD(NAN, NAN, NAN, NAN);
     }
 
     virtual ~ViewBase() { }
@@ -130,9 +132,35 @@ namespace mvc {
       m_hidden = hidden;
     }
 
+    template<typename T>
+    void SetClipArea(T left, T top, T right, T bottom) {
+      m_clipArea.left = static_cast<float>(left);
+      m_clipArea.top = static_cast<float>(top);
+      m_clipArea.right = static_cast<float>(right);
+      m_clipArea.bottom = static_cast<float>(bottom);
+    }
+
+    void ClearClipArea() {
+      m_clipArea.left = NAN;
+      m_clipArea.top = NAN;
+      m_clipArea.right = NAN;
+      m_clipArea.bottom = NAN;
+    }
+
+    bool DefinedClipArea() {
+      return !isnan(m_clipArea.left)
+             && !isnan(m_clipArea.top)
+             && !isnan(m_clipArea.right)
+             && !isnan(m_clipArea.bottom);
+    }
+
     void Draw() {
 
       if (m_hidden) return;
+
+      if (DefinedClipArea()) {
+        m_pContext->PushAxisAlignedClip(m_clipArea, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+      }
 
       DrawSelf();
 
@@ -158,7 +186,9 @@ namespace mvc {
       // 内部元素繪製完成，將坐標移回
       m_pContext->SetTransform(oldMatrix);
 
-      //m_pContext->SetTransform(D2D1::Matrix3x2F::Identity());
+      if (DefinedClipArea()) {
+        m_pContext->PopAxisAlignedClip();
+      }
     }
 
     template <typename T, typename ...Args>

@@ -86,6 +86,14 @@ namespace mvc {
       m_fontSize = 16.0;
     }
 
+    float GetSubstrWidth(int length) {
+      D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
+      auto layout = m_pContext.GetTextLayout(text.SafePtr(), length, m_pTextFormat.ptr(), textRect, m_pBrush.ptr());
+      DWRITE_TEXT_METRICS tm;
+      layout->GetMetrics(&tm);
+      return tm.widthIncludingTrailingWhitespace;
+    }
+
     virtual void DrawSelf() {
       D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
       auto layout = m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pBrush.ptr());

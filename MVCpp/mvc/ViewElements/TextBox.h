@@ -37,6 +37,20 @@ namespace mvc {
 
     UINT32 m_color;
 
+    void UpdateCaretPos() {
+      float w = m_vtext->GetSubstrWidth(m_insertPos);
+      float tbxw = static_cast<float>(m_right - m_left);
+      if (w > tbxw + m_hTranslation) {
+        m_hTranslation = w - tbxw;
+      }
+      else if (w < m_hTranslation) {
+        m_hTranslation = w;
+      }
+
+      m_vtext->SetPos(-m_hTranslation, 12, 0, 12);
+      m_spAniCaret->SetCaretPos(w + 5, 30);
+    }
+
     static LRESULT Handle_MOUSEMOVE(shared_ptr<TextBox> tbx, WPARAM wParam, LPARAM lParam) {
       // 变更鼠标图标
       HCURSOR cursor = LoadCursor(NULL, IDC_IBEAM);
@@ -46,8 +60,9 @@ namespace mvc {
 
     static LRESULT Handle_CHAR(shared_ptr<TextBox> tbx, WPARAM wParam, LPARAM lParam) {
       if (wParam > 31 && wParam != 127) {
-        tbx->text->insert(tbx->m_insertPos, 1, wParam);
+        (*(tbx->text))->insert(tbx->m_insertPos, 1, wParam);
         tbx->m_insertPos++;
+        tbx->UpdateCaretPos();
       }
       return 0;
     }
@@ -56,14 +71,14 @@ namespace mvc {
       switch (wParam) {
       case VK_BACK:
         if (tbx->m_insertPos > 0) {
-          tbx->text->erase(tbx->m_insertPos - 1, 1);
+          (*(tbx->text))->erase(tbx->m_insertPos - 1, 1);
           tbx->m_insertPos--;
         }
         tbx->m_spAniCaret->SetFrameIndex(9);
         break;
       case VK_DELETE:
-        if (tbx->m_insertPos < tbx->text->length()) {
-          tbx->text->erase(tbx->m_insertPos, 1);
+        if (tbx->m_insertPos < (*(tbx->text))->length()) {
+          (*(tbx->text))->erase(tbx->m_insertPos, 1);
         }
         tbx->m_spAniCaret->SetFrameIndex(9);
         break;
@@ -72,7 +87,7 @@ namespace mvc {
         tbx->m_spAniCaret->SetFrameIndex(9);
         break;
       case VK_END:
-        tbx->m_insertPos = tbx->text->length();
+        tbx->m_insertPos = (*(tbx->text))->length();
         tbx->m_spAniCaret->SetFrameIndex(9);
         break;
       case VK_LEFT:
@@ -80,10 +95,11 @@ namespace mvc {
         tbx->m_spAniCaret->SetFrameIndex(9);
         break;
       case VK_RIGHT:
-        tbx->m_insertPos = tbx->m_insertPos < tbx->text->length() ? tbx->m_insertPos + 1 : tbx->text->length();
+        tbx->m_insertPos = tbx->m_insertPos < (*(tbx->text))->length() ? tbx->m_insertPos + 1 : (*(tbx->text))->length();
         tbx->m_spAniCaret->SetFrameIndex(9);
         break;
       }
+      tbx->UpdateCaretPos();
       return 0;
     }
 
@@ -106,9 +122,9 @@ namespace mvc {
 
   public:
 
-    ModelRef<wstring> text;
+    ModelRef<wstring> *text;
 
-    TextBox(const D2DContext &context, wstring text) : View(context), text{ text } {
+    TextBox(const D2DContext &context, wstring text) : View(context) {
 
       m_focused = false;
 
@@ -122,9 +138,9 @@ namespace mvc {
       m_insertPos = text.length();
       m_hTranslation = 0.0f;
 
-
       m_shadowEffect2 = CreateSubView<Effect>(CLSID_D2D1Shadow);
       m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66afe9));
+      m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_BLUR_STANDARD_DEVIATION, 5.0f);
       m_shadowRect = m_shadowEffect2->CreateSubView<Rectangle>();
       m_shadowRect->SetBackColor(0x0);
       m_shadowRect->SetBackOpacity(1.0f);
@@ -137,10 +153,14 @@ namespace mvc {
       m_backRect->SetColor(0x555555);
 
       m_vtext = CreateSubView<Text>(text);
+      this->text = &(m_vtext->text);
+      m_vtext->SetPos(0, 12, 0, 12);
 
       // 设置光标的动画
       m_spAniCaret = CreateSubView<AniCaretFlicker>();
       m_spAniCaret->PlayRepeatly();
+
+      //UpdateCaretPos();
 
       AddEventHandler(WM_CHAR, Handle_CHAR);
       AddEventHandler(WM_KEYDOWN, Handle_KEYDOWN);
@@ -150,16 +170,22 @@ namespace mvc {
     ~TextBox() {
     }
 
+    // 重载了该方法，直接返回本节点，不再向子view查询是否聚焦
+    virtual WPView GetClickedSubView(int pixelX, int pixelY) {
+      return m_wpThis;
+    }
+
     virtual void DrawSelf() {
       D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
 
       m_backRect->SetPos(0, 0, m_right - m_left, m_bottom - m_top);
-      m_vtext->SetPos(0, 0, 0, 0);
+      m_vtext->SetClipArea(0.0, 0.0, m_right - m_left, m_bottom - m_top);
 
       if (m_focused) {
         m_shadowEffect2->SetPos(0, 0, 0, 0);
         m_shadowRect->SetPos(0, 0, m_right - m_left, m_bottom - m_top);
         m_shadowEffect2->SetHidden(false);
+        m_backRect->SetColor(0x66afe9);
         // 如果处在选中状态，则在边框周围绘制一个阴影。
         //auto bmpRT = m_pContext.CreateCompatibleRenderTarget();
         //auto bmpContext = bmpRT.Query<ID2D1DeviceContext>();
@@ -184,6 +210,8 @@ namespace mvc {
         // 改变边框的颜色
         m_pContext->DrawRectangle(textRect, m_pBorderBrush.ptr());
 
+        m_backRect->SetColor(0x555555);
+
         // 隐藏输入光标
         m_spAniCaret->SetHidden(true);
 
@@ -196,24 +224,12 @@ namespace mvc {
 
       m_spAniCaret->SetPos(5, 0, m_right - m_left - 5, m_bottom - m_top);
 
-      auto layout = m_pContext.GetTextLayout(text.SafePtr(), m_insertPos, m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
-      DWRITE_TEXT_METRICS tm;
-      layout->GetMetrics(&tm);
-      float w = tm.widthIncludingTrailingWhitespace;
-      float tbxw = textRect.right - textRect.left;
-      if (w > tbxw + m_hTranslation){
-        m_hTranslation = w - tbxw;
-      }
-      else if (w < m_hTranslation){
-        m_hTranslation = w;
-      }
 
-      m_pContext->PushAxisAlignedClip(textRect, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-      m_pContext->SetTransform(D2D1::Matrix3x2F::Translation(-m_hTranslation, 0.0f));
-      m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
-      m_pContext->PopAxisAlignedClip();
+      //m_pContext->PushAxisAlignedClip(textRect, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+      //m_pContext->SetTransform(D2D1::Matrix3x2F::Translation(-m_hTranslation, 0.0f));
+      //m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
+      //m_pContext->PopAxisAlignedClip();
 
-      m_spAniCaret->SetCaretPos(tm.widthIncludingTrailingWhitespace + 5, 30);
     }
   };
 }
