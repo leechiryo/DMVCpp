@@ -40,7 +40,7 @@ namespace mvc {
         m_hTranslation = w;
       }
 
-      m_vtext->SetPos(5 - m_hTranslation, 12, 5, 12);
+      m_vtext->SetPos(5 - m_hTranslation, 12, 150, 32);
       m_spAniCaret->SetCaretPos(w - m_hTranslation, 30);
     }
 
@@ -138,7 +138,7 @@ namespace mvc {
       m_backRect->SetColor(0x555555);
 
       this->text = &(m_vtext->text);
-      m_vtext->SetPos(0, 12, 0, 12);
+      m_vtext->SetPos(5, 12, 5, 12);
 
       // 设置光标的动画
       m_spAniCaret->PlayRepeatly();

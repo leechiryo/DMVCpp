@@ -38,7 +38,6 @@ namespace mvc {
       m_pBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(m_color));
     }
 
-
   public:
 
     ModelRef<wstring> text;
