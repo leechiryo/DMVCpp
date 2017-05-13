@@ -12,13 +12,6 @@ namespace mvc {
   class TextBox : public View<TextBox> {
 
   private:
-    DxResource<ID2D1SolidColorBrush> m_pBackgroundBrush;
-    DxResource<ID2D1SolidColorBrush> m_pTextBrush;
-    DxResource<ID2D1SolidColorBrush> m_pBorderBrush;
-    DxResource<ID2D1SolidColorBrush> m_pBorderFocusedBrush;
-    DxResource<IDWriteTextFormat> m_pTextFormat;
-    DxResource<ID2D1Effect> m_shadowEffect;
-
     shared_ptr<AniCaretFlicker> m_spAniCaret;
     shared_ptr<Effect> m_shadowEffect2;
     shared_ptr<Rectangle> m_shadowRect;
@@ -39,7 +32,7 @@ namespace mvc {
 
     void UpdateCaretPos() {
       float w = m_vtext->GetSubstrWidth(m_insertPos);
-      float tbxw = static_cast<float>(m_right - m_left);
+      float tbxw = static_cast<float>(m_right - m_left - 10);
       if (w > tbxw + m_hTranslation) {
         m_hTranslation = w - tbxw;
       }
@@ -47,8 +40,8 @@ namespace mvc {
         m_hTranslation = w;
       }
 
-      m_vtext->SetPos(-m_hTranslation, 12, 0, 12);
-      m_spAniCaret->SetCaretPos(w + 5, 30);
+      m_vtext->SetPos(5 - m_hTranslation, 12, 5, 12);
+      m_spAniCaret->SetCaretPos(w - m_hTranslation, 30);
     }
 
     static LRESULT Handle_MOUSEMOVE(shared_ptr<TextBox> tbx, WPARAM wParam, LPARAM lParam) {
@@ -106,18 +99,6 @@ namespace mvc {
   protected:
 
     virtual void CreateD2DResource() {
-
-      m_pBackgroundBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0xfdfdfd));
-      m_pTextBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x333333));
-      m_pBorderBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x555555));
-      m_pBorderFocusedBrush = m_pContext.CreateSolidColorBrush(D2D1::ColorF(0x66afe9));
-
-      m_pTextFormat = App::CreateTextFormat(m_font, m_fontSize, m_fontWeight, m_fontStyle, m_fontStretch);
-      m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
-      m_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
-
-      m_shadowEffect = m_pContext.CreateEffect(CLSID_D2D1Shadow);
-      //m_shadowEffect->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66afe9));
     }
 
   public:
@@ -178,38 +159,29 @@ namespace mvc {
     }
 
     virtual void DrawSelf() {
-      D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
 
       m_backRect->SetPos(0, 0, m_right - m_left, m_bottom - m_top);
-      m_vtext->SetClipArea(0.0, 0.0, m_right - m_left, m_bottom - m_top);
+      m_vtext->SetClipArea(0.0, 0.0, m_right - m_left - 10.0, m_bottom - m_top);
 
       if (m_focused) {
+
+        // 显示阴影效果和输入光标
         m_shadowEffect2->SetPos(0, 0, 0, 0);
         m_shadowRect->SetPos(0, 0, m_right - m_left, m_bottom - m_top);
         m_shadowEffect2->SetHidden(false);
         m_backRect->SetColor(0x66afe9);
-
-        // 改变边框的颜色
-        m_pContext->DrawRectangle(textRect, m_pBorderFocusedBrush.ptr());
-
-        // 显示输入光标
         m_spAniCaret->SetHidden(false);
       }
       else {
         // 改变边框的颜色
-        m_pContext->DrawRectangle(textRect, m_pBorderBrush.ptr());
-
         m_backRect->SetColor(0x555555);
 
         // 隐藏输入光标
         m_spAniCaret->SetHidden(true);
 
+        // 取消阴影效果
         m_shadowEffect2->SetHidden(true);
       }
-      m_pContext->FillRectangle(textRect, m_pBackgroundBrush.ptr());
-
-      textRect.left += 10;
-      textRect.right -= 10;
 
       m_spAniCaret->SetPos(5, 0, m_right - m_left - 5, m_bottom - m_top);
     }
