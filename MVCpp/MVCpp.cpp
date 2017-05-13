@@ -35,36 +35,36 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   // 准备 View
   auto view = v("main_window",  L"MVC++ テスト", 800, 600 );
-  auto lbl = view->CreateSubView<Label>(L"Some item:");
+  auto lbl = view->AppendSubView<Label>(L"Some item:");
   regsubv("abc", lbl); // 将lbl注册到全局，以后程序的其他部分就可以用ID（abc）来取得lbl了
   lbl->SetPos(100, 110, 200, 140);
 
-  auto tbx = view->CreateSubView<TextBox>(L"Input ...");
+  auto tbx = view->AppendSubView<TextBox>(L"Input ...");
   tbx->SetPos(250, 100, 600, 140);
 
-  auto btn = view->CreateSubView<Button>(L"START");
+  auto btn = view->AppendSubView<Button>(L"START");
   btn->SetPos(100, 200, 200, 240);
 
-  auto cbx = view->CreateSubView<CheckBox>(L"这是一个CheckBox.");
+  auto cbx = view->AppendSubView<CheckBox>(L"这是一个CheckBox.");
   cbx->SetPos(100, 160, 500, 180);
 
-  auto rdo1 = view->CreateSubView<Radio>(1, L"这是一个RadioBox1." );
+  auto rdo1 = view->AppendSubView<Radio>(1, L"这是一个RadioBox1." );
   rdo1->SetPos(100, 260, 500, 280);
 
-  auto rdo2 = view->CreateSubView<Radio>(2, L"这是一个RadioBox2." );
+  auto rdo2 = view->AppendSubView<Radio>(2, L"这是一个RadioBox2." );
   rdo2->SetPos(100, 300, 500, 320);
 
-  auto rdo3 = view->CreateSubView<Radio>(3, L"这是一个RadioBox3." );
+  auto rdo3 = view->AppendSubView<Radio>(3, L"这是一个RadioBox3." );
   rdo3->SetPos(100, 340, 500, 360);
 
-  auto lbl2 = view->CreateSubView<Label>(L"");
+  auto lbl2 = view->AppendSubView<Label>(L"");
   lbl2->SetPos(100, 400, 500, 420);
 
-  auto img = view->CreateSubView<Image>(L"01.png");
+  auto img = view->AppendSubView<Image>(L"01.png");
   img->SetPos(100, 450, 200, 470);
 
-  auto line = view->CreateSubView<Line>();
-  //line->SetColor(0x23ff00);
+  auto line = view->AppendSubView<Line>();
+  line->SetColor(0x23ff00);
   line->SetPos(600, 450, 650, 500);
 
   // 绑定 Model 和 View

@@ -27,7 +27,7 @@ namespace mvc {
 
   protected:
     WPView m_wpThis;
-    WPViewSet m_subViews;
+    WPViewList m_subViews;
 
     double m_absLeft;
     double m_absTop;
@@ -192,18 +192,14 @@ namespace mvc {
     }
 
     template <typename T, typename ...Args>
-    shared_ptr<T> CreateSubView(Args ...args) {
+    shared_ptr<T> AppendSubView(Args ...args) {
       auto v = make_shared<T>(m_pContext, args...);
       v->m_wpThis = v;
 
       auto vb = static_pointer_cast<ViewBase>(v);
       vb->CreateD2DResource();
-      m_subViews.insert(v);
+      m_subViews.push_back(v);
       return v;
-    }
-
-    void RemoveSubView(const WPView &v) {
-      m_subViews.erase(v);
     }
 
     void SetPos(double left, double top, double right, double bottom) {

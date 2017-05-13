@@ -86,7 +86,7 @@ namespace mvc {
       AddEventHandler(WM_LBUTTONUP, Handle_LBUTTONUP);
 
       // 设置点击的动画
-      m_spAniPressed = CreateSubView<AniButtonPressed>();
+      m_spAniPressed = AppendSubView<AniButtonPressed>();
     }
 
     ~Button() {

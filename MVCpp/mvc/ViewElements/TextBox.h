@@ -138,26 +138,28 @@ namespace mvc {
       m_insertPos = text.length();
       m_hTranslation = 0.0f;
 
-      m_shadowEffect2 = CreateSubView<Effect>(CLSID_D2D1Shadow);
+      // 按照从后到前的顺序生成子View。
+      m_shadowEffect2 = AppendSubView<Effect>(CLSID_D2D1Shadow);
+      m_backRect = AppendSubView<Rectangle>();
+      m_vtext = AppendSubView<Text>(text);
+      m_spAniCaret = AppendSubView<AniCaretFlicker>();
+
       m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66afe9));
       m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_BLUR_STANDARD_DEVIATION, 5.0f);
-      m_shadowRect = m_shadowEffect2->CreateSubView<Rectangle>();
+      m_shadowRect = m_shadowEffect2->AppendSubView<Rectangle>();
       m_shadowRect->SetBackColor(0x0);
       m_shadowRect->SetBackOpacity(1.0f);
       m_shadowRect->SetStroke(0.0f);
 
-      m_backRect = CreateSubView<Rectangle>();
       m_backRect->SetBackColor(0xfdfdfd);
       m_backRect->SetBackOpacity(1.0f);
       m_backRect->SetStroke(1.0f);
       m_backRect->SetColor(0x555555);
 
-      m_vtext = CreateSubView<Text>(text);
       this->text = &(m_vtext->text);
       m_vtext->SetPos(0, 12, 0, 12);
 
       // 设置光标的动画
-      m_spAniCaret = CreateSubView<AniCaretFlicker>();
       m_spAniCaret->PlayRepeatly();
 
       //UpdateCaretPos();
@@ -186,19 +188,6 @@ namespace mvc {
         m_shadowRect->SetPos(0, 0, m_right - m_left, m_bottom - m_top);
         m_shadowEffect2->SetHidden(false);
         m_backRect->SetColor(0x66afe9);
-        // 如果处在选中状态，则在边框周围绘制一个阴影。
-        //auto bmpRT = m_pContext.CreateCompatibleRenderTarget();
-        //auto bmpContext = bmpRT.Query<ID2D1DeviceContext>();
-
-        //bmpContext->BeginDraw();
-        //bmpContext->Clear(D2D1::ColorF(0xffffff, 0.0f));
-        //bmpContext->FillRectangle(textRect, m_pBackgroundBrush.ptr());
-        //bmpContext->EndDraw();
-
-        //auto bmp = bmpRT.GetResource<ID2D1Bitmap>(&ID2D1BitmapRenderTarget::GetBitmap);
-
-        //m_shadowEffect->SetInput(0, bmp.ptr());
-        //m_pContext->DrawImage(m_shadowEffect.ptr());
 
         // 改变边框的颜色
         m_pContext->DrawRectangle(textRect, m_pBorderFocusedBrush.ptr());
@@ -223,13 +212,6 @@ namespace mvc {
       textRect.right -= 10;
 
       m_spAniCaret->SetPos(5, 0, m_right - m_left - 5, m_bottom - m_top);
-
-
-      //m_pContext->PushAxisAlignedClip(textRect, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-      //m_pContext->SetTransform(D2D1::Matrix3x2F::Translation(-m_hTranslation, 0.0f));
-      //m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pTextBrush.ptr());
-      //m_pContext->PopAxisAlignedClip();
-
     }
   };
 }

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <memory>
-#include <set>
+#include <list>
 #include <d2d1_1.h>
 #include <dwrite_1.h>
 #include <d3d11_1.h>
@@ -37,7 +37,7 @@ namespace mvc {
   typedef std::weak_ptr<ViewBase> WPView;
   typedef std::weak_ptr<ModelBase> WPModel;
 
-  typedef std::set<WPView, WeakPtrComparer<ViewBase>> WPViewSet;
+  typedef std::list<WPView> WPViewList;
 
 
   template<class Interface>
