@@ -158,22 +158,22 @@ namespace mvc {
       return HitTest(dipX, dipY);
     }
 
-    virtual float GetDefaultWidth(){
+    virtual float GetDefaultWidth() {
       return 100;
     }
 
-    virtual float GetDefaultHeight(){
+    virtual float GetDefaultHeight() {
       return 100;
     }
 
-    void UpdatePosition(){
+    void UpdatePosition() {
       const GridCell * cell = m_parentLayout->GetCell(m_row, m_col);
 
-      // calculate the width of the view.
-      if (!isnan(m_leftOffset) && !(isnan(m_rightOffset))){
+      // 计算View的宽度
+      if (!isnan(m_leftOffset) && !(isnan(m_rightOffset))) {
         m_calWidth = cell->width - m_leftOffset - m_rightOffset;
       }
-      else if(strlen(m_setWidth) > 0){
+      else if (strlen(m_setWidth) > 0) {
         if (isNumber(m_setWidth)) {
           m_calWidth = (float)atoi(m_setWidth);
         }
@@ -185,16 +185,75 @@ namespace mvc {
           m_calWidth = a * cell->width / 100.0f;
         }
       }
-      else{
+      else {
         m_calWidth = GetDefaultWidth();
       }
 
-      // TODO: calculate the height of the view.
-      // TODO: calculate the left of the view.
-      // TODO: calculate the top of the view.
+      // 计算View的高度
+      if (!isnan(m_topOffset) && !(isnan(m_bottomOffset))) {
+        m_calHeight = cell->height - m_topOffset - m_bottomOffset;
+      }
+      else if (strlen(m_setHeight) > 0) {
+        if (isNumber(m_setHeight)) {
+          m_calHeight = (float)atoi(m_setHeight);
+        }
+        else if (isPercent(m_setHeight)) {
+          char dg[10] = { 0 };
+          strcpy_s(dg, strlen(m_setHeight) + 1, m_setHeight);
+          dg[strlen(m_setHeight) - 1] = 0;
+          int a = atoi(dg);
+          m_calHeight = a * cell->height / 100.0f;
+        }
+      }
+      else {
+        m_calHeight = GetDefaultHeight();
+      }
 
-      // TODO: check the calWidth and the calHeight if they are
-      // changed, then update the inner sub views position.
+      // 计算View的四个顶点横坐标。
+      // left
+      if (!isnan(m_leftOffset)) {
+        m_left = cell->left + m_leftOffset;
+      }
+      else if (!isnan(m_rightOffset)) {
+        m_left = cell->right - m_rightOffset - m_calWidth;
+      }
+      else {
+        float offset = (cell->width - m_calWidth) / 2.0f;
+        m_left = cell->left + offset;
+      }
+
+      // right
+      m_right = m_left + m_calWidth;
+
+      // top
+      if (!isnan(m_topOffset)) {
+        m_top = cell->top + m_topOffset;
+      }
+      else if (!isnan(m_bottomOffset)) {
+        m_top = cell->bottom - m_bottomOffset - m_calHeight;
+      }
+      else {
+        float offset = (cell->height - m_calHeight) / 2.0f;
+        m_top = cell->top + offset;
+      }
+
+      // bottom
+      m_bottom = m_top + m_calHeight;
+
+      // 检查calWidth和calHeight的值，如果他们发生了改变，
+      // 则递归更新子View的位置和大小。
+      if (m_calWidth != m_oldWidth || m_calHeight != m_oldHeight) {
+        m_layout.SetWidth(m_oldWidth);
+        m_layout.SetHeight(m_oldHeight);
+        for (auto subv : m_subViews) {
+          auto v = subv.lock();
+          if (v) {
+            v->UpdatePosition();
+          }
+        }
+        m_oldWidth = m_calWidth;
+        m_oldHeight = m_calHeight;
+      }
     }
 
   public:
@@ -226,35 +285,35 @@ namespace mvc {
       m_hidden = hidden;
     }
 
-    void SetLeftOffset(float offset){
+    void SetLeftOffset(float offset) {
       m_leftOffset = offset;
     }
 
-    void ClearLeftOffset(float offset){
+    void ClearLeftOffset(float offset) {
       m_leftOffset = NAN;
     }
 
-    void SetRightOffset(float offset){
+    void SetRightOffset(float offset) {
       m_rightOffset = offset;
     }
 
-    void ClearRightOffset(float offset){
+    void ClearRightOffset(float offset) {
       m_rightOffset = NAN;
     }
 
-    void SetTopOffset(float offset){
+    void SetTopOffset(float offset) {
       m_topOffset = offset;
     }
 
-    void ClearTopOffset(float offset){
+    void ClearTopOffset(float offset) {
       m_topOffset = NAN;
     }
 
-    void SetBottomOffset(float offset){
+    void SetBottomOffset(float offset) {
       m_bottomOffset = offset;
     }
 
-    void ClearBottomOffset(float offset){
+    void ClearBottomOffset(float offset) {
       m_bottomOffset = NAN;
     }
 
@@ -262,7 +321,7 @@ namespace mvc {
       strcpy_s(m_setWidth, 10, width);
     }
 
-    void ClearWidth(){
+    void ClearWidth() {
       m_setHeight[0] = 0;
     }
 
@@ -270,15 +329,15 @@ namespace mvc {
       strcpy_s(m_setHeight, 10, height);
     }
 
-    void ClearHeight(){
+    void ClearHeight() {
       m_setHeight[0] = 0;
     }
 
-    void SetRow(int row){
+    void SetRow(int row) {
       m_row = row;
     }
 
-    void SetCol(int col){
+    void SetCol(int col) {
       m_col = col;
     }
 
@@ -300,9 +359,9 @@ namespace mvc {
 
     bool DefinedClipArea() {
       return !isnan(m_clipArea.left)
-             && !isnan(m_clipArea.top)
-             && !isnan(m_clipArea.right)
-             && !isnan(m_clipArea.bottom);
+        && !isnan(m_clipArea.top)
+        && !isnan(m_clipArea.right)
+        && !isnan(m_clipArea.bottom);
     }
 
     void Draw() {
@@ -360,11 +419,11 @@ namespace mvc {
       m_bottom = bottom;
     }
 
-    void ClearContext(){
+    void ClearContext() {
       m_pContext.Clear();
     }
 
-    bool NotInitialized(){
+    bool NotInitialized() {
       return m_pContext.NotSet();
     }
 
