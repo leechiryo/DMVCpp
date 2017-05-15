@@ -80,6 +80,29 @@ namespace mvc {
     }
 
   public:
+
+    const string ToDebugString() {
+      string retval;
+      char buf[100];
+
+      sprintf_s(buf, 100, "(%f, %f)\n", m_width, m_height);
+      retval += buf;
+
+      for (auto &r : cells) {
+        for (auto &c : r) {
+          retval += c.ToString();
+          retval += ' ';
+        }
+        retval += '\n';
+      }
+
+      return retval;
+    }
+
+    const GridCell * GetCell(int row, int col){
+      return &(cells[row][col]);
+    }
+
     void AddRow(const char *height) {
       if (!rowCnt && !colCnt) {
         GridCell cell;
@@ -146,24 +169,6 @@ namespace mvc {
       colCnt++;
     }
 
-    const string ToDebugString() {
-      string retval;
-      char buf[100];
-
-      sprintf_s(buf, 100, "(%f, %f)\n", m_width, m_height);
-      retval += buf;
-
-      for (auto &r : cells) {
-        for (auto &c : r) {
-          retval += c.ToString();
-          retval += ' ';
-        }
-        retval += '\n';
-      }
-
-      return retval;
-    }
-
     void SetWidth(float width) {
 
       if (cells.size() == 0) return;
@@ -216,15 +221,26 @@ namespace mvc {
         }
       }
 
+      // update the left and right pos
+      cells[0][0].left = 0.0;
+      cells[0][0].right = cells[0][0].width;
+      for (int j = 1; j < colCnt; j++) {
+        cells[0][j].left = cells[0][j - 1].right;
+        cells[0][j].right = cells[0][j].left + cells[0][j].width;
+      }
+      cells[0][colCnt - 1].right = width;
+
       for (int i = 1; i < rowCnt; i++) {
         for (int j = 0; j < colCnt; j++) {
           cells[i][j].width = cells[0][j].width;
+          cells[i][j].left = cells[0][j].left;
+          cells[i][j].right = cells[0][j].right;
         }
       }
 
       m_width = width;
-    }
 
+    }
 
     void SetHeight(float height) {
 
@@ -282,9 +298,20 @@ namespace mvc {
         }
       }
 
+      // update the top and bottom pos
+      cells[0][0].top = 0.0;
+      cells[0][0].bottom = cells[0][0].height;
+      for (int i = 1; i < rowCnt; i++) {
+        cells[i][0].top = cells[i - 1][0].bottom;
+        cells[i][0].bottom = cells[i][0].top + cells[i][0].height;
+      }
+      cells[rowCnt - 1][0].bottom = height;
+
       for (int i = 0; i < rowCnt; i++) {
         for (int j = 1; j < colCnt; j++) {
           cells[i][j].height = cells[i][0].height;
+          cells[i][j].top = cells[i][0].top;
+          cells[i][j].bottom = cells[i][0].bottom;
         }
       }
 

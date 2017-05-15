@@ -3,6 +3,7 @@
 #include "Types.h"
 #include "D2DContext.h"
 #include "App.h"
+#include "Layout.h"
 
 using namespace std;
 
@@ -25,6 +26,31 @@ namespace mvc {
     bool m_hidden;
     D2D1_RECT_F m_clipArea;
 
+    bool isNumber(const char *str) {
+      int len = strlen(str);
+      // check for empty string.
+      if (len == 0) return false;
+      bool retval = true;
+      for (int i = 0; i < len; i++) {
+        retval = retval && (str[i] >= '0') && (str[i] <= '9');
+      }
+      return retval;
+    }
+
+    bool isPercent(const char *str) {
+      int len = strlen(str);
+      // check for empty and the only one character '%' 
+      // should return false.
+      if (len <= 1) return false;
+      bool retval = true;
+      for (int i = 0; i < len - 1; i++) {
+        retval = retval && (str[i] >= '0') && (str[i] <= '9');
+      }
+
+      retval = retval && (str[len - 1] == '%');
+      return retval;
+    }
+
   protected:
     WPView m_wpThis;
     WPViewList m_subViews;
@@ -36,6 +62,24 @@ namespace mvc {
     double m_top;
     double m_right;
     double m_bottom;
+
+    Layout m_layout;
+
+    Layout *m_parentLayout;
+    int m_row;
+    int m_col;
+
+    float m_leftOffset;
+    float m_topOffset;
+    float m_rightOffset;
+    float m_bottomOffset;
+
+    char m_setWidth[10];
+    char m_setHeight[10];
+    float m_calWidth;
+    float m_calHeight;
+    float m_oldWidth;
+    float m_oldHeight;
 
     bool m_mouseIn = 0;
     bool m_canBeFocused = true;
@@ -114,12 +158,62 @@ namespace mvc {
       return HitTest(dipX, dipY);
     }
 
+    virtual float GetDefaultWidth(){
+      return 100;
+    }
+
+    virtual float GetDefaultHeight(){
+      return 100;
+    }
+
+    void UpdatePosition(){
+      const GridCell * cell = m_parentLayout->GetCell(m_row, m_col);
+
+      // calculate the width of the view.
+      if (!isnan(m_leftOffset) && !(isnan(m_rightOffset))){
+        m_calWidth = cell->width - m_leftOffset - m_rightOffset;
+      }
+      else if(strlen(m_setWidth) > 0){
+        if (isNumber(m_setWidth)) {
+          m_calWidth = (float)atoi(m_setWidth);
+        }
+        else if (isPercent(m_setWidth)) {
+          char dg[10] = { 0 };
+          strcpy_s(dg, strlen(m_setWidth) + 1, m_setWidth);
+          dg[strlen(m_setWidth) - 1] = 0;
+          int a = atoi(dg);
+          m_calWidth = a * cell->width / 100.0f;
+        }
+      }
+      else{
+        m_calWidth = GetDefaultWidth();
+      }
+
+      // TODO: calculate the height of the view.
+      // TODO: calculate the left of the view.
+      // TODO: calculate the top of the view.
+
+      // TODO: check the calWidth and the calHeight if they are
+      // changed, then update the inner sub views position.
+    }
+
   public:
 
     ViewBase(const D2DContext & context) {
       m_hidden = false;
       m_pContext = context;
       m_clipArea = RectD(NAN, NAN, NAN, NAN);
+
+      m_row = 0;
+      m_col = 0;
+      m_leftOffset = NAN;
+      m_rightOffset = NAN;
+      m_topOffset = NAN;
+      m_bottomOffset = NAN;
+      m_setWidth[0] = 0;
+      m_setHeight[0] = 0;
+      m_calWidth = NAN;
+      m_calHeight = NAN;
     }
 
     virtual ~ViewBase() { }
@@ -131,6 +225,63 @@ namespace mvc {
     void SetHidden(bool hidden) {
       m_hidden = hidden;
     }
+
+    void SetLeftOffset(float offset){
+      m_leftOffset = offset;
+    }
+
+    void ClearLeftOffset(float offset){
+      m_leftOffset = NAN;
+    }
+
+    void SetRightOffset(float offset){
+      m_rightOffset = offset;
+    }
+
+    void ClearRightOffset(float offset){
+      m_rightOffset = NAN;
+    }
+
+    void SetTopOffset(float offset){
+      m_topOffset = offset;
+    }
+
+    void ClearTopOffset(float offset){
+      m_topOffset = NAN;
+    }
+
+    void SetBottomOffset(float offset){
+      m_bottomOffset = offset;
+    }
+
+    void ClearBottomOffset(float offset){
+      m_bottomOffset = NAN;
+    }
+
+    void SetWidth(const char *width) {
+      strcpy_s(m_setWidth, 10, width);
+    }
+
+    void ClearWidth(){
+      m_setHeight[0] = 0;
+    }
+
+    void SetHeight(const char *height) {
+      strcpy_s(m_setHeight, 10, height);
+    }
+
+    void ClearHeight(){
+      m_setHeight[0] = 0;
+    }
+
+    void SetRow(int row){
+      m_row = row;
+    }
+
+    void SetCol(int col){
+      m_col = col;
+    }
+
 
     template<typename T>
     void SetClipArea(T left, T top, T right, T bottom) {
