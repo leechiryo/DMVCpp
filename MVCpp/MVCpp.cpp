@@ -35,13 +35,13 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   // 准备 View
   auto view = v("main_window", L"MVC++ テスト", 800, 600);
-  view->AddLayoutRow("100");
-  view->AddLayoutRow("100");
-  view->AddLayoutRow("100");
-  view->AddLayoutRow("100");
-  view->AddLayoutRow("100");
-  view->AddLayoutRow("100");
-  view->AddLayoutRow("100");
+  view->AddLayoutRow("50");
+  view->AddLayoutRow("50");
+  view->AddLayoutRow("50");
+  view->AddLayoutRow("50");
+  view->AddLayoutRow("50");
+  view->AddLayoutRow("50");
+  view->AddLayoutRow("50");
   view->AddLayoutRow("*");
   view->AddLayoutCol("200");
   view->AddLayoutCol("*");
@@ -66,8 +66,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   auto cbx = view->AppendSubView<CheckBox>(L"这是一个CheckBox.");
   // cbx->SetPos(100, 160, 500, 180);
-  btn->SetGridPosition(3, 1);
-  btn->SetLeftOffset(0);
+  cbx->SetGridPosition(3, 1);
+  cbx->SetLeftOffset(0);
 
   auto rdo1 = view->AppendSubView<Radio>(1, L"这是一个RadioBox1.");
   // rdo1->SetPos(100, 260, 500, 280);

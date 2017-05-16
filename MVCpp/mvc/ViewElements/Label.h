@@ -25,7 +25,6 @@ namespace mvc {
 
       text = &(m_vtext->text);
       // 如果要設置padding，可以在這裏設置内部對象的位置
-      //m_vtext->SetPos(5.0, 5.0, 5.0, 5.0);
     }
 
     ~Label() {
