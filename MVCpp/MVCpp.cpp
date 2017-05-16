@@ -34,38 +34,71 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   m<wstring>("strGroupVal", L"Selected radio value.");
 
   // 准备 View
-  auto view = v("main_window",  L"MVC++ テスト", 800, 600 );
+  auto view = v("main_window", L"MVC++ テスト", 800, 600);
+  view->AddLayoutRow("100");
+  view->AddLayoutRow("100");
+  view->AddLayoutRow("100");
+  view->AddLayoutRow("100");
+  view->AddLayoutRow("100");
+  view->AddLayoutRow("100");
+  view->AddLayoutRow("100");
+  view->AddLayoutRow("*");
+  view->AddLayoutCol("200");
+  view->AddLayoutCol("*");
+  view->AddLayoutCol("100");
+  view->UploadLayout();
+
   auto lbl = view->AppendSubView<Label>(L"Some item:");
-  regsubv("abc", lbl); // 将lbl注册到全局，以后程序的其他部分就可以用ID（abc）来取得lbl了
-  lbl->SetPos(100, 110, 200, 140);
+  regsubv("abc", lbl); // 将lbl注册到全局，以后程序的其他部分就可以用ID（getv<Label>("abc")）来取得lbl了
+  lbl->SetGridPosition(1, 0);
+  lbl->SetRightOffset(0);
 
   auto tbx = view->AppendSubView<TextBox>(L"Input ...");
-  tbx->SetPos(250, 100, 600, 140);
+  //tbx->SetPos(250, 100, 600, 140);
+  tbx->SetGridPosition(1, 1);
+  tbx->SetLeftOffset(20);
+  tbx->SetRightOffset(50);
 
   auto btn = view->AppendSubView<Button>(L"START");
-  btn->SetPos(100, 200, 200, 240);
+  // btn->SetPos(100, 200, 200, 240);
+  btn->SetGridPosition(2, 1);
+  btn->SetLeftOffset(0);
 
   auto cbx = view->AppendSubView<CheckBox>(L"这是一个CheckBox.");
-  cbx->SetPos(100, 160, 500, 180);
+  // cbx->SetPos(100, 160, 500, 180);
+  btn->SetGridPosition(3, 1);
+  btn->SetLeftOffset(0);
 
-  auto rdo1 = view->AppendSubView<Radio>(1, L"这是一个RadioBox1." );
-  rdo1->SetPos(100, 260, 500, 280);
+  auto rdo1 = view->AppendSubView<Radio>(1, L"这是一个RadioBox1.");
+  // rdo1->SetPos(100, 260, 500, 280);
+  rdo1->SetGridPosition(4, 1);
+  rdo1->SetLeftOffset(0);
 
-  auto rdo2 = view->AppendSubView<Radio>(2, L"这是一个RadioBox2." );
-  rdo2->SetPos(100, 300, 500, 320);
+  auto rdo2 = view->AppendSubView<Radio>(2, L"这是一个RadioBox2.");
+  // rdo2->SetPos(100, 300, 500, 320);
+  rdo2->SetGridPosition(5, 1);
+  rdo2->SetLeftOffset(0);
 
-  auto rdo3 = view->AppendSubView<Radio>(3, L"这是一个RadioBox3." );
-  rdo3->SetPos(100, 340, 500, 360);
+  auto rdo3 = view->AppendSubView<Radio>(3, L"这是一个RadioBox3.");
+  //rdo3->SetPos(100, 340, 500, 360);
+  rdo3->SetGridPosition(5, 1);
+  rdo3->SetLeftOffset(0);
 
   auto lbl2 = view->AppendSubView<Label>(L"");
-  lbl2->SetPos(100, 400, 500, 420);
+  //lbl2->SetPos(100, 400, 500, 420);
+  lbl2->SetGridPosition(6, 1);
+  lbl2->SetLeftOffset(0);
 
   auto img = view->AppendSubView<Image>(L"01.png");
-  img->SetPos(100, 450, 200, 470);
+  //img->SetPos(100, 450, 200, 470);
+  img->SetGridPosition(7, 1);
+  img->SetLeftOffset(0);
 
   auto line = view->AppendSubView<Line>();
   line->SetColor(0x23ff00);
-  line->SetPos(600, 450, 650, 500);
+  //line->SetPos(600, 450, 650, 500);
+  line->SetGridPosition(7, 2);
+  line->SetOffset(0, 0, 0, 0);
 
   // 绑定 Model 和 View
   btn->title.Bind("my_model");

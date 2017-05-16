@@ -93,6 +93,22 @@ namespace mvc {
       return tm.widthIncludingTrailingWhitespace;
     }
 
+    float GetSubstrHeight(int length) {
+      D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
+      auto layout = m_pContext.GetTextLayout(text.SafePtr(), length, m_pTextFormat.ptr(), textRect, m_pBrush.ptr());
+      DWRITE_TEXT_METRICS tm;
+      layout->GetMetrics(&tm);
+      return tm.height;
+    }
+
+    virtual float GetDefaultWidth() {
+      return GetSubstrWidth(text->size());
+    }
+
+    virtual float GetDefaultHeight() {
+      return GetSubstrHeight(text->size());
+    }
+
     virtual void DrawSelf() {
       D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
       auto layout = m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pBrush.ptr());

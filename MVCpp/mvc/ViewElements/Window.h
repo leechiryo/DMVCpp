@@ -27,6 +27,13 @@ namespace mvc {
     static LRESULT Handle_SIZE(shared_ptr<Window> wnd, WPARAM wParam, LPARAM lParam) {
       wnd->m_right = LOWORD(lParam);
       wnd->m_bottom = HIWORD(lParam);
+      wnd->UploadLayout();
+      for (auto subv : wnd->m_subViews) {
+        auto v = subv.lock();
+        if (v) {
+          v->UpdatePositionAndSize();
+        }
+      }
 
       EnterCriticalSection(&wnd->m_drawAndResizeSection);
       Sleep(17);
@@ -289,6 +296,11 @@ namespace mvc {
       m_absTop = m_top;
 
       CreateD2DResource();
+    }
+
+    void UploadLayout(){
+      m_layout.SetWidth(tof(m_right));
+      m_layout.SetHeight(tof(m_bottom));
     }
 
     void Show() {

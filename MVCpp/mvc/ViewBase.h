@@ -158,15 +158,7 @@ namespace mvc {
       return HitTest(dipX, dipY);
     }
 
-    virtual float GetDefaultWidth() {
-      return 100;
-    }
-
-    virtual float GetDefaultHeight() {
-      return 100;
-    }
-
-    void UpdatePosition() {
+    void UpdatePositionAndSize() {
       const GridCell * cell = m_parentLayout->GetCell(m_row, m_col);
 
       // 计算View的宽度
@@ -243,12 +235,12 @@ namespace mvc {
       // 检查calWidth和calHeight的值，如果他们发生了改变，
       // 则递归更新子View的位置和大小。
       if (m_calWidth != m_oldWidth || m_calHeight != m_oldHeight) {
-        m_layout.SetWidth(m_oldWidth);
-        m_layout.SetHeight(m_oldHeight);
+        m_layout.SetWidth(m_calWidth);
+        m_layout.SetHeight(m_calHeight);
         for (auto subv : m_subViews) {
           auto v = subv.lock();
           if (v) {
-            v->UpdatePosition();
+            v->UpdatePositionAndSize();
           }
         }
         m_oldWidth = m_calWidth;
@@ -273,13 +265,24 @@ namespace mvc {
       m_setHeight[0] = 0;
       m_calWidth = NAN;
       m_calHeight = NAN;
+      m_oldWidth = NAN;
+      m_oldHeight = NAN;
     }
 
     virtual ~ViewBase() { }
 
+
     double left, top, width, height;
 
     virtual void DrawSelf() = 0;
+
+    virtual float GetDefaultWidth() {
+      return 50;
+    }
+
+    virtual float GetDefaultHeight() {
+      return 50;
+    }
 
     void SetHidden(bool hidden) {
       m_hidden = hidden;
@@ -287,60 +290,93 @@ namespace mvc {
 
     void SetLeftOffset(float offset) {
       m_leftOffset = offset;
+      UpdatePositionAndSize();
     }
 
     void ClearLeftOffset(float offset) {
       m_leftOffset = NAN;
+      UpdatePositionAndSize();
     }
 
     void SetRightOffset(float offset) {
       m_rightOffset = offset;
+      UpdatePositionAndSize();
     }
 
     void ClearRightOffset(float offset) {
       m_rightOffset = NAN;
+      UpdatePositionAndSize();
     }
 
     void SetTopOffset(float offset) {
       m_topOffset = offset;
+      UpdatePositionAndSize();
     }
 
     void ClearTopOffset(float offset) {
       m_topOffset = NAN;
+      UpdatePositionAndSize();
     }
 
     void SetBottomOffset(float offset) {
       m_bottomOffset = offset;
+      UpdatePositionAndSize();
     }
 
     void ClearBottomOffset(float offset) {
       m_bottomOffset = NAN;
+      UpdatePositionAndSize();
+    }
+
+    void SetOffset(float left, float top){
+      m_leftOffset = left;
+      m_topOffset = top;
+      UpdatePositionAndSize();
+    }
+
+    void SetOffset(float left, float top, float right ,float bottom){
+      m_leftOffset = left;
+      m_topOffset = top;
+      m_rightOffset = right;
+      m_bottomOffset = bottom;
+      UpdatePositionAndSize();
     }
 
     void SetWidth(const char *width) {
       strcpy_s(m_setWidth, 10, width);
+      UpdatePositionAndSize();
     }
 
     void ClearWidth() {
       m_setHeight[0] = 0;
+      UpdatePositionAndSize();
     }
 
     void SetHeight(const char *height) {
       strcpy_s(m_setHeight, 10, height);
+      UpdatePositionAndSize();
     }
 
     void ClearHeight() {
       m_setHeight[0] = 0;
+      UpdatePositionAndSize();
     }
 
-    void SetRow(int row) {
+    void SetGridPosition(int row, int col) {
       m_row = row;
-    }
-
-    void SetCol(int col) {
       m_col = col;
+      UpdatePositionAndSize();
     }
 
+    void SetGridPosition(int row, int col, float leftOffset, float topOffset, float rightOffset, float bottomOffset) {
+      m_row = row;
+      m_col = col;
+      m_leftOffset = leftOffset;
+      m_topOffset = topOffset;
+      m_rightOffset = rightOffset;
+      m_bottomOffset = bottomOffset;
+      UpdatePositionAndSize();
+    }
 
     template<typename T>
     void SetClipArea(T left, T top, T right, T bottom) {
@@ -405,6 +441,7 @@ namespace mvc {
     shared_ptr<T> AppendSubView(Args ...args) {
       auto v = make_shared<T>(m_pContext, args...);
       v->m_wpThis = v;
+      v->m_parentLayout = &m_layout;
 
       auto vb = static_pointer_cast<ViewBase>(v);
       vb->CreateD2DResource();
@@ -425,6 +462,14 @@ namespace mvc {
 
     bool NotInitialized() {
       return m_pContext.NotSet();
+    }
+
+    void AddLayoutRow(const char * height){
+      m_layout.AddRow(height);
+    }
+
+    void AddLayoutCol(const char * width){
+      m_layout.AddCol(width);
     }
 
     DxResource<ID2D1Effect> DrawEffect(REFCLSID effectId, D2DContext &context) {

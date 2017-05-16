@@ -75,6 +75,11 @@ namespace mvc {
     ModelRef<wstring> title;
 
     Button(const D2DContext &context, wstring ttl) : View(context), title{ ttl } {
+
+      // 内部的layout为一行一列
+      m_layout.AddRow("100%");
+      m_layout.AddCol("100%");
+
       m_color = 0x333333;
       m_fontWeight = DWRITE_FONT_WEIGHT_REGULAR;
       m_fontStyle = DWRITE_FONT_STYLE_NORMAL;
@@ -87,6 +92,7 @@ namespace mvc {
 
       // 设置点击的动画
       m_spAniPressed = AppendSubView<AniButtonPressed>();
+      m_spAniPressed->SetOffset(0, 0, 0, 0);
     }
 
     ~Button() {
@@ -102,8 +108,6 @@ namespace mvc {
         m_pTextFormat.ptr(),
         textRect,
         m_pBrush.ptr());
-
-      m_spAniPressed->SetPos(0, 0, m_right - m_left, m_bottom - m_top);
     }
 
   };

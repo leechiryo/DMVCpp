@@ -40,7 +40,7 @@ namespace mvc {
         m_hTranslation = w;
       }
 
-      m_vtext->SetPos(5 - m_hTranslation, 12, 150, 32);
+      m_vtext->SetLeftOffset(5 - m_hTranslation);
       m_spAniCaret->SetCaretPos(w - m_hTranslation, 30);
     }
 
@@ -107,6 +107,10 @@ namespace mvc {
 
     TextBox(const D2DContext &context, wstring text) : View(context) {
 
+      // 内部的layout为一行一列
+      m_layout.AddRow("100%");
+      m_layout.AddCol("100%");
+
       m_focused = false;
 
       m_color = 0x333333;
@@ -125,25 +129,27 @@ namespace mvc {
       m_vtext = AppendSubView<Text>(text);
       m_spAniCaret = AppendSubView<AniCaretFlicker>();
 
+      m_shadowEffect2->SetOffset(0, 0, 0, 0);
       m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66afe9));
       m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_BLUR_STANDARD_DEVIATION, 5.0f);
       m_shadowRect = m_shadowEffect2->AppendSubView<Rectangle>();
+      m_shadowRect->SetOffset(0, 0, 0, 0);
       m_shadowRect->SetBackColor(0x0);
       m_shadowRect->SetBackOpacity(1.0f);
       m_shadowRect->SetStroke(0.0f);
 
+      m_backRect->SetOffset(0, 0, 0, 0);
       m_backRect->SetBackColor(0xfdfdfd);
       m_backRect->SetBackOpacity(1.0f);
       m_backRect->SetStroke(1.0f);
       m_backRect->SetColor(0x555555);
 
       this->text = &(m_vtext->text);
-      m_vtext->SetPos(5, 12, 5, 12);
+      m_vtext->SetOffset(5, 12);
+      m_vtext->SetClipArea(0.0, 0.0, m_right - m_left - 10.0, m_bottom - m_top);
 
       // 设置光标的动画
       m_spAniCaret->PlayRepeatly();
-
-      //UpdateCaretPos();
 
       AddEventHandler(WM_CHAR, Handle_CHAR);
       AddEventHandler(WM_KEYDOWN, Handle_KEYDOWN);
@@ -158,16 +164,31 @@ namespace mvc {
       return m_wpThis;
     }
 
-    virtual void DrawSelf() {
+    virtual float GetDefaultWidth() {
+      auto textWidth = m_vtext->GetDefaultWidth() + 10;
+      if (textWidth > 100){
+        return textWidth;
+      }
+      else{
+        return 100;
+      }
+    }
 
-      m_backRect->SetPos(0, 0, m_right - m_left, m_bottom - m_top);
-      m_vtext->SetClipArea(0.0, 0.0, m_right - m_left - 10.0, m_bottom - m_top);
+    virtual float GetDefaultHeight() {
+      auto textHeight = m_vtext->GetDefaultHeight() + 10;
+      if (textHeight > 40){
+        return textHeight;
+      }
+      else{
+        return 40;
+      }
+    }
+
+    virtual void DrawSelf() {
 
       if (m_focused) {
 
         // 显示阴影效果和输入光标
-        m_shadowEffect2->SetPos(0, 0, 0, 0);
-        m_shadowRect->SetPos(0, 0, m_right - m_left, m_bottom - m_top);
         m_shadowEffect2->SetHidden(false);
         m_backRect->SetColor(0x66afe9);
         m_spAniCaret->SetHidden(false);
@@ -182,8 +203,6 @@ namespace mvc {
         // 取消阴影效果
         m_shadowEffect2->SetHidden(true);
       }
-
-      m_spAniCaret->SetPos(5, 0, m_right - m_left - 5, m_bottom - m_top);
     }
   };
 }
