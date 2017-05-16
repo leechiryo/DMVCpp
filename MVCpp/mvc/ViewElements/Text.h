@@ -86,7 +86,7 @@ namespace mvc {
     }
 
     float GetSubstrWidth(int length) {
-      D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
+      D2D1_RECT_F textRect = RectD(0, 0, 0, 0);
       auto layout = m_pContext.GetTextLayout(text.SafePtr(), length, m_pTextFormat.ptr(), textRect, m_pBrush.ptr());
       DWRITE_TEXT_METRICS tm;
       layout->GetMetrics(&tm);
@@ -94,7 +94,7 @@ namespace mvc {
     }
 
     float GetSubstrHeight(int length) {
-      D2D1_RECT_F textRect = RectD(m_left, m_top, m_right, m_bottom);
+      D2D1_RECT_F textRect = RectD(0, 0, 0, 0);
       auto layout = m_pContext.GetTextLayout(text.SafePtr(), length, m_pTextFormat.ptr(), textRect, m_pBrush.ptr());
       DWRITE_TEXT_METRICS tm;
       layout->GetMetrics(&tm);

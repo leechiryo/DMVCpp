@@ -108,8 +108,8 @@ namespace mvc {
     TextBox(const D2DContext &context, wstring text) : View(context) {
 
       // 内部的layout为一行一列
-      m_layout.AddRow("100%");
-      m_layout.AddCol("100%");
+      m_layout.AddRow("*");
+      m_layout.AddCol("*");
 
       m_focused = false;
 
@@ -132,6 +132,8 @@ namespace mvc {
       m_shadowEffect2->SetOffset(0, 0, 0, 0);
       m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66afe9));
       m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_BLUR_STANDARD_DEVIATION, 5.0f);
+      m_shadowEffect2->AddLayoutRow("*");
+      m_shadowEffect2->AddLayoutCol("*");
       m_shadowRect = m_shadowEffect2->AppendSubView<Rectangle>();
       m_shadowRect->SetOffset(0, 0, 0, 0);
       m_shadowRect->SetBackColor(0x0);
