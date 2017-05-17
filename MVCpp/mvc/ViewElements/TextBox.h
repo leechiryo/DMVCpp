@@ -21,13 +21,6 @@ namespace mvc {
     size_t m_insertPos;
     float m_hTranslation;
 
-    static const int MAX_CHARS = 256;
-    wchar_t m_font[MAX_CHARS + 1];
-    float m_fontSize;
-    DWRITE_FONT_WEIGHT m_fontWeight;
-    DWRITE_FONT_STYLE m_fontStyle;
-    DWRITE_FONT_STRETCH m_fontStretch;
-
     UINT32 m_color;
 
     void UpdateCaretPos() {
@@ -56,6 +49,7 @@ namespace mvc {
         (*(tbx->text))->insert(tbx->m_insertPos, 1, wParam);
         tbx->m_insertPos++;
         tbx->UpdateCaretPos();
+        tbx->m_spAniCaret->SetFrameIndex(9);
       }
       return 0;
     }
@@ -111,27 +105,14 @@ namespace mvc {
       m_layout.AddRow("*");
       m_layout.AddCol("*");
 
-      m_focused = false;
-
-      m_color = 0x333333;
-      m_fontWeight = DWRITE_FONT_WEIGHT_REGULAR;
-      m_fontStyle = DWRITE_FONT_STYLE_NORMAL;
-      m_fontStretch = DWRITE_FONT_STRETCH_NORMAL;
-      wcscpy_s(m_font, MAX_CHARS + 1, L"Source Code Pro");
-      m_fontSize = 16.0;
-
-      m_insertPos = text.length();
-      m_hTranslation = 0.0f;
-
       // 按照从后到前的顺序生成子View。
       m_shadowEffect2 = AppendSubView<Effect>(CLSID_D2D1Shadow);
       m_backRect = AppendSubView<Rectangle>();
-      m_vtext = AppendSubView<Text>(text);
       m_spAniCaret = AppendSubView<AniCaretFlicker>();
 
       m_shadowEffect2->SetOffset(0, 0, 0, 0);
       m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66afe9));
-      m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_BLUR_STANDARD_DEVIATION, 5.0f);
+      m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_BLUR_STANDARD_DEVIATION, 4.0f);
       m_shadowEffect2->AddLayoutRow("*");
       m_shadowEffect2->AddLayoutCol("*");
       m_shadowRect = m_shadowEffect2->AppendSubView<Rectangle>();
@@ -145,17 +126,25 @@ namespace mvc {
       m_backRect->SetBackOpacity(1.0f);
       m_backRect->SetStroke(1.0f);
       m_backRect->SetColor(0x555555);
-
-      this->text = &(m_vtext->text);
-      m_vtext->SetOffset(5, 12);
-      m_vtext->SetClipArea(0.0, 0.0, m_right - m_left - 10.0, m_bottom - m_top);
+      m_backRect->AddLayoutRow("*");
+      m_backRect->AddLayoutCol("*");
+      m_backRect->SetInnerClipAreaOffset(5, 0, 5, 0);
+      m_vtext = m_backRect->AppendSubView<Text>(text);
+      m_vtext->SetLeftOffset(5);
 
       // 设置光标的动画
+      m_spAniCaret->SetOffset(6, 0, 6, 0);
       m_spAniCaret->PlayRepeatly();
 
       AddEventHandler(WM_CHAR, Handle_CHAR);
       AddEventHandler(WM_KEYDOWN, Handle_KEYDOWN);
       AddEventHandler(WM_MOUSEMOVE, Handle_MOUSEMOVE);
+
+      m_focused = false;
+      m_insertPos = text.length();
+      m_hTranslation = 0.0f;
+
+      this->text = &(m_vtext->text);
     }
 
     ~TextBox() {
@@ -189,7 +178,6 @@ namespace mvc {
     virtual void DrawSelf() {
 
       if (m_focused) {
-
         // 显示阴影效果和输入光标
         m_shadowEffect2->SetHidden(false);
         m_backRect->SetColor(0x66afe9);

@@ -114,9 +114,6 @@ namespace mvc {
       auto layout = m_pContext.DrawText(text.SafePtr(), m_pTextFormat.ptr(), textRect, m_pBrush.ptr());
       DWRITE_TEXT_METRICS tm;
       layout->GetMetrics(&tm);
-
-      m_right = m_left + tm.width;
-      m_bottom = m_top + tm.height;
     }
   };
 }

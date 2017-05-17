@@ -24,7 +24,11 @@ namespace mvc {
 
   private:
     bool m_hidden;
-    D2D1_RECT_F m_clipArea;
+
+    float m_innerClipAreaLeftOffset;
+    float m_innerClipAreaTopOffset;
+    float m_innerClipAreaRightOffset;
+    float m_innerClipAreaBottomOffset;
 
     bool isNumber(const char *str) {
       int len = strlen(str);
@@ -253,7 +257,10 @@ namespace mvc {
     ViewBase(const D2DContext & context) {
       m_hidden = false;
       m_pContext = context;
-      m_clipArea = RectD(NAN, NAN, NAN, NAN);
+      m_innerClipAreaLeftOffset = NAN;
+      m_innerClipAreaTopOffset = NAN;
+      m_innerClipAreaRightOffset = NAN;
+      m_innerClipAreaBottomOffset = NAN;
 
       m_row = 0;
       m_col = 0;
@@ -379,36 +386,41 @@ namespace mvc {
     }
 
     template<typename T>
-    void SetClipArea(T left, T top, T right, T bottom) {
-      m_clipArea.left = static_cast<float>(left);
-      m_clipArea.top = static_cast<float>(top);
-      m_clipArea.right = static_cast<float>(right);
-      m_clipArea.bottom = static_cast<float>(bottom);
+    void SetInnerClipAreaOffset(T leftOffset, T topOffset, T rightOffset, T bottomOffset) {
+      m_innerClipAreaLeftOffset = static_cast<float>(leftOffset);
+      m_innerClipAreaTopOffset = static_cast<float>(topOffset);
+      m_innerClipAreaRightOffset = static_cast<float>(rightOffset);
+      m_innerClipAreaBottomOffset = static_cast<float>(bottomOffset);
     }
 
-    void ClearClipArea() {
-      m_clipArea.left = NAN;
-      m_clipArea.top = NAN;
-      m_clipArea.right = NAN;
-      m_clipArea.bottom = NAN;
+    void ClearInnerClipArea() {
+      m_innerClipAreaLeftOffset = NAN;
+      m_innerClipAreaTopOffset = NAN;
+      m_innerClipAreaRightOffset = NAN;
+      m_innerClipAreaBottomOffset = NAN;
     }
 
-    bool DefinedClipArea() {
-      return !isnan(m_clipArea.left)
-        && !isnan(m_clipArea.top)
-        && !isnan(m_clipArea.right)
-        && !isnan(m_clipArea.bottom);
+    bool DefinedInnerClipArea() {
+      return !isnan(m_innerClipAreaLeftOffset)
+        && !isnan(m_innerClipAreaTopOffset)
+        && !isnan(m_innerClipAreaRightOffset)
+        && !isnan(m_innerClipAreaBottomOffset);
     }
 
     void Draw() {
 
       if (m_hidden) return;
 
-      if (DefinedClipArea()) {
-        m_pContext->PushAxisAlignedClip(m_clipArea, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-      }
-
       DrawSelf();
+
+      // 如果定义了内部剪切区域,则设置之
+      if (DefinedInnerClipArea()) {
+        D2D1_RECT_F innerClipArea = RectD(m_left + m_innerClipAreaLeftOffset, 
+                                     m_top + m_innerClipAreaTopOffset, 
+                                     m_right - m_innerClipAreaRightOffset,
+                                     m_bottom - m_innerClipAreaBottomOffset);
+        m_pContext->PushAxisAlignedClip(innerClipArea, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+      }
 
       // 開始繪製内部元素，首先移動坐標原點到父元素的左上角
       D2D1_MATRIX_3X2_F oldMatrix;
@@ -432,7 +444,7 @@ namespace mvc {
       // 内部元素繪製完成，將坐標移回
       m_pContext->SetTransform(oldMatrix);
 
-      if (DefinedClipArea()) {
+      if (DefinedInnerClipArea()) {
         m_pContext->PopAxisAlignedClip();
       }
     }
