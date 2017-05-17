@@ -3,9 +3,9 @@
 #include "..\Types.h"
 #include "..\View.h"
 #include "..\ModelRef.h"
-#include "AniButtonPressed.h"
-#include "Rectangle.h"
-#include "Text.h"
+#include "..\ViewElements\AniButtonPressed.h"
+#include "..\ViewElements\Rectangle.h"
+#include "..\ViewElements\Text.h"
 
 namespace mvc {
   class Button : public View<Button>

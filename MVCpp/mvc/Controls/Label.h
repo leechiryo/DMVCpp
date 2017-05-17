@@ -3,7 +3,7 @@
 #include "..\Types.h"
 #include "..\View.h"
 #include "..\ModelRef.h"
-#include "Text.h"
+#include "..\ViewElements\Text.h"
 
 namespace mvc {
   class Label : public View<Label>

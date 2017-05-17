@@ -3,10 +3,10 @@
 #include "../Types.h"
 #include "../View.h"
 #include "../ModelRef.h"
-#include "AniCaretFlicker.h"
-#include "Rectangle.h"
-#include "Effect.h"
-#include "Text.h"
+#include "..\ViewElements\AniCaretFlicker.h"
+#include "..\ViewElements\Rectangle.h"
+#include "..\ViewElements\Effect.h"
+#include "..\ViewElements\Text.h"
 
 namespace mvc {
   class TextBox : public View<TextBox> {

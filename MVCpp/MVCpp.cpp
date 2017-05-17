@@ -2,12 +2,12 @@
 //
 
 #include "mvc\mvc.h"
-#include "mvc\ViewElements\Window.h"
-#include "mvc\ViewElements\Button.h"
-#include "mvc\ViewElements\TextBox.h"
-#include "mvc\ViewElements\Label.h"
-#include "mvc\ViewElements\CheckBox.h"
-#include "mvc\ViewElements\Radio.h"
+#include "mvc\Controls\Window.h"
+#include "mvc\Controls\Button.h"
+#include "mvc\Controls\TextBox.h"
+#include "mvc\Controls\Label.h"
+#include "mvc\Controls\CheckBox.h"
+#include "mvc\Controls\Radio.h"
 #include "mvc\ViewElements\Image.h"
 #include "mvc\ViewElements\Line.h"
 #include "MyController.h"

@@ -3,8 +3,8 @@
 #include "..\Types.h"
 #include "..\View.h"
 #include "..\ModelRef.h"
-#include "Text.h"
-#include "Circle.h"
+#include "..\ViewElements\Text.h"
+#include "..\ViewElements\Circle.h"
 
 namespace mvc {
 
