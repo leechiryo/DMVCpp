@@ -7,7 +7,7 @@
 namespace mvc {
 
   enum class AniStatus { Stoped, Paused, Playing };
-  enum class AniPlayMode { PlayAndStopAtEnd, PlayAndStopAtStart, PlayRepeatly };
+  enum class AniPlayMode { PlayAndPauseAtEnd, PlayAndPauseAtStart, PlayRepeatly, PlayAndHideAtEnd };
 
   typedef void(*AnimationCallBack)();
 
@@ -45,19 +45,28 @@ namespace mvc {
       m_rotation = angle;
     }
 
-    void PlayAndStopAtEnd() {
+    void PlayAndPauseAtEnd() {
+      SetHidden(false);
       m_status = AniStatus::Playing;
-      m_mode = AniPlayMode::PlayAndStopAtEnd;
+      m_mode = AniPlayMode::PlayAndPauseAtEnd;
     }
 
-    void PlayAndStopAtStart() {
+    void PlayAndPauseAtStart() {
+      SetHidden(false);
       m_status = AniStatus::Playing;
-      m_mode = AniPlayMode::PlayAndStopAtStart;
+      m_mode = AniPlayMode::PlayAndPauseAtStart;
     }
 
     void PlayRepeatly() {
+      SetHidden(false);
       m_status = AniStatus::Playing;
       m_mode = AniPlayMode::PlayRepeatly;
+    }
+
+    void PlayAndHideAtEnd(){
+      SetHidden(false);
+      m_status = AniStatus::Playing;
+      m_mode = AniPlayMode::PlayAndHideAtEnd;
     }
 
     void Stop() {
@@ -76,18 +85,21 @@ namespace mvc {
 
         // 如果正处于播放状态，则在画面上绘制当前帧
         if (DrawFrame(m_frameIdx)) {
-
           // 如果当前帧完成后动画播放完毕(没有下一帧了)，则将下一帧设为0（动画开始的位置），
           // 下次调用Show的时候将从头播放。
-          if (m_mode == AniPlayMode::PlayAndStopAtStart) {
+          if (m_mode == AniPlayMode::PlayAndPauseAtStart) {
             m_frameIdx = 0;
             Pause();
           }
-          else if (m_mode == AniPlayMode::PlayAndStopAtEnd) {
+          else if (m_mode == AniPlayMode::PlayAndPauseAtEnd) {
             Pause();
           }
           else if (m_mode == AniPlayMode::PlayRepeatly) {
             m_frameIdx = 0;
+          }
+          else if (m_mode == AniPlayMode::PlayAndHideAtEnd){
+            Stop();
+            SetHidden(true);
           }
 
           if (OnFinished) {
@@ -96,7 +108,6 @@ namespace mvc {
           }
         }
         else {
-
           // 如果当前帧完成后动画并没有播放完毕，
           // 则将当前帧的索引加1，下次调用Show时将绘制下一帧。
           m_frameIdx++;
