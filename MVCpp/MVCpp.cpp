@@ -93,7 +93,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   line->SetOffset(0, 0, 0, 0);
 
   // 绑定 Model 和 View
-  btn->title.Bind("my_model");
+  btn->title->Bind("my_model");
   rdo1->selectedValue.Bind("groupVal");
   rdo2->selectedValue.Bind("groupVal");
   rdo3->selectedValue.Bind("groupVal");

@@ -46,9 +46,9 @@ namespace mvc {
     }
 
   public:
-    ModelRef<wstring> title;
+    ModelRef<wstring> *title;
 
-    Button(const D2DContext &context, wstring ttl) : View(context), title{ ttl } {
+    Button(const D2DContext &context, wstring ttl) : View(context) {
 
       // 内部的layout为一行一列
       m_layout.AddRow("*");
@@ -67,6 +67,8 @@ namespace mvc {
 
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
       AddEventHandler(WM_LBUTTONUP, Handle_LBUTTONUP);
+
+      title = &(m_title->text);
     }
 
     ~Button() {
@@ -82,6 +84,7 @@ namespace mvc {
     }
 
     virtual void DrawSelf() {
+      m_title->ClearLeftOffset();
     }
 
   };

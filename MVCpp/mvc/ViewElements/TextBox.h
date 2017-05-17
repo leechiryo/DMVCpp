@@ -115,6 +115,8 @@ namespace mvc {
       m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_BLUR_STANDARD_DEVIATION, 4.0f);
       m_shadowEffect2->AddLayoutRow("*");
       m_shadowEffect2->AddLayoutCol("*");
+      m_shadowEffect2->SetHidden(true);
+
       m_shadowRect = m_shadowEffect2->AppendSubView<Rectangle>();
       m_shadowRect->SetOffset(0, 0, 0, 0);
       m_shadowRect->SetBackColor(0x0);
@@ -135,6 +137,7 @@ namespace mvc {
       // 设置光标的动画
       m_spAniCaret->SetOffset(6, 0, 6, 0);
       m_spAniCaret->PlayRepeatly();
+      m_spAniCaret->SetHidden(true);
 
       AddEventHandler(WM_CHAR, Handle_CHAR);
       AddEventHandler(WM_KEYDOWN, Handle_KEYDOWN);
@@ -175,13 +178,14 @@ namespace mvc {
       }
     }
 
-    virtual void DrawSelf() {
-
+    virtual void FocusChanged(){
       if (m_focused) {
         // 显示阴影效果和输入光标
         m_shadowEffect2->SetHidden(false);
         m_backRect->SetColor(0x66afe9);
         m_spAniCaret->SetHidden(false);
+
+        UpdateCaretPos();
       }
       else {
         // 改变边框的颜色
@@ -193,6 +197,9 @@ namespace mvc {
         // 取消阴影效果
         m_shadowEffect2->SetHidden(true);
       }
+    }
+
+    virtual void DrawSelf() {
     }
   };
 }

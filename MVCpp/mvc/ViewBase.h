@@ -291,6 +291,9 @@ namespace mvc {
       return 50;
     }
 
+    virtual void FocusChanged(){
+    }
+
     void SetHidden(bool hidden) {
       m_hidden = hidden;
     }
@@ -300,7 +303,7 @@ namespace mvc {
       UpdatePositionAndSize();
     }
 
-    void ClearLeftOffset(float offset) {
+    void ClearLeftOffset() {
       m_leftOffset = NAN;
       UpdatePositionAndSize();
     }
@@ -310,7 +313,7 @@ namespace mvc {
       UpdatePositionAndSize();
     }
 
-    void ClearRightOffset(float offset) {
+    void ClearRightOffset() {
       m_rightOffset = NAN;
       UpdatePositionAndSize();
     }
@@ -320,7 +323,7 @@ namespace mvc {
       UpdatePositionAndSize();
     }
 
-    void ClearTopOffset(float offset) {
+    void ClearTopOffset() {
       m_topOffset = NAN;
       UpdatePositionAndSize();
     }
@@ -330,7 +333,7 @@ namespace mvc {
       UpdatePositionAndSize();
     }
 
-    void ClearBottomOffset(float offset) {
+    void ClearBottomOffset() {
       m_bottomOffset = NAN;
       UpdatePositionAndSize();
     }

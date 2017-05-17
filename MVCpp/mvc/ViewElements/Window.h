@@ -395,9 +395,11 @@ namespace mvc {
                   auto v2 = pWnd->m_focusedView.lock();
                   if (v2) {
                     v2->m_focused = false;
+                    v2->FocusChanged();
                   }
                   pWnd->m_focusedView = clickedV;
                   v->m_focused = true;
+                  v->FocusChanged();
                 }
               }
             }
