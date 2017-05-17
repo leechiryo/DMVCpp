@@ -54,6 +54,8 @@ namespace mvc {
     float m_width = NAN;
     float m_height = NAN;
 
+    bool m_defaultRowColSet;
+
     bool isNumber(const char *str) {
       int len = strlen(str);
       // check for empty string.
@@ -81,6 +83,18 @@ namespace mvc {
 
   public:
 
+    Layout() {
+      GridCell cell;
+      cell.SetWidthStr("*");
+      cell.SetHeightStr("*");
+      vector<GridCell> row;
+      row.push_back(cell);
+      cells.push_back(row);
+      colCnt = 1;
+      rowCnt = 1;
+      m_defaultRowColSet = true;
+    }
+
     const string ToDebugString() {
       string retval;
       char buf[100];
@@ -104,6 +118,15 @@ namespace mvc {
     }
 
     void AddRow(const char *height) {
+
+      if (m_defaultRowColSet) {
+        cells[0].clear();
+        cells.clear();
+        colCnt = 0;
+        rowCnt = 0;
+        m_defaultRowColSet = false;
+      }
+
       if (!rowCnt && !colCnt) {
         GridCell cell;
         cell.SetHeightStr(height);
@@ -134,6 +157,15 @@ namespace mvc {
     }
 
     void AddCol(const char *width) {
+
+      if (m_defaultRowColSet) {
+        cells[0].clear();
+        cells.clear();
+        colCnt = 0;
+        rowCnt = 0;
+        m_defaultRowColSet = false;
+      }
+
       if (!rowCnt && !colCnt) {
         // 既没有行也没有列时，生成一个cell，仅设置其宽度
         GridCell cell;

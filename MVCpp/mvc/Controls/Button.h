@@ -50,10 +50,6 @@ namespace mvc {
 
     Button(const D2DContext &context, wstring ttl) : View(context) {
 
-      // 内部的layout为一行一列
-      m_layout.AddRow("*");
-      m_layout.AddCol("*");
-
       m_backRect = AppendSubView<Rectangle>();
       m_backRect->SetOffset(0, 0, 0, 0);
       m_backRect->SetStroke(0.0f);

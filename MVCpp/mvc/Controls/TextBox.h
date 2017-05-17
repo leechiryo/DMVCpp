@@ -101,10 +101,6 @@ namespace mvc {
 
     TextBox(const D2DContext &context, wstring text) : View(context) {
 
-      // 内部的layout为一行一列
-      m_layout.AddRow("*");
-      m_layout.AddCol("*");
-
       // 按照从后到前的顺序生成子View。
       m_shadowEffect2 = AppendSubView<Effect>(CLSID_D2D1Shadow);
       m_backRect = AppendSubView<Rectangle>();
@@ -113,8 +109,6 @@ namespace mvc {
       m_shadowEffect2->SetOffset(0, 0, 0, 0);
       m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66afe9));
       m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_BLUR_STANDARD_DEVIATION, 4.0f);
-      m_shadowEffect2->AddLayoutRow("*");
-      m_shadowEffect2->AddLayoutCol("*");
       m_shadowEffect2->SetHidden(true);
 
       m_shadowRect = m_shadowEffect2->AppendSubView<Rectangle>();
@@ -128,8 +122,6 @@ namespace mvc {
       m_backRect->SetBackOpacity(1.0f);
       m_backRect->SetStroke(1.0f);
       m_backRect->SetColor(0x555555);
-      m_backRect->AddLayoutRow("*");
-      m_backRect->AddLayoutCol("*");
       m_backRect->SetInnerClipAreaOffset(5, 0, 5, 0);
       m_vtext = m_backRect->AppendSubView<Text>(text);
       m_vtext->SetLeftOffset(5);

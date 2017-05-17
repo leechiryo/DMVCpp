@@ -44,16 +44,11 @@ namespace mvc {
 
     CheckBox(const D2DContext &context, wstring ttl) : View(context) {
 
-      m_layout.AddRow("*");
-      m_layout.AddCol("*");
-
       m_rect = AppendSubView<Rectangle>();
       m_title = AppendSubView<Text>(ttl);
       m_line1 = m_rect->AppendSubView<Line>();
       m_line2 = m_rect->AppendSubView<Line>();
 
-      m_rect->AddLayoutRow("*");
-      m_rect->AddLayoutCol("*");
       m_rect->SetStroke(2.0f);
       m_rect->SetLeftOffset(0);
       m_rect->SetWidth("12");

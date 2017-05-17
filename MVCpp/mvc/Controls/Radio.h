@@ -33,8 +33,6 @@ namespace mvc {
     ModelRef<int> selectedValue;
 
     Radio(const D2DContext &context, int val, wstring ttl) : View(context) {
-      m_layout.AddRow("*");
-      m_layout.AddCol("*");
 
       m_circle1 = AppendSubView<Circle>();
       m_circle2 = AppendSubView<Circle>();
