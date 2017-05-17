@@ -56,15 +56,15 @@ namespace mvc {
       m_rect->AddLayoutCol("*");
       m_rect->SetStroke(2.0f);
       m_rect->SetLeftOffset(0);
-      m_rect->SetWidth("10");
-      m_rect->SetHeight("10");
+      m_rect->SetWidth("12");
+      m_rect->SetHeight("12");
       
       m_line1->SetStroke(2.0f);
       m_line2->SetStroke(2.0f);
-      m_line1->SetOffset(2, 5, 5.5, 2);
-      m_line2->SetOffset(4.5, 8, 2, 8);
+      m_line1->SetOffset(2, 5, 6.5, 2);
+      m_line2->SetOffset(5.5, 10, 2, 10);
 
-      m_title->SetLeftOffset(15);
+      m_title->SetLeftOffset(20);
 
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
 
@@ -75,12 +75,12 @@ namespace mvc {
     }
 
     virtual float GetDefaultWidth() {
-      return m_title->GetDefaultWidth() + 15;
+      return m_title->GetDefaultWidth() + 20;
     }
 
     virtual float GetDefaultHeight() {
       auto height = m_title->GetDefaultHeight();
-      return height > 10 ? height : 10;
+      return height > 12 ? height : 12;
     }
 
     virtual void DrawSelf() {

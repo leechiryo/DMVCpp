@@ -23,7 +23,7 @@ namespace mvc {
         D2D1::Point2F(tof(centerX), tof(centerY)),
         tof(radius), tof(radius));
 
-      m_pContext->FillEllipse(ellipse, m_pBrush.ptr());
+      m_pContext->FillEllipse(ellipse, m_pBackBrush.ptr());
       m_pContext->DrawEllipse(ellipse, m_pBrush.ptr(), m_stroke);
     }
   };

@@ -41,15 +41,18 @@ namespace mvc {
       m_title = AppendSubView<Text>(ttl);
 
       m_circle1->SetStroke(2.0f);
-      m_circle2->SetBackColor(0x333333);
-      m_circle1->SetOffset(0, 0);
-      m_circle1->SetWidth("10");
-      m_circle1->SetHeight("10");
-      m_circle2->SetOffset(3, 3);
-      m_circle2->SetWidth("5");
-      m_circle2->SetHeight("5");
+      m_circle1->SetLeftOffset(0);
+      m_circle1->SetWidth("12");
+      m_circle1->SetHeight("12");
 
-      m_title->SetLeftOffset(15);
+      m_circle2->SetBackColor(0x333333);
+      m_circle2->SetLeftOffset(3);
+      m_circle2->SetWidth("6");
+      m_circle2->SetHeight("6");
+
+      m_circle2->SetHidden(true);
+
+      m_title->SetLeftOffset(20);
 
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
 
@@ -60,7 +63,23 @@ namespace mvc {
     ~Radio() {
     }
 
+    virtual float GetDefaultWidth() {
+      return m_title->GetDefaultWidth() + 20;
+    }
+
+    virtual float GetDefaultHeight() {
+      auto height = m_title->GetDefaultHeight();
+      return height > 12 ? height : 12;
+    }
+
     virtual void DrawSelf() {
+      if (selectedValue == m_value){
+        m_circle2->SetHidden(false);
+      }
+      else
+      {
+        m_circle2->SetHidden(true);
+      }
     }
   };
 }
