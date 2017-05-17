@@ -52,8 +52,8 @@ namespace mvc {
         // 当鼠标事件发生时，先获取鼠标的坐标信息。
         pixelX = GET_X_LPARAM(lParam);
         pixelY = GET_Y_LPARAM(lParam);
-        dipX = AbsX2RelX(pixelX);
-        dipY = AbsY2RelY(pixelY);
+        dipX = AbsPixelX2RelX(pixelX);
+        dipY = AbsPixelY2RelY(pixelY);
         isMouseEvent = true;
       }
 

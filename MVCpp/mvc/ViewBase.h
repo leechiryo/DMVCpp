@@ -105,13 +105,6 @@ namespace mvc {
     virtual void MouseLeft(double x, double y) {
     }
 
-    void GetPixelRect(RECT &rect) {
-      rect.left = DipsXToPixels(m_left);
-      rect.top = DipsYToPixels(m_top);
-      rect.right = DipsXToPixels(m_right);
-      rect.bottom = DipsYToPixels(m_bottom);
-    }
-
     void RebuildD2DEnvironment() {
       CreateD2DResource();
 
@@ -124,30 +117,12 @@ namespace mvc {
       }
     }
 
-    double AbsX2RelX(int absX) {
-      return (absX - m_absLeft) / App::DPI_SCALE_X;
+    double AbsPixelX2RelX(int absPixelX) {
+      return (absPixelX - m_absLeft) / App::DPI_SCALE_X;
     }
 
-    double AbsY2RelY(int absY) {
-      return (absY - m_absTop) / App::DPI_SCALE_Y;
-    }
-
-    template <typename T>
-    double PixelsToDipsX(T x) {
-      return static_cast<double>(x) / App::DPI_SCALE_X;
-    }
-
-    template <typename T>
-    double PixelsToDipsY(T y) {
-      return static_cast<double>(y) / App::DPI_SCALE_Y;
-    }
-
-    int DipsXToPixels(double x) {
-      return static_cast<int>(x * App::DPI_SCALE_X);
-    }
-
-    int DipsYToPixels(double y) {
-      return static_cast<int>(y * App::DPI_SCALE_Y);
+    double AbsPixelY2RelY(int absPixelY) {
+      return (absPixelY - m_absTop) / App::DPI_SCALE_Y;
     }
 
     virtual bool HitTest(double dipX, double dipY) {
@@ -156,8 +131,8 @@ namespace mvc {
     }
 
     bool HitTest(int pixelsX, int pixelsY) {
-      double dipX = AbsX2RelX(pixelsX);
-      double dipY = AbsY2RelY(pixelsY);
+      double dipX = AbsPixelX2RelX(pixelsX);
+      double dipY = AbsPixelY2RelY(pixelsY);
 
       return HitTest(dipX, dipY);
     }
@@ -277,9 +252,6 @@ namespace mvc {
     }
 
     virtual ~ViewBase() { }
-
-
-    double left, top, width, height;
 
     virtual void DrawSelf() = 0;
 
@@ -462,21 +434,6 @@ namespace mvc {
       vb->CreateD2DResource();
       m_subViews.push_back(v);
       return v;
-    }
-
-    void SetPos(double left, double top, double right, double bottom) {
-      m_left = left;
-      m_top = top;
-      m_right = right;
-      m_bottom = bottom;
-    }
-
-    void ClearContext() {
-      m_pContext.Clear();
-    }
-
-    bool NotInitialized() {
-      return m_pContext.NotSet();
     }
 
     void AddLayoutRow(const char * height){

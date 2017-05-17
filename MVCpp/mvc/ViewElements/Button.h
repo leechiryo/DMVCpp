@@ -22,7 +22,7 @@ namespace mvc {
       btn->m_backRect->SetBackColor(0x666666);
       int xPos = GET_X_LPARAM(lParam);
       int yPos = GET_Y_LPARAM(lParam);
-      btn->m_spAniPressed->SetCenter(btn->AbsX2RelX(xPos), btn->AbsY2RelY(yPos));
+      btn->m_spAniPressed->SetCenter(btn->AbsPixelX2RelX(xPos), btn->AbsPixelY2RelY(yPos));
       btn->m_spAniPressed->Stop();
       btn->m_spAniPressed->PlayAndHideAtEnd();
       return 0;

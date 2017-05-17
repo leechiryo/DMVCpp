@@ -95,7 +95,7 @@ namespace mvc {
     }
 
     template<typename ...Args>
-    static shared_ptr<Window> CreateView(string id, Args ...args){
+    static shared_ptr<Window> CreateMainWindow(string id, Args ...args){
       auto w = make_shared<Window>(args...);
       w->m_wpThis = w;
       RegisterSubView(id, w);

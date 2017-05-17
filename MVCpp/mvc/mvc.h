@@ -19,7 +19,7 @@ namespace mvc {
 
   template<typename ...Args>
   shared_ptr<Window> v(string id, Args ... args) {
-    auto w = App::CreateView(id, args...);
+    auto w = App::CreateMainWindow(id, args...);
     return w;
   }
 
