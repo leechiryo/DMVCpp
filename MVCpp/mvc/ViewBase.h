@@ -423,6 +423,18 @@ namespace mvc {
 
             auto bmp = bmpRT.GetResource<ID2D1Bitmap>(&ID2D1BitmapRenderTarget::GetBitmap);
 
+            ID2D1Image *inputImg;
+            for (auto pe = ptr->m_effects.begin(); pe != ptr->m_effects.end(); pe++) {
+              auto &e = *pe;
+              int inputCnt = e->GetInputCount();
+              for (int i = 0; i < inputCnt; i++) {
+                e->GetInput(i, &inputImg);
+                if (!inputImg) {
+                  e->SetInput(i, bmp.ptr());
+                }
+              }
+            }
+
             ptr->m_pContext = m_pContext;
           }
           else{
