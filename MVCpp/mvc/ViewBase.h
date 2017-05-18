@@ -30,6 +30,8 @@ namespace mvc {
     float m_innerClipAreaRightOffset;
     float m_innerClipAreaBottomOffset;
 
+    list<DxResource<ID2D1Effect>> m_effects;
+
     bool isNumber(const char *str) {
       int len = strlen(str);
       // check for empty string.
@@ -409,7 +411,24 @@ namespace mvc {
         if (ptr) {
           ptr->m_absLeft = m_absLeft + ptr->m_left;
           ptr->m_absTop = m_absTop + ptr->m_top;
-          ptr->Draw();
+
+          if (ptr->m_effects.size() > 0){
+            auto bmpRT = m_pContext.CreateCompatibleRenderTarget();
+            ptr->m_pContext = bmpRT.Query<ID2D1DeviceContext>();
+
+            ptr->m_pContext->BeginDraw();
+            ptr->m_pContext->Clear(D2D1::ColorF(0xffffff, 0.0f));
+            ptr->Draw();
+            ptr->m_pContext->EndDraw();
+
+            auto bmp = bmpRT.GetResource<ID2D1Bitmap>(&ID2D1BitmapRenderTarget::GetBitmap);
+
+            ptr->m_pContext = m_pContext;
+          }
+          else{
+            ptr->m_pContext = m_pContext;
+            ptr->Draw();
+          }
         }
         else if (v.expired()) {
           m_subViews.erase(it);
