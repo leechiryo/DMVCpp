@@ -92,6 +92,18 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   line->SetGridPosition(7, 2);
   line->SetOffset(0, 0, 0, 0);
 
+  // 设置直线的阴影效果
+  auto shadowEffect = line->CreateEffect(CLSID_D2D1Shadow, 0);
+  auto affineTransEffect = line->CreateEffect(CLSID_D2D12DAffineTransform);
+  auto compositeEffect = line->CreateEffect(CLSID_D2D1Composite, 1);
+
+  affineTransEffect->SetInputEffect(0, shadowEffect.ptr());
+  D2D1_MATRIX_3X2_F matrix = D2D1::Matrix3x2F::Translation(-20, 20);
+  affineTransEffect->SetValue(D2D1_2DAFFINETRANSFORM_PROP_TRANSFORM_MATRIX, matrix);
+
+  compositeEffect->SetInputEffect(0, affineTransEffect.ptr());
+  line->EffectOn();
+
   // 绑定 Model 和 View
   btn->title->Bind("my_model");
   rdo1->selectedValue.Bind("groupVal");

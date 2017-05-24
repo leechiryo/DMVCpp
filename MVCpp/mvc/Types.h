@@ -110,7 +110,10 @@ namespace mvc {
       sp = std::make_shared<int>();
     }
 
-    DxResource(const DxResource& dxR) = delete;
+    DxResource(const DxResource& dxR){
+      m_pResource = dxR.m_pResource;
+      sp = dxR.sp;
+    }
 
     DxResource& operator=(const DxResource& dxR){
       m_pResource = dxR.m_pResource;

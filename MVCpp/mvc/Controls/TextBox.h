@@ -13,8 +13,6 @@ namespace mvc {
 
   private:
     shared_ptr<AniCaretFlicker> m_spAniCaret;
-    shared_ptr<Effect> m_shadowEffect2;
-    shared_ptr<Rectangle> m_shadowRect;
     shared_ptr<Rectangle> m_backRect;
     shared_ptr<Text> m_vtext;
 
@@ -102,20 +100,8 @@ namespace mvc {
     TextBox(const D2DContext &context, wstring text) : View(context) {
 
       // 按照从后到前的顺序生成子View。
-      m_shadowEffect2 = AppendSubView<Effect>(CLSID_D2D1Shadow);
       m_backRect = AppendSubView<Rectangle>();
       m_spAniCaret = AppendSubView<AniCaretFlicker>();
-
-      m_shadowEffect2->SetOffset(0, 0, 0, 0);
-      m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66afe9));
-      m_shadowEffect2->SetValue(D2D1_SHADOW_PROP_BLUR_STANDARD_DEVIATION, 4.0f);
-      m_shadowEffect2->SetHidden(true);
-
-      m_shadowRect = m_shadowEffect2->AppendSubView<Rectangle>();
-      m_shadowRect->SetOffset(0, 0, 0, 0);
-      m_shadowRect->SetBackColor(0x0);
-      m_shadowRect->SetBackOpacity(1.0f);
-      m_shadowRect->SetStroke(0.0f);
 
       m_backRect->SetOffset(0, 0, 0, 0);
       m_backRect->SetBackColor(0xfdfdfd);
@@ -125,6 +111,14 @@ namespace mvc {
       m_backRect->SetInnerClipAreaOffset(5, 0, 5, 0);
       m_vtext = m_backRect->AppendSubView<Text>(text);
       m_vtext->SetLeftOffset(5);
+
+      // 设置边框的阴影（当处于聚焦状态时显示）
+      auto shadowEffect = m_backRect->CreateEffect(CLSID_D2D1Shadow, 0);
+      auto compositeEffect = m_backRect->CreateEffect(CLSID_D2D1Composite, 1);
+      shadowEffect->SetValue(D2D1_SHADOW_PROP_COLOR, D2D1::ColorF(0x66afe9));
+      shadowEffect->SetValue(D2D1_SHADOW_PROP_BLUR_STANDARD_DEVIATION, 4.0f);
+      compositeEffect->SetInputEffect(0, shadowEffect.ptr());
+      m_backRect->EffectOff();
 
       // 设置光标的动画
       m_spAniCaret->SetOffset(6, 0, 6, 0);
@@ -173,8 +167,8 @@ namespace mvc {
     virtual void FocusChanged(){
       if (m_focused) {
         // 显示阴影效果和输入光标
-        m_shadowEffect2->SetHidden(false);
         m_backRect->SetColor(0x66afe9);
+        m_backRect->EffectOn();
         m_spAniCaret->SetHidden(false);
 
         UpdateCaretPos();
@@ -182,12 +176,10 @@ namespace mvc {
       else {
         // 改变边框的颜色
         m_backRect->SetColor(0x555555);
+        m_backRect->EffectOff();
 
         // 隐藏输入光标
         m_spAniCaret->SetHidden(true);
-
-        // 取消阴影效果
-        m_shadowEffect2->SetHidden(true);
       }
     }
 

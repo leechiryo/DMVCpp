@@ -4,6 +4,7 @@
 #include "D2DContext.h"
 #include "App.h"
 #include "Layout.h"
+#include <tuple>
 
 using namespace std;
 
@@ -30,7 +31,8 @@ namespace mvc {
     float m_innerClipAreaRightOffset;
     float m_innerClipAreaBottomOffset;
 
-    list<DxResource<ID2D1Effect>> m_effects;
+    bool m_showEffect = false;
+    list<tuple<DxResource<ID2D1Effect>, int>> m_effects;
 
     bool isNumber(const char *str) {
       int len = strlen(str);
@@ -94,6 +96,7 @@ namespace mvc {
     // 指向Window对象的D2DContext字段的指针。每个Window都有一个独立的D2DContext对象，
     // 其内部的所有subview将共享这一对象，并利用该对象进行绘制。
     D2DContext m_pContext;
+    D2DContext m_pEffectContext;
 
     virtual void CreateD2DResource() = 0;
     virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result, WPView &eventView) = 0;
@@ -114,6 +117,7 @@ namespace mvc {
         auto spv = e.lock();
         if (spv) {
           spv->m_pContext = m_pContext;
+          spv->m_pEffectContext = m_pEffectContext;
           spv->RebuildD2DEnvironment();
         }
       }
@@ -384,6 +388,37 @@ namespace mvc {
         && !isnan(m_innerClipAreaBottomOffset);
     }
 
+    // 为view生成一个特效对象。inputIdx是该view将输入到特效对象时位置索引
+    // 如果不需要将该view输入到特效对象，则可调用另一版本
+    DxResource<ID2D1Effect> CreateEffect(const IID & effectId, int inputIdx){
+      auto retval = m_pContext.CreateEffect(effectId);
+      m_effects.push_back(make_tuple(retval, inputIdx));
+      return retval;
+    }
+
+    // 为view生成一个特效对象。该特效对象不接受view作为输入
+    DxResource<ID2D1Effect> CreateEffect(const IID & effectId){
+      return CreateEffect(effectId, -1);
+    }
+
+    // 设置一个已经存在的特效对象，通常是从其他view生成的。通过此方法可以将
+    // 两个以上的view的绘制结果输入到一个特效中，实现诸如混合或者结合的效果
+    void AddEffect(const DxResource<ID2D1Effect> &effect, int inputIdx){
+      m_effects.push_back(make_tuple(effect, inputIdx));
+    }
+
+    bool IsEffectOn(){
+      return m_showEffect;
+    }
+
+    void EffectOn(){
+      m_showEffect = true;
+    }
+
+    void EffectOff(){
+      m_showEffect = false;
+    }
+
     void Draw() {
 
       if (m_hidden) return;
@@ -412,8 +447,13 @@ namespace mvc {
           ptr->m_absLeft = m_absLeft + ptr->m_left;
           ptr->m_absTop = m_absTop + ptr->m_top;
 
-          if (ptr->m_effects.size() > 0){
+          if (ptr->m_effects.size() > 0 && ptr->m_showEffect){
+            // 如果已经设定了特效，则要先将view绘制到一个临时的bmp上，然后再对其
+            // 施加指定的特效，然后再将最后的结果绘制到画面。
+            m_pContext->SetTransform(D2D1::Matrix3x2F::Identity());
             auto bmpRT = m_pContext.CreateCompatibleRenderTarget();
+            bmpRT->SetTransform(TranslationMatrix(m_absLeft, m_absTop));
+
             ptr->m_pContext = bmpRT.Query<ID2D1DeviceContext>();
 
             ptr->m_pContext->BeginDraw();
@@ -423,21 +463,21 @@ namespace mvc {
 
             auto bmp = bmpRT.GetResource<ID2D1Bitmap>(&ID2D1BitmapRenderTarget::GetBitmap);
 
-            ID2D1Image *inputImg;
+            // 遍历所有的特效设定，将view的绘制结果设为其输入
             for (auto pe = ptr->m_effects.begin(); pe != ptr->m_effects.end(); pe++) {
-              auto &e = *pe;
-              int inputCnt = e->GetInputCount();
-              for (int i = 0; i < inputCnt; i++) {
-                e->GetInput(i, &inputImg);
-                if (!inputImg) {
-                  e->SetInput(i, bmp.ptr());
-                }
+              auto &e = get<0>(*pe);
+              auto inputIdx = get<1>(*pe);
+              if (inputIdx >= 0){
+                e->SetInput(inputIdx, bmp.ptr());
               }
             }
 
-            ptr->m_pContext = m_pContext;
+            auto &lastEffect = get<0>(*(--(ptr->m_effects.end())));
+            m_pContext->DrawImage(lastEffect.ptr());
+            m_pContext->SetTransform(TranslationMatrix(m_absLeft, m_absTop));
           }
           else{
+            // 如果没有设置特效，则直接将view绘制到画面
             ptr->m_pContext = m_pContext;
             ptr->Draw();
           }
@@ -460,6 +500,7 @@ namespace mvc {
       auto v = make_shared<T>(m_pContext, args...);
       v->m_wpThis = v;
       v->m_parentLayout = &m_layout;
+      v->m_pEffectContext = m_pEffectContext;
 
       auto vb = static_pointer_cast<ViewBase>(v);
       vb->CreateD2DResource();
@@ -473,27 +514,6 @@ namespace mvc {
 
     void AddLayoutCol(const char * width){
       m_layout.AddCol(width);
-    }
-
-    DxResource<ID2D1Effect> DrawEffect(REFCLSID effectId, D2DContext &context) {
-
-      auto effect = context.CreateEffect(effectId);
-      D2DContext temp;
-      temp = m_pContext;
-      auto bmpRT = context.CreateCompatibleRenderTarget();
-      m_pContext = bmpRT.Query<ID2D1DeviceContext>();
-
-      m_pContext->BeginDraw();
-      m_pContext->Clear(D2D1::ColorF(0xffffff, 0.0f));
-      DrawSelf();
-      m_pContext->EndDraw();
-
-      m_pContext = temp;
-
-      auto bmp = bmpRT.GetResource<ID2D1Bitmap>(&ID2D1BitmapRenderTarget::GetBitmap);
-      effect->SetInput(0, bmp.ptr());
-
-      return effect;
     }
   };
 }
