@@ -115,6 +115,12 @@ namespace mvc {
       m_d2dBuffer = m_pContext.CreateBitmap(dxgiBackBuffer.ptr(), bmpProp);
 
       m_pContext->SetTarget(m_d2dBuffer.ptr());
+
+      // 创建一个特效用的context
+      m_bmpRT.Clear();
+      m_effectContext.Clear();
+      m_bmpRT = m_pContext.CreateCompatibleRenderTarget();
+      m_effectContext = m_bmpRT.Query<ID2D1DeviceContext>();
     }
 
 
@@ -248,7 +254,6 @@ namespace mvc {
 
       // 创建一个特效用的context
       m_bmpRT = m_pContext.CreateCompatibleRenderTarget();
-      m_bmpRT->SetTransform(TranslationMatrix(m_absLeft, m_absTop));
       m_effectContext = m_bmpRT.Query<ID2D1DeviceContext>();
       m_pBmpRT = &m_bmpRT;
       m_pEffectContext = &m_effectContext;

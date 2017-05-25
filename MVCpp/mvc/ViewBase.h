@@ -475,6 +475,7 @@ namespace mvc {
             auto &lastEffect = get<0>(*(--(ptr->m_effects.end())));
             m_pContext->SetTransform(D2D1::Matrix3x2F::Identity());
             m_pContext->DrawImage(lastEffect.ptr());
+            m_pContext->SetTransform(TranslationMatrix(m_absLeft, m_absTop));
           }
           else{
             // 如果没有设置特效，则直接将view绘制到画面
