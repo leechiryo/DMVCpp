@@ -132,7 +132,7 @@ namespace mvc {
       return *this;
     }
 
-    T** operator&(){
+    T** GetAddressOfResourcePtr(){
       return &m_pResource;
     }
 

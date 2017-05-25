@@ -21,6 +21,9 @@ namespace mvc {
     DxResource<IDXGISwapChain1> m_dxgiSwapChain;
     DxResource<ID2D1Bitmap1> m_d2dBuffer;
 
+    DxResource<ID2D1BitmapRenderTarget> m_bmpRT;
+    D2DContext m_effectContext;
+
     typedef HRESULT(ID2D1DeviceContext::*CreateBitmapFromDxgiSurfaceType)(IDXGISurface*, const D2D1_BITMAP_PROPERTIES1&, ID2D1Bitmap1**);
 
     // controller method
@@ -193,7 +196,8 @@ namespace mvc {
       D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE,
         0, D3D11_CREATE_DEVICE_BGRA_SUPPORT,
         fls, ARRAYSIZE(fls), D3D11_SDK_VERSION,
-        &m_d3dDevice, &retFeatureLevel, &m_d3dContext);
+        m_d3dDevice.GetAddressOfResourcePtr(), &retFeatureLevel, 
+        m_d3dContext.GetAddressOfResourcePtr());
 
       // 2. 查询特定的设备和设备环境的接口。
       // 一下返回的都是用DxResource封装的资源，当发生异常时会自动调用SafeRelease函数释放资源。
@@ -241,10 +245,17 @@ namespace mvc {
       m_d2dBuffer = m_pContext.CreateBitmap(dxgiBackBuffer.ptr(), bmpProp);
 
       m_pContext->SetTarget(m_d2dBuffer.ptr());
+
+      // 创建一个特效用的context
+      m_bmpRT = m_pContext.CreateCompatibleRenderTarget();
+      m_bmpRT->SetTransform(TranslationMatrix(m_absLeft, m_absTop));
+      m_effectContext = m_bmpRT.Query<ID2D1DeviceContext>();
+      m_pBmpRT = &m_bmpRT;
+      m_pEffectContext = &m_effectContext;
     }
 
   public:
-    Window(const WCHAR * title, int width, int height) : View({}){
+    Window(const WCHAR * title, int width, int height) : View({}) {
       m_hwnd = nullptr;
       m_canBeFocused = false;
 
@@ -298,7 +309,7 @@ namespace mvc {
       CreateD2DResource();
     }
 
-    void UploadLayout(){
+    void UploadLayout() {
       m_layout.SetWidth(tof(m_right));
       m_layout.SetHeight(tof(m_bottom));
     }
