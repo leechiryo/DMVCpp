@@ -447,10 +447,12 @@ namespace mvc {
           ptr->m_absLeft = m_absLeft + ptr->m_left;
           ptr->m_absTop = m_absTop + ptr->m_top;
 
+          ptr->m_pEffectContext = m_pEffectContext;
+          ptr->m_pBmpRT = m_pBmpRT;
+
           if (ptr->m_effects.size() > 0 && ptr->m_showEffect){
             // 如果已经设定了特效，则要先将view绘制到一个临时的bmp上，然后再对其
             // 施加指定的特效，然后再将最后的结果绘制到画面。
-
             ptr->m_pContext = *(ptr->m_pEffectContext);
             ptr->m_pContext->SetTransform(TranslationMatrix(m_absLeft, m_absTop));
 
@@ -471,8 +473,8 @@ namespace mvc {
             }
 
             auto &lastEffect = get<0>(*(--(ptr->m_effects.end())));
+            m_pContext->SetTransform(D2D1::Matrix3x2F::Identity());
             m_pContext->DrawImage(lastEffect.ptr());
-            m_pContext->SetTransform(TranslationMatrix(m_absLeft, m_absTop));
           }
           else{
             // 如果没有设置特效，则直接将view绘制到画面
@@ -498,8 +500,6 @@ namespace mvc {
       auto v = make_shared<T>(m_pContext, args...);
       v->m_wpThis = v;
       v->m_parentLayout = &m_layout;
-      v->m_pEffectContext = m_pEffectContext;
-      v->m_pBmpRT = m_pBmpRT;
 
       auto vb = static_pointer_cast<ViewBase>(v);
       vb->CreateD2DResource();
