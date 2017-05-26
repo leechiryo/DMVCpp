@@ -96,8 +96,8 @@ namespace mvc {
     // 指向Window对象的D2DContext字段的指针。每个Window都有一个独立的D2DContext对象，
     // 其内部的所有subview将共享这一对象，并利用该对象进行绘制。
     D2DContext m_pContext;
-    D2DContext *m_pEffectContext;
-    DxResource<ID2D1BitmapRenderTarget> *m_pBmpRT;
+    D2DContext m_pEffectContext;
+    DxResource<ID2D1BitmapRenderTarget> m_pBmpRT;
 
     virtual void CreateD2DResource() = 0;
     virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result, WPView &eventView) = 0;
@@ -453,7 +453,7 @@ namespace mvc {
           if (ptr->m_effects.size() > 0 && ptr->m_showEffect){
             // 如果已经设定了特效，则要先将view绘制到一个临时的bmp上，然后再对其
             // 施加指定的特效，然后再将最后的结果绘制到画面。
-            ptr->m_pContext = *(ptr->m_pEffectContext);
+            ptr->m_pContext = ptr->m_pEffectContext;
             ptr->m_pContext->SetTransform(TranslationMatrix(m_absLeft, m_absTop));
 
             ptr->m_pContext->BeginDraw();
@@ -461,7 +461,7 @@ namespace mvc {
             ptr->Draw();
             ptr->m_pContext->EndDraw();
 
-            auto bmp = (*(ptr->m_pBmpRT)).GetResource<ID2D1Bitmap>(&ID2D1BitmapRenderTarget::GetBitmap);
+            auto bmp = ptr->m_pBmpRT.GetResource<ID2D1Bitmap>(&ID2D1BitmapRenderTarget::GetBitmap);
 
             // 遍历所有的特效设定，将view的绘制结果设为其输入
             for (auto pe = ptr->m_effects.begin(); pe != ptr->m_effects.end(); pe++) {

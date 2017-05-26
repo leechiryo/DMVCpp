@@ -21,9 +21,6 @@ namespace mvc {
     DxResource<IDXGISwapChain1> m_dxgiSwapChain;
     DxResource<ID2D1Bitmap1> m_d2dBuffer;
 
-    DxResource<ID2D1BitmapRenderTarget> m_bmpRT;
-    D2DContext m_effectContext;
-
     typedef HRESULT(ID2D1DeviceContext::*CreateBitmapFromDxgiSurfaceType)(IDXGISurface*, const D2D1_BITMAP_PROPERTIES1&, ID2D1Bitmap1**);
 
     // controller method
@@ -117,10 +114,8 @@ namespace mvc {
       m_pContext->SetTarget(m_d2dBuffer.ptr());
 
       // 创建一个特效用的context
-      m_bmpRT.Clear();
-      m_effectContext.Clear();
-      m_bmpRT = m_pContext.CreateCompatibleRenderTarget();
-      m_effectContext = m_bmpRT.Query<ID2D1DeviceContext>();
+      m_pBmpRT = m_pContext.CreateCompatibleRenderTarget();
+      m_pEffectContext = m_pBmpRT.Query<ID2D1DeviceContext>();
     }
 
 
@@ -194,16 +189,17 @@ namespace mvc {
 
       D3D_FEATURE_LEVEL retFeatureLevel;
 
-      // 在保存Direct3D设备和环境之前，先将之前保存的设备和环境删除(如果有的话)
-      m_d3dContext.Clear();
-      m_d3dDevice.Clear();
-
       // 获取Direct3D设备和环境
+      ID3D11Device *pd3dDevice;
+      ID3D11DeviceContext *pd3dContext;
       D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE,
         0, D3D11_CREATE_DEVICE_BGRA_SUPPORT,
         fls, ARRAYSIZE(fls), D3D11_SDK_VERSION,
-        m_d3dDevice.GetAddressOfResourcePtr(), &retFeatureLevel, 
-        m_d3dContext.GetAddressOfResourcePtr());
+        &pd3dDevice, &retFeatureLevel, 
+        &pd3dContext);
+
+      m_d3dDevice = pd3dDevice;
+      m_d3dContext = pd3dContext;
 
       // 2. 查询特定的设备和设备环境的接口。
       // 一下返回的都是用DxResource封装的资源，当发生异常时会自动调用SafeRelease函数释放资源。
@@ -253,10 +249,8 @@ namespace mvc {
       m_pContext->SetTarget(m_d2dBuffer.ptr());
 
       // 创建一个特效用的context
-      m_bmpRT = m_pContext.CreateCompatibleRenderTarget();
-      m_effectContext = m_bmpRT.Query<ID2D1DeviceContext>();
-      m_pBmpRT = &m_bmpRT;
-      m_pEffectContext = &m_effectContext;
+      m_pBmpRT = m_pContext.CreateCompatibleRenderTarget();
+      m_pEffectContext = m_pBmpRT.Query<ID2D1DeviceContext>();
     }
 
   public:

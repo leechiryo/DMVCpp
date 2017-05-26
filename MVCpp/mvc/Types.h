@@ -96,51 +96,34 @@ namespace mvc {
   class DxResource{
     friend class D2DContext;
   private:
-    T* m_pResource;
-    std::shared_ptr<int> sp;
+    std::shared_ptr<T> m_pResource;
 
   public:
     DxResource(){
-      m_pResource = nullptr;
-      sp = std::make_shared<int>();
     }
 
     DxResource(T* pResource){
-      m_pResource = pResource;
-      sp = std::make_shared<int>();
+      m_pResource.reset(pResource, [](T *p){
+        SafeRelease(p);
+      });
     }
 
     DxResource(const DxResource& dxR){
       m_pResource = dxR.m_pResource;
-      sp = dxR.sp;
     }
 
     DxResource& operator=(const DxResource& dxR){
       m_pResource = dxR.m_pResource;
-      sp = dxR.sp;
       return *this;
     }
 
     DxResource(DxResource&& dxR){
       std::swap(m_pResource, dxR.m_pResource);
-      std::swap(sp, dxR.sp);
     }
 
     DxResource& operator=(DxResource&& dxR){
       std::swap(m_pResource, dxR.m_pResource);
-      std::swap(sp, dxR.sp);
       return *this;
-    }
-
-    T** GetAddressOfResourcePtr(){
-      return &m_pResource;
-    }
-
-    void Clear(){
-      if (sp.unique()){
-        SafeRelease(m_pResource);
-        m_pResource = nullptr;
-      }
     }
 
     bool NotSet(){
@@ -148,10 +131,7 @@ namespace mvc {
     }
 
     ~DxResource(){
-      if (sp.unique()){
-        SafeRelease(m_pResource);
-        m_pResource = nullptr;
-      }
+      m_pResource.reset();
     }
 
     inline REFIID GetGUID(){
@@ -159,11 +139,11 @@ namespace mvc {
     }
 
     T* operator->(){
-      return m_pResource;
+      return m_pResource.get();
     }
 
     T* ptr(){
-      return m_pResource;
+      return m_pResource.get();
     }
 
     template<typename R>
@@ -183,7 +163,7 @@ namespace mvc {
     DxResource<R> Query(OP op, Args... args){
       R* pS;
       HRESULT hr = S_OK;
-      hr = (m_pResource->*op)(args..., __uuidof(R), (void **)&pS);
+      hr = (m_pResource.get()->*op)(args..., __uuidof(R), (void **)&pS);
 
       if (hr != S_OK){
         throw std::runtime_error("Failed to query the interface.");
@@ -210,7 +190,7 @@ namespace mvc {
       R *resource;
       HRESULT hr = S_OK;
 
-      hr = (m_pResource->*op)(&resource);
+      hr = (m_pResource.get()->*op)(&resource);
 
       if (hr != S_OK){
         throw std::runtime_error("Failed to get the directx resource.");
@@ -224,7 +204,7 @@ namespace mvc {
       R *resource;
       HRESULT hr = S_OK;
 
-      hr = (m_pResource->*op)(args..., &resource);
+      hr = (m_pResource.get()->*op)(args..., &resource);
 
       if (hr != S_OK){
         throw std::runtime_error("Failed to get the directx resource.");

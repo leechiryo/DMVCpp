@@ -23,7 +23,6 @@ namespace mvc {
     UINT32 m_color;
 
     void ResetTextFormat(){
-      m_pTextFormat.Clear();
       m_pTextFormat = App::CreateTextFormat(m_font, m_fontSize, m_fontWeight, m_fontStyle, m_fontStretch);
       m_pTextFormat->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_LEADING);
       m_pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);

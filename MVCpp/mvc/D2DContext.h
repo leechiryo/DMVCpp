@@ -7,19 +7,16 @@ namespace mvc {
   public:
     D2DContext& operator=(const D2DContext& dxR) {
       m_pResource = dxR.m_pResource;
-      sp = dxR.sp;
       return *this;
     }
 
     D2DContext& operator=(D2DContext&& dxR) {
       std::swap(m_pResource, dxR.m_pResource);
-      std::swap(sp, dxR.sp);
       return *this;
     }
 
     D2DContext& operator=(DxResource<ID2D1DeviceContext>&& dxR) {
       std::swap(m_pResource, dxR.m_pResource);
-      std::swap(sp, dxR.sp);
       return *this;
     }
 
