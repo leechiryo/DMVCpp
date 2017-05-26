@@ -21,8 +21,6 @@ namespace mvc {
 
     friend class Window;
 
-    friend class Effect;
-
   private:
     bool m_hidden;
 
@@ -399,12 +397,6 @@ namespace mvc {
     // 为view生成一个特效对象。该特效对象不接受view作为输入
     DxResource<ID2D1Effect> CreateEffect(const IID & effectId){
       return CreateEffect(effectId, -1);
-    }
-
-    // 设置一个已经存在的特效对象，通常是从其他view生成的。通过此方法可以将
-    // 两个以上的view的绘制结果输入到一个特效中，实现诸如混合或者结合的效果
-    void AddEffect(const DxResource<ID2D1Effect> &effect, int inputIdx){
-      m_effects.push_back(make_tuple(effect, inputIdx));
     }
 
     bool IsEffectOn(){

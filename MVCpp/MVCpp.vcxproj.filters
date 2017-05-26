@@ -105,9 +105,6 @@
     <ClInclude Include="mvc\ViewElements\Line.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="mvc\ViewElements\Effect.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="mvc\Controls\Button.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>

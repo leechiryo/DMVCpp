@@ -5,7 +5,6 @@
 #include "../ModelRef.h"
 #include "..\ViewElements\AniCaretFlicker.h"
 #include "..\ViewElements\Rectangle.h"
-#include "..\ViewElements\Effect.h"
 #include "..\ViewElements\Text.h"
 
 namespace mvc {
