@@ -9,7 +9,7 @@ namespace mvc {
   class Line : public Graphic
   {
   public:
-    Line(const D2DContext &context) : Graphic(context){
+    Line(const D2DContext &context, Window * parentWnd) : Graphic(context, parentWnd){
     }
 
     virtual void DrawSelf() {

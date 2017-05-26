@@ -10,7 +10,7 @@ namespace mvc {
   class Rectangle : public Graphic
   {
   public:
-    Rectangle(const D2DContext &context) :Graphic(context){
+    Rectangle(const D2DContext &context, Window * parentWnd) :Graphic(context, parentWnd){
     }
 
     virtual void DrawSelf() {

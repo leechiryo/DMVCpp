@@ -3,17 +3,18 @@
 #include "../Types.h"
 #include "../View.h"
 #include "../ModelRef.h"
-#include "..\ViewElements\AniCaretFlicker.h"
 #include "..\ViewElements\Rectangle.h"
 #include "..\ViewElements\Text.h"
+#include "..\ViewElements\Line.h"
 
 namespace mvc {
   class TextBox : public View<TextBox> {
 
   private:
-    shared_ptr<AniCaretFlicker> m_spAniCaret;
     shared_ptr<Rectangle> m_backRect;
     shared_ptr<Text> m_vtext;
+    shared_ptr<Line> m_caret;
+    shared_ptr<AnimationBase> m_aniCaret;
 
     size_t m_insertPos;
     float m_hTranslation;
@@ -31,7 +32,7 @@ namespace mvc {
       }
 
       m_vtext->SetLeftOffset(5 - m_hTranslation);
-      m_spAniCaret->SetCaretPos(w - m_hTranslation, 30);
+      m_caret->SetLeftOffset(w - m_hTranslation + 5);
     }
 
     static LRESULT Handle_MOUSEMOVE(shared_ptr<TextBox> tbx, WPARAM wParam, LPARAM lParam) {
@@ -46,7 +47,7 @@ namespace mvc {
         (*(tbx->text))->insert(tbx->m_insertPos, 1, wParam);
         tbx->m_insertPos++;
         tbx->UpdateCaretPos();
-        tbx->m_spAniCaret->SetFrameIndex(9);
+        tbx->m_aniCaret->SetFrameIndex(9);
       }
       return 0;
     }
@@ -58,29 +59,29 @@ namespace mvc {
           (*(tbx->text))->erase(tbx->m_insertPos - 1, 1);
           tbx->m_insertPos--;
         }
-        tbx->m_spAniCaret->SetFrameIndex(9);
+        tbx->m_aniCaret->SetFrameIndex(9);
         break;
       case VK_DELETE:
         if (tbx->m_insertPos < (*(tbx->text))->length()) {
           (*(tbx->text))->erase(tbx->m_insertPos, 1);
         }
-        tbx->m_spAniCaret->SetFrameIndex(9);
+        tbx->m_aniCaret->SetFrameIndex(9);
         break;
       case VK_HOME:
         tbx->m_insertPos = 0;
-        tbx->m_spAniCaret->SetFrameIndex(9);
+        tbx->m_aniCaret->SetFrameIndex(9);
         break;
       case VK_END:
         tbx->m_insertPos = (*(tbx->text))->length();
-        tbx->m_spAniCaret->SetFrameIndex(9);
+        tbx->m_aniCaret->SetFrameIndex(9);
         break;
       case VK_LEFT:
         tbx->m_insertPos = tbx->m_insertPos > 0 ? tbx->m_insertPos - 1 : 0;
-        tbx->m_spAniCaret->SetFrameIndex(9);
+        tbx->m_aniCaret->SetFrameIndex(9);
         break;
       case VK_RIGHT:
         tbx->m_insertPos = tbx->m_insertPos < (*(tbx->text))->length() ? tbx->m_insertPos + 1 : (*(tbx->text))->length();
-        tbx->m_spAniCaret->SetFrameIndex(9);
+        tbx->m_aniCaret->SetFrameIndex(9);
         break;
       }
       tbx->UpdateCaretPos();
@@ -96,11 +97,38 @@ namespace mvc {
 
     ModelRef<wstring> *text;
 
-    TextBox(const D2DContext &context, wstring text) : View(context) {
+    TextBox(const D2DContext &context, Window *parentWnd, wstring text) : View(context, parentWnd) {
 
       // 按照从后到前的顺序生成子View。
       m_backRect = AppendSubView<Rectangle>();
-      m_spAniCaret = AppendSubView<AniCaretFlicker>();
+      m_caret = AppendSubView<Line>();
+      m_caret->SetStroke(2.0f);
+      m_caret->SetOffset(0, 10);
+      m_caret->SetWidth("0");
+      m_caret->SetHeight("20");
+
+      m_aniCaret = m_caret->AddAnimation<Line>([](Line * l, int i)->bool{
+        if (i <= 48)
+        {
+          if (i <= 8) {
+            // 前8帧淡入效果
+            l->SetOpacity(i / 8.0f);
+          }
+          else if (i > 40) {
+            // 后8帧淡出效果
+            l->SetOpacity((48 - i) / 8.0f);
+          }
+          else {
+            // 中间24帧完全显示
+            l->SetOpacity(1.0f);
+          }
+        }
+
+        if (i == 72) return true;
+        else return false;
+      });
+
+      m_caret->SetHidden(true);
 
       m_backRect->SetOffset(0, 0, 0, 0);
       m_backRect->SetBackColor(0xfdfdfd);
@@ -120,9 +148,6 @@ namespace mvc {
       m_backRect->EffectOff();
 
       // 设置光标的动画
-      m_spAniCaret->SetOffset(6, 0, 6, 0);
-      m_spAniCaret->PlayRepeatly();
-      m_spAniCaret->SetHidden(true);
 
       AddEventHandler(WM_CHAR, Handle_CHAR);
       AddEventHandler(WM_KEYDOWN, Handle_KEYDOWN);
@@ -168,8 +193,8 @@ namespace mvc {
         // 显示阴影效果和输入光标
         m_backRect->SetColor(0x66afe9);
         m_backRect->EffectOn();
-        m_spAniCaret->SetHidden(false);
-
+        m_caret->SetHidden(false);
+        m_aniCaret->PlayRepeatly();
         UpdateCaretPos();
       }
       else {
@@ -178,7 +203,8 @@ namespace mvc {
         m_backRect->EffectOff();
 
         // 隐藏输入光标
-        m_spAniCaret->SetHidden(true);
+        m_caret->SetHidden(true);
+        m_aniCaret->Stop();
       }
     }
 

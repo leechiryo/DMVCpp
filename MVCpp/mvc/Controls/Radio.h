@@ -32,7 +32,7 @@ namespace mvc {
 
     ModelRef<int> selectedValue;
 
-    Radio(const D2DContext &context, int val, wstring ttl) : View(context) {
+    Radio(const D2DContext &context, Window *parentWnd, int val, wstring ttl) : View(context, parentWnd) {
 
       m_circle1 = AppendSubView<Circle>();
       m_circle2 = AppendSubView<Circle>();

@@ -5,16 +5,13 @@
 #include "App.h"
 #include "Layout.h"
 #include <tuple>
+#include "Animation2.h"
 
 using namespace std;
 
 namespace mvc {
 
   class ViewBase {
-
-    template<typename T>
-    friend class ModelRef;
-    friend class App;
 
     template<typename T>
     friend class View;
@@ -33,6 +30,8 @@ namespace mvc {
     DxResource<ID2D1BitmapRenderTarget> m_pBmpRT;
     bool m_showEffect = false;
     list<tuple<DxResource<ID2D1Effect>, int>> m_effects;
+
+    Window * m_parentWnd;
 
     bool isNumber(const char *str) {
       int len = strlen(str);
@@ -233,9 +232,10 @@ namespace mvc {
 
   public:
 
-    ViewBase(const D2DContext & context) {
+    ViewBase(const D2DContext & context, Window *parentWnd) {
       m_hidden = false;
       m_pContext = context;
+      m_parentWnd = parentWnd;
       m_innerClipAreaLeftOffset = NAN;
       m_innerClipAreaTopOffset = NAN;
       m_innerClipAreaRightOffset = NAN;
@@ -490,7 +490,7 @@ namespace mvc {
 
     template <typename T, typename ...Args>
     shared_ptr<T> AppendSubView(Args ...args) {
-      auto v = make_shared<T>(m_pContext, args...);
+      auto v = make_shared<T>(m_pContext, m_parentWnd, args...);
       v->m_wpThis = v;
       v->m_parentLayout = &m_layout;
 
@@ -506,6 +506,17 @@ namespace mvc {
 
     void AddLayoutCol(const char * width){
       m_layout.AddCol(width);
+    }
+
+    template <typename T>
+    shared_ptr<Animation2<T>> AddAnimation(std::function<bool(T*, int)> updateFunc){
+      if (m_parentWnd){
+        T *downcast = dynamic_cast<T*>(this);
+        return m_parentWnd->CreateAnimation(downcast, updateFunc);
+      }
+      else{
+        return nullptr;
+      }
     }
   };
 }

@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <vector>
-
 #include "..\View.h"
 
 namespace mvc {
@@ -20,6 +19,8 @@ namespace mvc {
     DxResource<ID2D1Device> m_d2dDevice;
     DxResource<IDXGISwapChain1> m_dxgiSwapChain;
     DxResource<ID2D1Bitmap1> m_d2dBuffer;
+
+    list<shared_ptr<AnimationBase>> m_animations;
 
     typedef HRESULT(ID2D1DeviceContext::*CreateBitmapFromDxgiSurfaceType)(IDXGISurface*, const D2D1_BITMAP_PROPERTIES1&, ID2D1Bitmap1**);
 
@@ -140,6 +141,10 @@ namespace mvc {
             rect.bottom = rect1.bottom;
           }
 
+          for (auto a : pWnd->m_animations){
+            a->Update();
+          }
+
           pWnd->m_pContext->BeginDraw();
 
           // 调用基类ViewBase的方法绘制.
@@ -254,9 +259,11 @@ namespace mvc {
     }
 
   public:
-    Window(const WCHAR * title, int width, int height) : View({}) {
+    Window(const WCHAR * title, int width, int height) : View({}, this) {
       m_hwnd = nullptr;
       m_canBeFocused = false;
+
+      int a = m_animations.size();
 
       // Register message handler methods.
       AddEventHandler(WM_SIZE, Handle_SIZE);
@@ -438,6 +445,13 @@ namespace mvc {
       }
 
       return result;
+    }
+
+    template <typename T>
+    shared_ptr<Animation2<T>> CreateAnimation(T* resource, std::function<bool(T*, int)> updateFunc){
+      auto ani = make_shared<Animation2<T>>(resource, updateFunc);
+      m_animations.push_back(ani);
+      return ani;
     }
   };
 }

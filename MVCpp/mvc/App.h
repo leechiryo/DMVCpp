@@ -15,7 +15,7 @@ namespace mvc {
 
   class App {
 
-    friend class ViewBase;
+    friend class Window;
 
   private:
     static ComLibrary s_comLib;
@@ -123,7 +123,6 @@ namespace mvc {
 
       return ptr->get_safeptr();
     }
-
 
     static void RemoveView(string id)
     {

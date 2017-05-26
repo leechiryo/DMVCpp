@@ -105,7 +105,7 @@ namespace mvc {
 
   public:
 
-    View(const D2DContext &context) : ViewBase(context) {
+    View(const D2DContext &context, Window *parentWnd) : ViewBase(context, parentWnd) {
     }
 
     void AddEventHandler(int msg, ControllerMethod method) {
@@ -132,5 +132,6 @@ namespace mvc {
         App::UpdateViews();
       }
     }
+    
   };
 }

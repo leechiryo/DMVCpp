@@ -16,7 +16,7 @@ namespace mvc {
     }
 
   public:
-    AniCaretFlicker(const D2DContext &context) : Animation(context){
+    AniCaretFlicker(const D2DContext &context, Window *parentWnd) : Animation(context, parentWnd){
     }
 
     void SetCaretPos(double x, double y) {

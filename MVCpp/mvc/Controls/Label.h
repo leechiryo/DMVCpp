@@ -16,7 +16,7 @@ namespace mvc {
 
   public:
     ModelRef<wstring> *text;
-    Label(const D2DContext &context, wstring ttl): View(context){
+    Label(const D2DContext &context, Window * parentWnd, wstring ttl): View(context, parentWnd){
       m_vtext = AppendSubView<Text>(ttl);
       m_vtext->SetGridPosition(0, 0);
       m_vtext->SetOffset(0, 0);

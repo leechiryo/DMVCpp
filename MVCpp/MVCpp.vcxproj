@@ -82,6 +82,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="mvc\Animation2.h" />
     <ClInclude Include="mvc\ViewElements\Circle.h" />
     <ClInclude Include="mvc\ViewElements\Graphic.h" />
     <ClInclude Include="mvc\ViewElements\Image.h" />

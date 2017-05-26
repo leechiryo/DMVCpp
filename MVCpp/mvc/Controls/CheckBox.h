@@ -42,7 +42,7 @@ namespace mvc {
 
     ModelRef<bool> checked;
 
-    CheckBox(const D2DContext &context, wstring ttl) : View(context) {
+    CheckBox(const D2DContext &context, Window *parentWnd, wstring ttl) : View(context, parentWnd) {
 
       m_rect = AppendSubView<Rectangle>();
       m_title = AppendSubView<Text>(ttl);

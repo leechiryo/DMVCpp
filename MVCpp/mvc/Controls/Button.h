@@ -6,6 +6,7 @@
 #include "..\ViewElements\AniButtonPressed.h"
 #include "..\ViewElements\Rectangle.h"
 #include "..\ViewElements\Text.h"
+#include "..\ViewElements\Circle.h"
 
 namespace mvc {
   class Button : public View<Button>
@@ -16,6 +17,8 @@ namespace mvc {
     shared_ptr<Rectangle> m_backRect;
     shared_ptr<Text> m_title;
     shared_ptr<AniButtonPressed> m_spAniPressed;
+    shared_ptr<Circle> m_circle;
+    shared_ptr<AnimationBase> m_ani;
 
     // controller method
     static LRESULT Handle_LBUTTONDOWN(shared_ptr<Button> btn, WPARAM wParam, LPARAM lParam) {
@@ -48,7 +51,7 @@ namespace mvc {
   public:
     ModelRef<wstring> *title;
 
-    Button(const D2DContext &context, wstring ttl) : View(context) {
+    Button(const D2DContext &context, Window *parentWnd, wstring ttl) : View(context, parentWnd) {
 
       m_backRect = AppendSubView<Rectangle>();
       m_backRect->SetOffset(0, 0, 0, 0);
@@ -60,6 +63,15 @@ namespace mvc {
       // 设置点击的动画
       m_spAniPressed = AppendSubView<AniButtonPressed>();
       m_spAniPressed->SetOffset(0, 0, 0, 0);
+
+      m_circle = AppendSubView<Circle>();
+      m_circle->SetOffset(0, 0);
+      m_circle->SetWidth("0");
+      m_circle->SetHeight("0");
+
+      m_ani = m_circle->AddAnimation<Circle>([](Circle *c, int idx)->bool{
+        return true;
+      });
 
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
       AddEventHandler(WM_LBUTTONUP, Handle_LBUTTONUP);

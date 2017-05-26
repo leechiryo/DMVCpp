@@ -17,7 +17,7 @@ namespace mvc {
     }
 
   public:
-    AniButtonPressed(const D2DContext &context) : Animation(context){
+    AniButtonPressed(const D2DContext &context, Window *parentWnd) : Animation(context, parentWnd){
     }
 
     void SetCenter(double x, double y) {
