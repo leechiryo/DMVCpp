@@ -29,6 +29,8 @@ namespace mvc {
     float m_innerClipAreaRightOffset;
     float m_innerClipAreaBottomOffset;
 
+    D2DContext m_pEffectContext;
+    DxResource<ID2D1BitmapRenderTarget> m_pBmpRT;
     bool m_showEffect = false;
     list<tuple<DxResource<ID2D1Effect>, int>> m_effects;
 
@@ -94,8 +96,6 @@ namespace mvc {
     // 指向Window对象的D2DContext字段的指针。每个Window都有一个独立的D2DContext对象，
     // 其内部的所有subview将共享这一对象，并利用该对象进行绘制。
     D2DContext m_pContext;
-    D2DContext m_pEffectContext;
-    DxResource<ID2D1BitmapRenderTarget> m_pBmpRT;
 
     virtual void CreateD2DResource() = 0;
     virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result, WPView &eventView) = 0;
