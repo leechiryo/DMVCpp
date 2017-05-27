@@ -18,12 +18,46 @@ namespace mvc {
     char widthStr[10];
     char heightStr[10];
 
+    float setWidth = NAN;
+    float setHeight = NAN;
+
+    float setWidthRatio = NAN;
+    float setHeightRatio = NAN;
+
     void SetWidthStr(const char *width) {
       strcpy_s(widthStr, 10, width);
+      setWidth = NAN;
+      setWidthRatio = NAN;
     }
 
     void SetHeightStr(const char *height) {
       strcpy_s(heightStr, 10, height);
+      setHeight = NAN;
+      setHeightRatio = NAN;
+    }
+
+    void SetWidth(float width) {
+      if (width >= 1) {
+        setWidth = width;
+        setWidthRatio = NAN;
+      }
+      else {
+        setWidthRatio = width;
+        setWidth = NAN;
+      }
+      widthStr[0] = 0;
+    }
+
+    void SetHeight(float height) {
+      if (height >= 1) {
+        setHeight = height;
+        setHeightRatio = NAN;
+      }
+      else {
+        setHeightRatio = height;
+        setHeight = NAN;
+      }
+      heightStr[0] = 0;
     }
 
     void ClearWidth(){
@@ -201,6 +235,90 @@ namespace mvc {
       colCnt++;
     }
 
+    void AddRow(float height) {
+
+      if (m_defaultRowColSet) {
+        cells[0].clear();
+        cells.clear();
+        colCnt = 0;
+        rowCnt = 0;
+        m_defaultRowColSet = false;
+      }
+
+      if (!rowCnt && !colCnt) {
+        GridCell cell;
+        cell.SetHeight(height);
+        vector<GridCell> row;
+        row.push_back(cell);
+        cells.push_back(row);
+      }
+      else if (!rowCnt && colCnt) {
+        for (auto &c : cells[0]) {
+          c.SetHeight(height);
+        }
+      }
+      else if (rowCnt && !colCnt) {
+        GridCell cell;
+        cell.SetHeight(height);
+        vector<GridCell> row;
+        row.push_back(cell);
+        cells.push_back(row);
+      }
+      else {
+        vector<GridCell> row = cells[0];
+        for (auto &c : row) {
+          c.SetHeight(height);
+        }
+        cells.push_back(row);
+      }
+      rowCnt++;
+    }
+
+    void AddCol(float width) {
+
+      if (m_defaultRowColSet) {
+        cells[0].clear();
+        cells.clear();
+        colCnt = 0;
+        rowCnt = 0;
+        m_defaultRowColSet = false;
+      }
+
+      if (!rowCnt && !colCnt) {
+        // 既没有行也没有列时，生成一个cell，仅设置其宽度
+        GridCell cell;
+        cell.SetWidth(width);
+        vector<GridCell> row;
+        row.push_back(cell);
+        cells.push_back(row);
+      }
+      else if (!rowCnt && colCnt) {
+        // 已经存在列，但是还没有行的时候，
+        // 直接对第一行追加列并设置其宽度
+        GridCell cell;
+        cell.SetWidth(width);
+        cells[0].push_back(cell);
+      }
+      else if (rowCnt && !colCnt) {
+        // 已经存在行，但是还没有列的时候，
+        // 直接对已经存在的行设置其宽度
+        // 将其转换为列。
+        for (auto &r : cells) {
+          r[0].SetWidth(width);
+        }
+      }
+      else {
+        // 有行有列时，从第一列拷贝出新的一列，
+        // 该列的高度与其他列相同但是宽度具有自己的值
+        for (auto &r : cells) {
+          GridCell c = r[0];
+          c.SetWidth(width);
+          r.push_back(c);
+        }
+      }
+      colCnt++;
+    }
+
     void SetWidth(float width) {
 
       if (cells.size() == 0) return;
@@ -213,7 +331,16 @@ namespace mvc {
       float ttlWidth = 0.0;
       int nonWidthColsCnt = 0;
       for (auto &c : cells[0]) {
-        if (isNumber(c.widthStr)) {
+
+        if (!isnan(c.setWidth)) {
+          c.width = c.setWidth;
+          ttlWidth += c.width;
+        }
+        else if (!isnan(c.setWidthRatio)) {
+          c.width = c.setWidthRatio * width;
+          ttlWidth += c.width;
+        }
+        else if (isNumber(c.widthStr)) {
           c.width = (float)atoi(c.widthStr);
           ttlWidth += c.width;
         }
@@ -287,7 +414,16 @@ namespace mvc {
       int nonHeightRowsCnt = 0;
       for (auto &r : cells) {
         auto &c = r[0];
-        if (isNumber(c.heightStr)) {
+
+        if (!isnan(c.setHeight)) {
+          c.height = c.setHeight;
+          ttlHeight += c.height;
+        }
+        else if (!isnan(c.setHeightRatio)) {
+          c.height = c.setHeightRatio * height;
+          ttlHeight += c.height;
+        }
+        else if (isNumber(c.heightStr)) {
           c.height = (float)atoi(c.heightStr);
           ttlHeight += c.height;
         }
