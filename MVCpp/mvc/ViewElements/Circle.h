@@ -14,6 +14,10 @@ namespace mvc {
     float m_centerY = NAN;
     float m_radius = NAN;
 
+    bool CirclePositionSet(){
+      return !isnan(m_centerX) && !isnan(m_centerY) && !isnan(m_radius);
+    }
+
   public:
     Circle(const D2DContext &context, Window *parentWnd) : Graphic(context, parentWnd){}
 
@@ -23,8 +27,8 @@ namespace mvc {
       m_radius = radius;
     }
 
-    bool CirclePositionSet(){
-      return !isnan(m_centerX) && !isnan(m_centerY) && !isnan(m_radius);
+    void SetCircleRadius(float radius) {
+      m_radius = radius;
     }
 
     virtual void DrawSelf() {

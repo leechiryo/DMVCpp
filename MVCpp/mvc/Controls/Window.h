@@ -448,7 +448,7 @@ namespace mvc {
     }
 
     template <typename T>
-    shared_ptr<Animation2<T>> CreateAnimation(T* resource, std::function<bool(T*, int)> updateFunc){
+    shared_ptr<Animation2<T>> CreateAnimation(shared_ptr<T> resource, std::function<bool(T*, int)> updateFunc){
       auto ani = make_shared<Animation2<T>>(resource, updateFunc);
       m_animations.push_back(ani);
       return ani;

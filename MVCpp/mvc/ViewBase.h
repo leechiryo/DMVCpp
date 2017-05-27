@@ -120,12 +120,12 @@ namespace mvc {
       }
     }
 
-    double AbsPixelX2RelX(int absPixelX) {
-      return (absPixelX - m_absLeft) / App::DPI_SCALE_X;
+    float AbsPixelX2RelX(int absPixelX) {
+      return tof((absPixelX - m_absLeft) / App::DPI_SCALE_X);
     }
 
-    double AbsPixelY2RelY(int absPixelY) {
-      return (absPixelY - m_absTop) / App::DPI_SCALE_Y;
+    float AbsPixelY2RelY(int absPixelY) {
+      return tof((absPixelY - m_absTop) / App::DPI_SCALE_Y);
     }
 
     virtual bool HitTest(double dipX, double dipY) {
@@ -267,7 +267,7 @@ namespace mvc {
       return 50;
     }
 
-    virtual void FocusChanged(){
+    virtual void FocusChanged() {
     }
 
     void SetHidden(bool hidden) {
@@ -314,13 +314,13 @@ namespace mvc {
       UpdatePositionAndSize();
     }
 
-    void SetOffset(float left, float top){
+    void SetOffset(float left, float top) {
       m_leftOffset = left;
       m_topOffset = top;
       UpdatePositionAndSize();
     }
 
-    void SetOffset(float left, float top, float right ,float bottom){
+    void SetOffset(float left, float top, float right, float bottom) {
       m_leftOffset = left;
       m_topOffset = top;
       m_rightOffset = right;
@@ -388,26 +388,26 @@ namespace mvc {
 
     // 为view生成一个特效对象。inputIdx是该view将输入到特效对象时位置索引
     // 如果不需要将该view输入到特效对象，则可调用另一版本
-    DxResource<ID2D1Effect> CreateEffect(const IID & effectId, int inputIdx){
+    DxResource<ID2D1Effect> CreateEffect(const IID & effectId, int inputIdx) {
       auto retval = m_pContext.CreateEffect(effectId);
       m_effects.push_back(make_tuple(retval, inputIdx));
       return retval;
     }
 
     // 为view生成一个特效对象。该特效对象不接受view作为输入
-    DxResource<ID2D1Effect> CreateEffect(const IID & effectId){
+    DxResource<ID2D1Effect> CreateEffect(const IID & effectId) {
       return CreateEffect(effectId, -1);
     }
 
-    bool IsEffectOn(){
+    bool IsEffectOn() {
       return m_showEffect;
     }
 
-    void EffectOn(){
+    void EffectOn() {
       m_showEffect = true;
     }
 
-    void EffectOff(){
+    void EffectOff() {
       m_showEffect = false;
     }
 
@@ -419,10 +419,10 @@ namespace mvc {
 
       // 如果定义了内部剪切区域,则设置之
       if (DefinedInnerClipArea()) {
-        D2D1_RECT_F innerClipArea = RectD(m_left + m_innerClipAreaLeftOffset, 
-                                     m_top + m_innerClipAreaTopOffset, 
-                                     m_right - m_innerClipAreaRightOffset,
-                                     m_bottom - m_innerClipAreaBottomOffset);
+        D2D1_RECT_F innerClipArea = RectD(m_left + m_innerClipAreaLeftOffset,
+          m_top + m_innerClipAreaTopOffset,
+          m_right - m_innerClipAreaRightOffset,
+          m_bottom - m_innerClipAreaBottomOffset);
         m_pContext->PushAxisAlignedClip(innerClipArea, D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
       }
 
@@ -442,7 +442,7 @@ namespace mvc {
           ptr->m_pEffectContext = m_pEffectContext;
           ptr->m_pBmpRT = m_pBmpRT;
 
-          if (ptr->m_effects.size() > 0 && ptr->m_showEffect){
+          if (ptr->m_effects.size() > 0 && ptr->m_showEffect) {
             // 如果已经设定了特效，则要先将view绘制到一个临时的bmp上，然后再对其
             // 施加指定的特效，然后再将最后的结果绘制到画面。
             ptr->m_pContext = ptr->m_pEffectContext;
@@ -459,7 +459,7 @@ namespace mvc {
             for (auto pe = ptr->m_effects.begin(); pe != ptr->m_effects.end(); pe++) {
               auto &e = get<0>(*pe);
               auto inputIdx = get<1>(*pe);
-              if (inputIdx >= 0){
+              if (inputIdx >= 0) {
                 e->SetInput(inputIdx, bmp.ptr());
               }
             }
@@ -469,7 +469,7 @@ namespace mvc {
             m_pContext->DrawImage(lastEffect.ptr());
             m_pContext->SetTransform(TranslationMatrix(m_absLeft, m_absTop));
           }
-          else{
+          else {
             // 如果没有设置特效，则直接将view绘制到画面
             ptr->m_pContext = m_pContext;
             ptr->Draw();
@@ -500,23 +500,24 @@ namespace mvc {
       return v;
     }
 
-    void AddLayoutRow(const char * height){
+    void AddLayoutRow(const char * height) {
       m_layout.AddRow(height);
     }
 
-    void AddLayoutCol(const char * width){
+    void AddLayoutCol(const char * width) {
       m_layout.AddCol(width);
     }
 
     template <typename T>
-    shared_ptr<Animation2<T>> AddAnimation(std::function<bool(T*, int)> updateFunc){
-      if (m_parentWnd){
-        T *downcast = dynamic_cast<T*>(this);
-        return m_parentWnd->CreateAnimation(downcast, updateFunc);
+    shared_ptr<Animation2<T>> AddAnimation(std::function<bool(T*, int)> updateFunc) {
+      if (m_parentWnd) {
+        auto thisptr = m_wpThis.lock();
+        if (thisptr) {
+          shared_ptr<T> downcast = dynamic_pointer_cast<T>(thisptr);
+          return m_parentWnd->CreateAnimation(downcast, updateFunc);
+        }
       }
-      else{
-        return nullptr;
-      }
+      return nullptr;
     }
   };
 }

@@ -21,11 +21,9 @@ namespace mvc {
     // 应返回True，否则应返回False.
     virtual bool UpdateFrameResource(int) = 0;
 
-  protected:
+  public:
     // 可以设置动画完成时的回调函数
     std::function<void()> OnFinished;
-
-  public:
 
     AnimationBase() {
       m_frameIdx = 0;
@@ -104,16 +102,16 @@ namespace mvc {
   template <typename T>
   class Animation2 : public AnimationBase{
   private:
-    T *m_pFrameResource;
+    shared_ptr<T> m_pFrameResource;
     std::function<bool(T*, int)> UpdateFrame;
 
   protected:
     virtual bool UpdateFrameResource(int frameIdx){
-      return UpdateFrame(m_pFrameResource, frameIdx);
+      return UpdateFrame(m_pFrameResource.get(), frameIdx);
     }
 
   public:
-    Animation2(T *resource, decltype(UpdateFrame) update){
+    Animation2(shared_ptr<T> resource, decltype(UpdateFrame) update){
       m_pFrameResource = resource;
       UpdateFrame = update;
     }
