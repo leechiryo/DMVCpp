@@ -5,7 +5,7 @@
 #include "App.h"
 #include "Layout.h"
 #include <tuple>
-#include "Animation2.h"
+#include "Animation.h"
 
 using namespace std;
 
@@ -509,7 +509,7 @@ namespace mvc {
     }
 
     template <typename T>
-    shared_ptr<Animation2<T>> AddAnimation(std::function<bool(T*, int)> updateFunc) {
+    shared_ptr<Animation<T>> AddAnimation(std::function<bool(T*, int)> updateFunc) {
       if (m_parentWnd) {
         auto thisptr = m_wpThis.lock();
         if (thisptr) {

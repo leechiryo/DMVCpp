@@ -82,7 +82,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="mvc\Animation2.h" />
+    <ClInclude Include="mvc\Animation.h" />
     <ClInclude Include="mvc\ViewElements\Circle.h" />
     <ClInclude Include="mvc\ViewElements\Graphic.h" />
     <ClInclude Include="mvc\ViewElements\Image.h" />
@@ -102,9 +102,6 @@
     <ClInclude Include="mvc\Types.h" />
     <ClInclude Include="mvc\View.h" />
     <ClInclude Include="mvc\ViewBase.h" />
-    <ClInclude Include="mvc\ViewElements\AniButtonPressed.h" />
-    <ClInclude Include="mvc\ViewElements\AniCaretFlicker.h" />
-    <ClInclude Include="mvc\ViewElements\Animation.h" />
     <ClInclude Include="mvc\Controls\Button.h" />
     <ClInclude Include="mvc\Controls\CheckBox.h" />
     <ClInclude Include="mvc\Controls\Label.h" />
