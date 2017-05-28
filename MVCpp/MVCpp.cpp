@@ -8,6 +8,7 @@
 #include "mvc\Controls\Label.h"
 #include "mvc\Controls\CheckBox.h"
 #include "mvc\Controls\Radio.h"
+#include "mvc\Controls\Candle.h"
 #include "mvc\ViewElements\Image.h"
 #include "mvc\ViewElements\Line.h"
 #include "MyController.h"
@@ -91,6 +92,16 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   line->SetColor(0x23ff00);
   line->SetGridPosition(7, 2);
   line->SetOffset(0, 0, 0, 0);
+
+  auto candle1 = view->AppendSubView<Candle>(1.12345, 1.12124, 1.11843, 1.11957);
+  candle1->SetGridPosition(6, 2);
+  candle1->SetOffset(0, 0);
+  candle1->SetBottomOffset(0);
+
+  auto candle2 = view->AppendSubView<Candle>(1.12345, 1.11957, 1.11843, 1.12124);
+  candle2->SetGridPosition(6, 2);
+  candle2->SetOffset(10, 0);
+  candle2->SetBottomOffset(0);
 
   // 设置直线的阴影效果
   auto shadowEffect = line->CreateEffect(CLSID_D2D1Shadow, 0);
