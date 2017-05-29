@@ -23,7 +23,7 @@ namespace mvc {
     return w;
   }
 
-  void regsubv(string id, SPView v){
+  void regv(string id, SPView v){
     App::RegisterSubView(id, v);
   }
 

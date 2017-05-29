@@ -10,6 +10,7 @@
 using namespace std;
 
 namespace mvc {
+  class Layer;
 
   class ViewBase {
 
@@ -518,6 +519,13 @@ namespace mvc {
         }
       }
       return nullptr;
+    }
+
+    template <typename T=Layer>
+    shared_ptr<T> AppendLayer(){
+      auto layer = AppendSubView<T>();
+      layer->SetOffset(0, 0, 0, 0);
+      return layer;
     }
   };
 }

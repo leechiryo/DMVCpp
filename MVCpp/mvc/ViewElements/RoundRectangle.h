@@ -15,7 +15,7 @@ namespace mvc {
 
   public:
 
-    RoundRectangle(const D2DContext &context) :Graphic(context){}
+    RoundRectangle(const D2DContext &context, Window *parentWnd) :Graphic(context, parentWnd){}
 
     void SetRoundRadius(float radiusX, float radiusY) {
       m_radiusX = radiusX;
@@ -24,10 +24,10 @@ namespace mvc {
 
     virtual void DrawSelf() {
       D2D1_ROUNDED_RECT rect;
-      rect.rect.left = m_left;
-      rect.rect.right = m_right;
-      rect.rect.top = m_top;
-      rect.rect.bottom = m_bottom;
+      rect.rect.left = tof(m_left);
+      rect.rect.right = tof(m_right);
+      rect.rect.top = tof(m_top);
+      rect.rect.bottom = tof(m_bottom);
 
       rect.radiusX = m_radiusX;
       rect.radiusY = m_radiusY;

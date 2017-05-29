@@ -20,7 +20,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -84,6 +84,8 @@
   <ItemGroup>
     <ClInclude Include="mvc\Animation.h" />
     <ClInclude Include="mvc\Controls\Candle.h" />
+    <ClInclude Include="mvc\Controls\Dialog.h" />
+    <ClInclude Include="mvc\Controls\Layer.h" />
     <ClInclude Include="mvc\ViewElements\Circle.h" />
     <ClInclude Include="mvc\ViewElements\Graphic.h" />
     <ClInclude Include="mvc\ViewElements\Image.h" />
