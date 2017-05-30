@@ -9,6 +9,9 @@
 #include "..\Controls\Button.h"
 
 namespace mvc {
+
+  enum class SlideInDir{ fromLeft, fromRight, fromTop, fromBottom };
+
   class Dialog : public View<Dialog>
   {
   private:
@@ -17,6 +20,14 @@ namespace mvc {
     shared_ptr<Button> m_closebtn;
     shared_ptr<Line> m_line1;
     shared_ptr<Line> m_line2;
+    shared_ptr<AnimationBase> m_aniSlideInFromLeft;
+    shared_ptr<AnimationBase> m_aniSlideInFromRight;
+    shared_ptr<AnimationBase> m_aniSlideInFromTop;
+    shared_ptr<AnimationBase> m_aniSlideInFromBottom;
+
+    static LRESULT CloseClicked(shared_ptr<Button> btn, WPARAM wParam, LPARAM lParam) {
+      return 0;
+    }
 
   protected:
     virtual void CreateD2DResource() {
@@ -24,7 +35,7 @@ namespace mvc {
 
   public:
     ModelRef<wstring> *text;
-    Dialog(const D2DContext &context, Window * parentWnd): View(context, parentWnd){
+    Dialog(const D2DContext &context, Window * parentWnd) : View(context, parentWnd){
       m_backrect = AppendSubView<RoundRectangle>();
       m_backrect->SetOffset(0, 0, 0, 0);
       m_backrect->SetRoundRadius(3, 3);
@@ -41,13 +52,114 @@ namespace mvc {
       m_line2 = m_closebtn->AppendSubView<Line>();
       m_line2->SetOffset(3, 12, 3, 12);
 
-      SetHidden(false);
+      SetHidden(true);
+
+      auto me = this;
+      m_closebtn->AddEventHandler(WM_LBUTTONUP, [me](shared_ptr<Button> btn, WPARAM wp, LPARAM lp)->LRESULT{
+        me->Close();
+        return 0;
+      });
+
+      m_aniSlideInFromLeft = AddAnimation<Dialog>([](Dialog *d, int idx)->bool {
+        if (idx >= 7) return true;
+        d->SetLeftOffset(d->m_leftOffset * (6 - idx) / 6);
+        return false;
+      });
+
+      m_aniSlideInFromRight = AddAnimation<Dialog>([](Dialog *d, int idx)->bool {
+        if (idx >= 7) return true;
+        d->SetRightOffset(d->m_rightOffset * (6 - idx) / 6);
+        return false;
+      });
+
+      m_aniSlideInFromTop = AddAnimation<Dialog>([](Dialog *d, int idx)->bool {
+        if (idx >= 7) return true;
+        d->SetTopOffset(d->m_topOffset * (6 - idx) / 6);
+        return false;
+      });
+
+      m_aniSlideInFromBottom = AddAnimation<Dialog>([](Dialog *d, int idx)->bool {
+        if (idx >= 7) return true;
+        d->SetBottomOffset(d->m_bottomOffset * (6 - idx) / 6);
+        return false;
+      });
     }
 
     ~Dialog() {
     }
 
-    void Show(){
+    void Open(){
+      SetHidden(false);
+    }
+
+    void SlideIn(SlideInDir dir){
+      char buf[10];
+      string oldval;
+      float oldOffset;
+      auto me = this;
+
+      switch (dir){
+      case SlideInDir::fromLeft:
+        sprintf_s(buf, "%.0f", m_calWidth);
+        oldval = m_setWidth;
+        oldOffset = m_rightOffset;
+        SetWidth(buf);
+        SetLeftOffset(-m_calWidth);
+        ClearRightOffset();
+        SetHidden(false);
+        m_aniSlideInFromLeft->Stop();
+        m_aniSlideInFromLeft->PlayAndPauseAtEnd();
+        m_aniSlideInFromLeft->OnFinished = [me, oldval, oldOffset](){
+          me->SetWidth(oldval.c_str());
+          me->SetRightOffset(oldOffset);
+        };
+        break;
+      case SlideInDir::fromRight:
+        sprintf_s(buf, "%.0f", m_calWidth);
+        oldval = m_setWidth;
+        oldOffset = m_leftOffset;
+        SetWidth(buf);
+        SetRightOffset(-m_calWidth);
+        ClearLeftOffset();
+        SetHidden(false);
+        m_aniSlideInFromRight->Stop();
+        m_aniSlideInFromRight->PlayAndPauseAtEnd();
+        m_aniSlideInFromRight->OnFinished = [me, oldval](){
+          me->SetWidth(oldval.c_str());
+        };
+        break;
+      case SlideInDir::fromTop:
+        sprintf_s(buf, "%.0f", m_calHeight);
+        oldval = m_setHeight;
+        SetHeight(buf);
+        SetTopOffset(-m_calHeight);
+        ClearBottomOffset();
+        SetHidden(false);
+        m_aniSlideInFromTop->Stop();
+        m_aniSlideInFromTop->PlayAndPauseAtEnd();
+        m_aniSlideInFromTop->OnFinished = [me, oldval](){
+          me->SetHeight(oldval.c_str());
+        };
+        break;
+      case SlideInDir::fromBottom:
+        sprintf_s(buf, "%.0f", m_calHeight);
+        oldval = m_setHeight;
+        SetHeight(buf);
+        SetBottomOffset(-m_calHeight);
+        ClearTopOffset();
+        SetHidden(false);
+        m_aniSlideInFromBottom->Stop();
+        m_aniSlideInFromBottom->PlayAndPauseAtEnd();
+        m_aniSlideInFromBottom->OnFinished = [me, oldval](){
+          me->SetHeight(oldval.c_str());
+        };
+        break;
+      default:
+        return;
+      }
+    }
+
+    void Close(){
       SetHidden(true);
     }
 

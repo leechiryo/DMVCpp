@@ -512,11 +512,8 @@ namespace mvc {
     template <typename T>
     shared_ptr<Animation<T>> AddAnimation(std::function<bool(T*, int)> updateFunc) {
       if (m_parentWnd) {
-        auto thisptr = m_wpThis.lock();
-        if (thisptr) {
-          shared_ptr<T> downcast = dynamic_pointer_cast<T>(thisptr);
-          return m_parentWnd->CreateAnimation(downcast, updateFunc);
-        }
+        T *downcast = dynamic_cast<T*>(this);
+        return m_parentWnd->CreateAnimation(downcast, updateFunc);
       }
       return nullptr;
     }

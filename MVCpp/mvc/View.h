@@ -10,7 +10,8 @@ using namespace std;
 namespace mvc {
   template<typename DerivedType>
   class View : public ViewBase {
-    typedef LRESULT(*ControllerMethod)(shared_ptr<DerivedType>, WPARAM, LPARAM);
+    //typedef LRESULT(*ControllerMethod)(shared_ptr<DerivedType>, WPARAM, LPARAM);
+    typedef std::function<LRESULT(shared_ptr<DerivedType>, WPARAM, LPARAM)> ControllerMethod;
     friend class App;
 
   private:

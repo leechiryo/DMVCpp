@@ -119,6 +119,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   line->EffectOn();
 
   auto dialog = view->AppendSubView<Dialog>();
+  regv("dialog1", dialog);
   dialog->SetLeftOffset(0);
   dialog->SetTopOffset(0);
   dialog->SetBottomOffset(0);

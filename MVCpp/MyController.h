@@ -10,6 +10,9 @@ public:
     else {
       (*m) = L"Hello!";
     }
+
+    auto dialog = mvc::getv<mvc::Dialog>("dialog1");
+    dialog->SlideIn(mvc::SlideInDir::fromTop);
     return 0;
   }
 

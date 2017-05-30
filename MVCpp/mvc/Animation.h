@@ -102,16 +102,16 @@ namespace mvc {
   template <typename T>
   class Animation : public AnimationBase{
   private:
-    shared_ptr<T> m_pFrameResource;
+    T *m_pFrameResource;
     std::function<bool(T*, int)> UpdateFrame;
 
   protected:
     virtual bool UpdateFrameResource(int frameIdx){
-      return UpdateFrame(m_pFrameResource.get(), frameIdx);
+      return UpdateFrame(m_pFrameResource, frameIdx);
     }
 
   public:
-    Animation(shared_ptr<T> resource, decltype(UpdateFrame) update){
+    Animation(T *resource, decltype(UpdateFrame) update){
       m_pFrameResource = resource;
       UpdateFrame = update;
     }
