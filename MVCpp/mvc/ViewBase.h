@@ -10,7 +10,17 @@
 using namespace std;
 
 namespace mvc {
+
   class Layer;
+
+  struct LayoutInfo {
+    float m_leftOffset;
+    float m_topOffset;
+    float m_rightOffset;
+    float m_bottomOffset;
+    char m_setWidth[10];
+    char m_setHeight[10];
+  };
 
   class ViewBase {
 
@@ -81,9 +91,9 @@ namespace mvc {
     float m_topOffset;
     float m_rightOffset;
     float m_bottomOffset;
-
     char m_setWidth[10];
     char m_setHeight[10];
+
     float m_calWidth;
     float m_calHeight;
     float m_oldWidth;
@@ -107,6 +117,24 @@ namespace mvc {
 
     // 如果需要处理鼠标离开事件，可以重载此函数
     virtual void MouseLeft(double x, double y) {
+    }
+
+    void SaveLayout(LayoutInfo *l) {
+      l->m_leftOffset = m_leftOffset;
+      l->m_topOffset = m_topOffset;
+      l->m_rightOffset = m_rightOffset;
+      l->m_bottomOffset = m_bottomOffset;
+      strcpy_s(l->m_setWidth, m_setWidth);
+      strcpy_s(l->m_setHeight, m_setHeight);
+    }
+
+    void RestoreLayout(const LayoutInfo &l) {
+      m_leftOffset = l.m_leftOffset;
+      m_topOffset = l.m_topOffset;
+      m_rightOffset = l.m_rightOffset;
+      m_bottomOffset = l.m_bottomOffset;
+      strcpy_s(m_setWidth, l.m_setWidth);
+      strcpy_s(m_setHeight, l.m_setHeight);
     }
 
     void RebuildD2DEnvironment() {
@@ -518,8 +546,8 @@ namespace mvc {
       return nullptr;
     }
 
-    template <typename T=Layer>
-    shared_ptr<T> AppendLayer(){
+    template <typename T = Layer>
+    shared_ptr<T> AppendLayer() {
       auto layer = AppendSubView<T>();
       layer->SetOffset(0, 0, 0, 0);
       return layer;

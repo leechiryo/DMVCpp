@@ -16,6 +16,7 @@ namespace mvc {
   {
   private:
 
+
     shared_ptr<RoundRectangle> m_backrect;
     shared_ptr<Button> m_closebtn;
     shared_ptr<Line> m_line1;
@@ -94,64 +95,57 @@ namespace mvc {
 
     void SlideIn(SlideInDir dir){
       char buf[10];
-      string oldval;
-      float oldOffset;
-      auto me = this;
+      LayoutInfo oldLayout;
+      SaveLayout(&oldLayout);
+      Dialog *me = this;
 
       switch (dir){
       case SlideInDir::fromLeft:
         sprintf_s(buf, "%.0f", m_calWidth);
-        oldval = m_setWidth;
-        oldOffset = m_rightOffset;
         SetWidth(buf);
         SetLeftOffset(-m_calWidth);
         ClearRightOffset();
         SetHidden(false);
         m_aniSlideInFromLeft->Stop();
         m_aniSlideInFromLeft->PlayAndPauseAtEnd();
-        m_aniSlideInFromLeft->OnFinished = [me, oldval, oldOffset](){
-          me->SetWidth(oldval.c_str());
-          me->SetRightOffset(oldOffset);
+        m_aniSlideInFromLeft->OnFinished = [me, oldLayout](){
+          me->RestoreLayout(oldLayout);
         };
         break;
       case SlideInDir::fromRight:
         sprintf_s(buf, "%.0f", m_calWidth);
-        oldval = m_setWidth;
-        oldOffset = m_leftOffset;
         SetWidth(buf);
         SetRightOffset(-m_calWidth);
         ClearLeftOffset();
         SetHidden(false);
         m_aniSlideInFromRight->Stop();
         m_aniSlideInFromRight->PlayAndPauseAtEnd();
-        m_aniSlideInFromRight->OnFinished = [me, oldval](){
-          me->SetWidth(oldval.c_str());
+        m_aniSlideInFromRight->OnFinished = [me, oldLayout](){
+          me->RestoreLayout(oldLayout);
         };
         break;
       case SlideInDir::fromTop:
         sprintf_s(buf, "%.0f", m_calHeight);
-        oldval = m_setHeight;
         SetHeight(buf);
         SetTopOffset(-m_calHeight);
         ClearBottomOffset();
         SetHidden(false);
         m_aniSlideInFromTop->Stop();
         m_aniSlideInFromTop->PlayAndPauseAtEnd();
-        m_aniSlideInFromTop->OnFinished = [me, oldval](){
-          me->SetHeight(oldval.c_str());
+        m_aniSlideInFromTop->OnFinished = [me, oldLayout](){
+          me->RestoreLayout(oldLayout);
         };
         break;
       case SlideInDir::fromBottom:
         sprintf_s(buf, "%.0f", m_calHeight);
-        oldval = m_setHeight;
         SetHeight(buf);
         SetBottomOffset(-m_calHeight);
         ClearTopOffset();
         SetHidden(false);
         m_aniSlideInFromBottom->Stop();
         m_aniSlideInFromBottom->PlayAndPauseAtEnd();
-        m_aniSlideInFromBottom->OnFinished = [me, oldval](){
-          me->SetHeight(oldval.c_str());
+        m_aniSlideInFromBottom->OnFinished = [me, oldLayout](){
+          me->RestoreLayout(oldLayout);
         };
         break;
       default:

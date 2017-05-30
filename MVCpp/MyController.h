@@ -12,7 +12,7 @@ public:
     }
 
     auto dialog = mvc::getv<mvc::Dialog>("dialog1");
-    dialog->SlideIn(mvc::SlideInDir::fromTop);
+    dialog->SlideIn(mvc::SlideInDir::fromBottom);
     return 0;
   }
 
