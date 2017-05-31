@@ -26,6 +26,9 @@ namespace mvc {
     shared_ptr<AnimationBase> m_aniSlideInFromTop;
     shared_ptr<AnimationBase> m_aniSlideInFromBottom;
 
+    float m_slideStartVal;
+    float m_slideEndVal;
+
     static LRESULT CloseClicked(shared_ptr<Button> btn, WPARAM wParam, LPARAM lParam) {
       return 0;
     }
@@ -63,25 +66,25 @@ namespace mvc {
 
       m_aniSlideInFromLeft = AddAnimation<Dialog>([](Dialog *d, int idx)->bool {
         if (idx >= 7) return true;
-        d->SetLeftOffset(d->m_leftOffset * (6 - idx) / 6);
+        d->SetLeftOffset(d->m_slideStartVal + (d->m_slideEndVal - d->m_slideStartVal)*idx / 6);
         return false;
       });
 
       m_aniSlideInFromRight = AddAnimation<Dialog>([](Dialog *d, int idx)->bool {
         if (idx >= 7) return true;
-        d->SetRightOffset(d->m_rightOffset * (6 - idx) / 6);
+        d->SetRightOffset(d->m_slideStartVal + (d->m_slideEndVal - d->m_slideStartVal)*idx / 6);
         return false;
       });
 
       m_aniSlideInFromTop = AddAnimation<Dialog>([](Dialog *d, int idx)->bool {
         if (idx >= 7) return true;
-        d->SetTopOffset(d->m_topOffset * (6 - idx) / 6);
+        d->SetTopOffset(d->m_slideStartVal + (d->m_slideEndVal - d->m_slideStartVal)*idx / 6);
         return false;
       });
 
       m_aniSlideInFromBottom = AddAnimation<Dialog>([](Dialog *d, int idx)->bool {
         if (idx >= 7) return true;
-        d->SetBottomOffset(d->m_bottomOffset * (6 - idx) / 6);
+        d->SetBottomOffset(d->m_slideStartVal + (d->m_slideEndVal - d->m_slideStartVal)*idx / 6);
         return false;
       });
     }
@@ -98,13 +101,16 @@ namespace mvc {
       LayoutInfo oldLayout;
       SaveLayout(&oldLayout);
       Dialog *me = this;
+      const GridCell * cell = m_parentLayout->GetCell(m_row, m_col);
 
       switch (dir){
       case SlideInDir::fromLeft:
+        m_slideStartVal = -m_calWidth;
+        m_slideEndVal = tof(m_left);
         sprintf_s(buf, "%.0f", m_calWidth);
         SetWidth(buf);
-        SetLeftOffset(-m_calWidth);
         ClearRightOffset();
+        SetLeftOffset(-m_calWidth);
         SetHidden(false);
         m_aniSlideInFromLeft->Stop();
         m_aniSlideInFromLeft->PlayAndPauseAtEnd();
@@ -113,10 +119,12 @@ namespace mvc {
         };
         break;
       case SlideInDir::fromRight:
+        m_slideStartVal = -m_calWidth;
+        m_slideEndVal = tof(cell->width - m_right);
         sprintf_s(buf, "%.0f", m_calWidth);
         SetWidth(buf);
-        SetRightOffset(-m_calWidth);
         ClearLeftOffset();
+        SetRightOffset(-m_calWidth);
         SetHidden(false);
         m_aniSlideInFromRight->Stop();
         m_aniSlideInFromRight->PlayAndPauseAtEnd();
@@ -125,10 +133,12 @@ namespace mvc {
         };
         break;
       case SlideInDir::fromTop:
+        m_slideStartVal = -m_calHeight;
+        m_slideEndVal = tof(m_top);
         sprintf_s(buf, "%.0f", m_calHeight);
         SetHeight(buf);
-        SetTopOffset(-m_calHeight);
         ClearBottomOffset();
+        SetTopOffset(-m_calHeight);
         SetHidden(false);
         m_aniSlideInFromTop->Stop();
         m_aniSlideInFromTop->PlayAndPauseAtEnd();
@@ -137,10 +147,12 @@ namespace mvc {
         };
         break;
       case SlideInDir::fromBottom:
+        m_slideStartVal = -m_calHeight;
+        m_slideEndVal = tof(cell->height - m_bottom);
         sprintf_s(buf, "%.0f", m_calHeight);
         SetHeight(buf);
-        SetBottomOffset(-m_calHeight);
         ClearTopOffset();
+        SetBottomOffset(-m_calHeight);
         SetHidden(false);
         m_aniSlideInFromBottom->Stop();
         m_aniSlideInFromBottom->PlayAndPauseAtEnd();

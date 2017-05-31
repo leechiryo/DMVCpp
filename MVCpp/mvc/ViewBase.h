@@ -135,6 +135,7 @@ namespace mvc {
       m_bottomOffset = l.m_bottomOffset;
       strcpy_s(m_setWidth, l.m_setWidth);
       strcpy_s(m_setHeight, l.m_setHeight);
+      UpdatePositionAndSize();
     }
 
     void RebuildD2DEnvironment() {
