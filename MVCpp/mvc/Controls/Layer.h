@@ -18,6 +18,16 @@ namespace mvc {
       m_rightOffset = 0;
       m_topOffset = 0;
       m_bottomOffset = 0;
+      auto effect = CreateEffect(CLSID_D2D1GaussianBlur, 0);
+      effect->SetValue(D2D1_GAUSSIANBLUR_PROP_STANDARD_DEVIATION, 5.0f);
+    }
+
+    void Blur(){
+      EffectOn();
+    }
+
+    void Unblur(){
+      EffectOff();
     }
 
     ~Layer() {

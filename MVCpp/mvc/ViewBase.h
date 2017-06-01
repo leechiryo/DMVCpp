@@ -14,12 +14,17 @@ namespace mvc {
   class Layer;
 
   struct LayoutInfo {
-    float m_leftOffset;
-    float m_topOffset;
-    float m_rightOffset;
-    float m_bottomOffset;
+    float m_leftOffset = NAN;
+    float m_topOffset = NAN;
+    float m_rightOffset = NAN;
+    float m_bottomOffset = NAN;
     char m_setWidth[10];
     char m_setHeight[10];
+
+    LayoutInfo(){
+      m_setWidth[0] = 0;
+      m_setHeight[0] = 0;
+    }
   };
 
   class ViewBase {

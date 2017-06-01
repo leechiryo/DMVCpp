@@ -13,6 +13,9 @@ public:
 
     auto dialog = mvc::getv<mvc::Dialog>("dialog1");
     dialog->SlideIn(mvc::SlideInDir::fromTop);
+
+    auto layer = mvc::getv<mvc::Layer>("layer1");
+    layer->Blur();
     return 0;
   }
 

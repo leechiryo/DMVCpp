@@ -16,7 +16,6 @@ namespace mvc {
   {
   private:
 
-
     shared_ptr<RoundRectangle> m_backrect;
     shared_ptr<Button> m_closebtn;
     shared_ptr<Line> m_line1;
@@ -28,6 +27,8 @@ namespace mvc {
 
     float m_slideStartVal;
     float m_slideEndVal;
+
+    bool m_isSliding = false;
 
     static LRESULT CloseClicked(shared_ptr<Button> btn, WPARAM wParam, LPARAM lParam) {
       return 0;
@@ -97,10 +98,13 @@ namespace mvc {
     }
 
     void SlideIn(SlideInDir dir){
+      if (m_isSliding) return;
+
+      m_isSliding = true;
       char buf[10];
+      Dialog *me = this;
       LayoutInfo oldLayout;
       SaveLayout(&oldLayout);
-      Dialog *me = this;
       const GridCell * cell = m_parentLayout->GetCell(m_row, m_col);
 
       switch (dir){
@@ -116,6 +120,7 @@ namespace mvc {
         m_aniSlideInFromLeft->PlayAndPauseAtEnd();
         m_aniSlideInFromLeft->OnFinished = [me, oldLayout](){
           me->RestoreLayout(oldLayout);
+          me->m_isSliding = false;
         };
         break;
       case SlideInDir::fromRight:
@@ -130,6 +135,7 @@ namespace mvc {
         m_aniSlideInFromRight->PlayAndPauseAtEnd();
         m_aniSlideInFromRight->OnFinished = [me, oldLayout](){
           me->RestoreLayout(oldLayout);
+          me->m_isSliding = false;
         };
         break;
       case SlideInDir::fromTop:
@@ -144,6 +150,7 @@ namespace mvc {
         m_aniSlideInFromTop->PlayAndPauseAtEnd();
         m_aniSlideInFromTop->OnFinished = [me, oldLayout](){
           me->RestoreLayout(oldLayout);
+          me->m_isSliding = false;
         };
         break;
       case SlideInDir::fromBottom:
@@ -158,6 +165,7 @@ namespace mvc {
         m_aniSlideInFromBottom->PlayAndPauseAtEnd();
         m_aniSlideInFromBottom->OnFinished = [me, oldLayout](){
           me->RestoreLayout(oldLayout);
+          me->m_isSliding = false;
         };
         break;
       default:

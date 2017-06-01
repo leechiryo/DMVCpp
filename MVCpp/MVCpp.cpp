@@ -39,6 +39,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   // 准备 View
   auto view = v("main_window", L"MVC++ テスト", 800, 600);
   auto layer = view->AppendLayer();
+  regv("layer1", layer);
   layer->AddLayoutRow("50");
   layer->AddLayoutRow("50");
   layer->AddLayoutRow("50");
@@ -120,10 +121,11 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   auto dialog = view->AppendSubView<Dialog>();
   regv("dialog1", dialog);
-  dialog->SetLeftOffset(0);
-  dialog->SetTopOffset(0);
-  dialog->SetBottomOffset(0);
-  dialog->SetWidth("200");
+  //dialog->SetLeftOffset(0);
+  //dialog->SetTopOffset(0);
+  //dialog->SetBottomOffset(0);
+  dialog->SetWidth("400");
+  dialog->SetHeight("300");
 
   // 绑定 Model 和 View
   btn->title->Bind("my_model");
