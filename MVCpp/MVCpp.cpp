@@ -34,7 +34,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   // 准备 Model
   m<wstring>("my_model", L"Hello!");
   m<int>("groupVal", 0);
-  m<wstring>("strGroupVal", L"Selected radio value.");
 
   // 准备 View
   auto view = v("main_window", L"MVC++ テスト", 800, 600);
@@ -129,7 +128,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   // 绑定 Model 和 View
 
-  // 直接绑定。绑定的Model对象类型和希望的类型一致。
+  // 直接绑定。绑定的Model对象类型和自身表达的类型一致。
   btn->title->Bind("my_model");
   rdo1->selectedValue.Bind("groupVal");
   rdo2->selectedValue.Bind("groupVal");
@@ -137,10 +136,12 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   // 将lbl2的text属性绑定到id为groupVal的model上。
   // 但是，这不是一个普通的绑定，因为groupVal的类型为int型
-  // 而lbl2的text是一个wstring型，所以为了绑定到int型需要附加了一个转换函数
-  // 负责将int类型的值转换成希望的wstring。
-  wstring label = L"Selected radio value.";
-  *(lbl2->text) = label;
+  // 而lbl2的text表达的是wstring型，所以为了绑定到int型需要附加了一个转换函数
+  // 负责将int类型的值转换成wstring。
+  // 转换函数可以使用函数指针，或者不带捕获的lambda表达式。
+  // 使用函数指针时编译器可以从参数类型中识别出模板类型（如此例中的int），不需要
+  // 模板提示（即直接写Bind(...)），如果使用lambda表达式，编译器不能识别出模板类型，
+  // 所以要添加一个模板提示（即Bind<int>(...)）。
   lbl2->text->Bind<int>("groupVal", [](const int * iptr, wstring& s){
     if (!(*iptr)){
       s = L"Select radio value.";
