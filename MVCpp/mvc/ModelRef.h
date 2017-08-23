@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Types.h"
 #include "ModelSafePtr.h"
@@ -11,17 +11,23 @@ namespace mvc {
   class ModelRef {
 
     friend class ViewBase;
+    typedef void(*ConvertFunc)(void *, T&);
 
   private:
+    void *m_source;  // 仅在引用的对象类型与希望表现的类型(T)不同时使用。指向实际引用的对象。
     T m_fallback;
     T *m_fieldPtr;
     WPModel m_wpModel;
+
+    ConvertFunc m_convertFunc;
 
   public:
 
     template<typename ... Args>
     ModelRef(Args ... args) : m_fallback(args...), m_wpModel() {
       m_fieldPtr = &m_fallback;
+      m_source = nullptr;
+      m_convertFunc = nullptr;
     }
 
     ~ModelRef() {
@@ -51,13 +57,48 @@ namespace mvc {
       }
     }
 
+    template<typename M, typename S>
+    void Bind(string modelId, S M::*mPtr, void(*convertFunc)(const S*, T&)) {
+      auto spModel = App::GetModel<M>(modelId);
+      m_wpModel = spModel.get_spModel();
+      if (spModel.isValid()) {
+        m_source = &(spModel->*mPtr);
+        m_convertFunc = (ConvertFunc)convertFunc;
+        m_fieldPtr = &m_fallback;  // unbind
+      }
+      else {
+        throw runtime_error("Can not bind to an object which is destroied.");
+      }
+    }
+
+    template<typename S>
+    void Bind(string modelId, void(*convertFunc)(const S*, T&)) {
+      auto spModel = App::GetModel<S>(modelId);
+      m_wpModel = spModel.get_spModel();
+      if (spModel.isValid()) {
+        m_source = spModel;
+        m_convertFunc = (ConvertFunc)convertFunc;
+        m_fieldPtr = &m_fallback;  // unbind
+      }
+      else {
+        throw runtime_error("Can not bind to an object which is destroied.");
+      }
+    }
+
     void UnBind() {
       m_fieldPtr = &m_fallback;
+    }
+
+    void UpdateConvertedValue(){
+      if (m_source && m_convertFunc){
+        m_convertFunc(m_source, m_fallback);
+      }
     }
 
     ModelSafePtr<T> SafePtr() {
       auto spModel = m_wpModel.lock();
       if (!spModel) UnBind();
+      UpdateConvertedValue();
       return ModelSafePtr<T>{m_fieldPtr, spModel};
     }
 
@@ -75,6 +116,7 @@ namespace mvc {
     operator T () {
       auto spModel = m_wpModel.lock();
       if (!spModel) UnBind();
+      UpdateConvertedValue();
       return *m_fieldPtr;
     }
 

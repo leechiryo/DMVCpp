@@ -128,16 +128,29 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   dialog->SetHeight("300");
 
   // 绑定 Model 和 View
+
+  // 直接绑定。绑定的Model对象类型和希望的类型一致。
   btn->title->Bind("my_model");
   rdo1->selectedValue.Bind("groupVal");
   rdo2->selectedValue.Bind("groupVal");
   rdo3->selectedValue.Bind("groupVal");
-  lbl2->text->Bind("strGroupVal");
+
+  // 将lbl2的text属性绑定到id为groupVal的model上。
+  // 但是，这不是一个普通的绑定，因为groupVal的类型为int型
+  // 而lbl2的text是一个wstring型，所以为了绑定到int型需要附加了一个转换函数
+  // 负责将int类型的值转换成希望的wstring。
+  wstring label = L"Selected radio value.";
+  *(lbl2->text) = label;
+  lbl2->text->Bind<int>("groupVal", [](const int * iptr, wstring& s){
+    if (!(*iptr)){
+      s = L"Select radio value.";
+    }
+    else{
+      s = L"You selected: " + to_wstring(*iptr);
+    }
+  });
 
   // 设置事件处理 Controller
-  rdo1->AddEventHandler(WM_LBUTTONDOWN, MyController::ShowSelectRadio);
-  rdo2->AddEventHandler(WM_LBUTTONDOWN, MyController::ShowSelectRadio);
-  rdo3->AddEventHandler(WM_LBUTTONDOWN, MyController::ShowSelectRadio);
   btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);
 
   view->Show();
