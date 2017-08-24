@@ -136,7 +136,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   // 将lbl2的text属性绑定到id为groupVal的model上。
   // 但是，这不是一个普通的绑定，因为groupVal的类型为int型
-  // 而lbl2的text表达的是wstring型，所以为了绑定到int型需要附加了一个转换函数
+  // 而lbl2的text表达的是wstring型，所以为了绑定到int型需要附加一个转换函数
   // 负责将int类型的值转换成wstring。
   // 转换函数可以使用函数指针，或者不带捕获的lambda表达式。
   // 使用函数指针时编译器可以从参数类型中识别出模板类型（如此例中的int），不需要

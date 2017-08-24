@@ -25,6 +25,7 @@ namespace mvc {
     typedef HRESULT(ID2D1DeviceContext::*CreateBitmapFromDxgiSurfaceType)(IDXGISurface*, const D2D1_BITMAP_PROPERTIES1&, ID2D1Bitmap1**);
 
     // controller method
+    // 当 Window 的大小更新时,更新其中所有子view的位置和大小。
     static LRESULT Handle_SIZE(shared_ptr<Window> wnd, WPARAM wParam, LPARAM lParam) {
       wnd->m_right = LOWORD(lParam);
       wnd->m_bottom = HIWORD(lParam);

@@ -175,10 +175,16 @@ namespace mvc {
       return HitTest(dipX, dipY);
     }
 
+    // 根据自身的高度设置，宽度设置，偏移量设置，以及所处的
+    // Layout的cell的实际高度，宽度和位置，计算自身的实际高度，宽度和位置。
     void UpdatePositionAndSize() {
       const GridCell * cell = m_parentLayout->GetCell(m_row, m_col);
 
-      // 计算View的宽度
+      // 计算View的宽度（按照下述1→2→3的优先顺序）
+      // 1.如果左右偏移量都有定义，那么view的宽度就是所处的cell的宽度减去左右偏移量。
+      // 2.否则，如果显式指定了view的宽度，则采用指定的宽度（可以是一个绝对值，或者一个百分比值）。
+      // 如果是百分比值的话，则宽度是所处cell的宽度乘以该百分比。
+      // 3.否则，使用该对象的缺省宽度（GetDefaultWidth）。
       if (!isnan(m_leftOffset) && !(isnan(m_rightOffset))) {
         m_calWidth = cell->width - m_leftOffset - m_rightOffset;
       }
@@ -198,7 +204,11 @@ namespace mvc {
         m_calWidth = GetDefaultWidth();
       }
 
-      // 计算View的高度
+      // 计算View的高度（按照下述1→2→3的优先顺序）
+      // 1.如果上下偏移量都有定义，那么view的高度就是所处的cell的高度减去上下偏移量。
+      // 2.否则，如果显式指定了view的高度，则采用指定的高度（可以是一个绝对值，或者一个百分比值）。
+      // 如果是百分比值的话，则高度是所处cell的高度乘以该百分比。
+      // 3.否则，使用该对象的缺省高度（GetDefaultHeight）。
       if (!isnan(m_topOffset) && !(isnan(m_bottomOffset))) {
         m_calHeight = cell->height - m_topOffset - m_bottomOffset;
       }
@@ -218,8 +228,11 @@ namespace mvc {
         m_calHeight = GetDefaultHeight();
       }
 
-      // 计算View的四个顶点横坐标。
-      // left
+      // 计算View的四个边的坐标。
+      // left：
+      // 1.如果定义了左偏移量，则 左坐标=cell的左坐标+左偏移量
+      // 2.否则，如果定义了右偏移量，则 左坐标=cell的右坐标-view的宽度-右偏移量
+      // 3.否则，令view在cell里居中布置，左坐标=cell的左坐标+(cell宽度-view宽度)/2
       if (!isnan(m_leftOffset)) {
         m_left = cell->left + m_leftOffset;
       }
@@ -232,9 +245,13 @@ namespace mvc {
       }
 
       // right
+      // 右坐标=左坐标+view宽度
       m_right = m_left + m_calWidth;
 
       // top
+      // 1.如果定义了上偏移量，则 上坐标=cell的上坐标+上偏移量
+      // 2.否则，如果定义了下偏移量，则 上坐标=cell的下坐标-view的高度-下偏移量
+      // 3.否则，令view在cell里居中布置，上坐标=cell的上坐标+(cell高度-view高度)/2
       if (!isnan(m_topOffset)) {
         m_top = cell->top + m_topOffset;
       }
@@ -247,6 +264,7 @@ namespace mvc {
       }
 
       // bottom
+      // 下坐标=上坐标+view高度
       m_bottom = m_top + m_calHeight;
 
       // 检查calWidth和calHeight的值，如果他们发生了改变，
@@ -294,10 +312,16 @@ namespace mvc {
 
     virtual void DrawSelf() = 0;
 
+    // 设定view的缺省宽度。
+    // 每个实际的view（Text，Rectangle，Label，TextBox等）会重载自己的缺省宽度算法。
+    // 有些是固定值，有些则根据内部子元素的缺省宽度进行计算。
     virtual float GetDefaultWidth() {
       return 50;
     }
 
+    // 设定view的缺省高度。
+    // 每个实际的view（Text，Rectangle，Label，TextBox等）会重载自己的缺省高度算法。
+    // 有些是固定值，有些则根据内部子元素的缺省高度进行计算。
     virtual float GetDefaultHeight() {
       return 50;
     }
