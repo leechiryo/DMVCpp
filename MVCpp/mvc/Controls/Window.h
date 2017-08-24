@@ -20,7 +20,7 @@ namespace mvc {
     DxResource<IDXGISwapChain1> m_dxgiSwapChain;
     DxResource<ID2D1Bitmap1> m_d2dBuffer;
 
-    list<shared_ptr<AnimationBase>> m_animations;
+    list<shared_ptr<Animation>> m_animations;
 
     typedef HRESULT(ID2D1DeviceContext::*CreateBitmapFromDxgiSurfaceType)(IDXGISurface*, const D2D1_BITMAP_PROPERTIES1&, ID2D1Bitmap1**);
 
@@ -448,9 +448,10 @@ namespace mvc {
       return result;
     }
 
-    template <typename T>
-    shared_ptr<Animation<T>> CreateAnimation(T *resource, std::function<bool(T*, int)> updateFunc){
-      auto ani = make_shared<Animation<T>>(resource, updateFunc);
+    template<typename T>
+    shared_ptr<Animation> CreateAnimation(ViewBase *resource, std::function<bool(T*, int)> updateFunc){
+      std::function<bool(ViewBase*, int)> f = *(reinterpret_cast<decltype(f)*>(&updateFunc));
+      auto ani = make_shared<Animation>(resource, f);
       m_animations.push_back(ani);
       return ani;
     }

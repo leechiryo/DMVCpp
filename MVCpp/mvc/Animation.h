@@ -8,28 +8,37 @@ namespace mvc {
   enum class AniStatus2 { Paused, Playing };
   enum class AniPlayMode2 { PlayAndPauseAtEnd, PlayAndPauseAtStart, PlayRepeatly };
 
-  class AnimationBase
+  class Animation
   {
   private:
     int m_frameIdx;
     int m_rotation;
     AniStatus2 m_status;
     AniPlayMode2 m_mode;
+    ViewBase *m_pFrameResource;
+    std::function<bool(ViewBase*, int)> m_updateFrameMethod;
 
     // 每一个动画对象都要提供此方法。
     // 如果传入的frameIdx是动画中的最后一帧时，函数
     // 应返回True，否则应返回False.
-    virtual bool UpdateFrameResource(int) = 0;
+    bool UpdateFrameResource(int frameIdx){
+      if (m_pFrameResource && m_updateFrameMethod){
+        return m_updateFrameMethod(m_pFrameResource, frameIdx);
+      }
+      return true;
+    }
 
   public:
     // 可以设置动画完成时的回调函数
     std::function<void()> OnFinished;
 
-    AnimationBase() {
+    Animation(ViewBase *resource, std::function<bool(ViewBase*, int)> update){
       m_frameIdx = 0;
       m_rotation = 0;
       m_status = AniStatus2::Paused;
       OnFinished = nullptr;
+      m_pFrameResource = resource;
+      m_updateFrameMethod = update;
     }
 
     void SetFrameIndex(int idx) {
@@ -96,25 +105,5 @@ namespace mvc {
         }
       }
     }
-  };
-
-
-  template <typename T>
-  class Animation : public AnimationBase{
-  private:
-    T *m_pFrameResource;
-    std::function<bool(T*, int)> UpdateFrame;
-
-  protected:
-    virtual bool UpdateFrameResource(int frameIdx){
-      return UpdateFrame(m_pFrameResource, frameIdx);
-    }
-
-  public:
-    Animation(T *resource, decltype(UpdateFrame) update){
-      m_pFrameResource = resource;
-      UpdateFrame = update;
-    }
-
   };
 }

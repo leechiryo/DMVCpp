@@ -47,8 +47,6 @@ namespace mvc {
     bool m_showEffect = false;
     list<tuple<DxResource<ID2D1Effect>, int>> m_effects;
 
-    Window * m_parentWnd;
-
     bool isNumber(const char *str) {
       int len = strlen(str);
       // check for empty string.
@@ -78,6 +76,7 @@ namespace mvc {
     WPView m_wpThis;
     WPViewList m_subViews;
 
+
     double m_absLeft;
     double m_absTop;
 
@@ -86,9 +85,10 @@ namespace mvc {
     double m_right;
     double m_bottom;
 
+    Window * m_parentWnd;
     Layout m_layout;
-
     Layout *m_parentLayout;
+
     int m_row;
     int m_col;
 
@@ -547,6 +547,9 @@ namespace mvc {
       }
     }
 
+    // 向view内部添加新的子view。
+    // 该子view的Layout位置被设置为（0，0），即第一行第一列
+    // 之后可以通过调用子view的SetGridPosition指定所在的行列以及偏移量。
     template <typename T, typename ...Args>
     shared_ptr<T> AppendSubView(Args ...args) {
       auto v = make_shared<T>(m_pContext, m_parentWnd, args...);
@@ -567,11 +570,10 @@ namespace mvc {
       m_layout.AddCol(width);
     }
 
-    template <typename T>
-    shared_ptr<Animation<T>> AddAnimation(std::function<bool(T*, int)> updateFunc) {
+    template<typename T>
+    shared_ptr<Animation> AddAnimation(std::function<bool(T*, int)> updateFunc) {
       if (m_parentWnd) {
-        T *downcast = dynamic_cast<T*>(this);
-        return m_parentWnd->CreateAnimation(downcast, updateFunc);
+        return m_parentWnd->CreateAnimation<T>(this, updateFunc);
       }
       return nullptr;
     }

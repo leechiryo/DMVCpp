@@ -16,7 +16,7 @@ namespace mvc {
     shared_ptr<Rectangle> m_backRect;
     shared_ptr<Text> m_title;
     shared_ptr<Circle> m_circle;
-    shared_ptr<AnimationBase> m_ani;
+    shared_ptr<Animation> m_ani;
     float m_maxRadius;
 
     // controller method

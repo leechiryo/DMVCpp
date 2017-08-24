@@ -20,10 +20,10 @@ namespace mvc {
     shared_ptr<Button> m_closebtn;
     shared_ptr<Line> m_line1;
     shared_ptr<Line> m_line2;
-    shared_ptr<AnimationBase> m_aniSlideInFromLeft;
-    shared_ptr<AnimationBase> m_aniSlideInFromRight;
-    shared_ptr<AnimationBase> m_aniSlideInFromTop;
-    shared_ptr<AnimationBase> m_aniSlideInFromBottom;
+    shared_ptr<Animation> m_aniSlideInFromLeft;
+    shared_ptr<Animation> m_aniSlideInFromRight;
+    shared_ptr<Animation> m_aniSlideInFromTop;
+    shared_ptr<Animation> m_aniSlideInFromBottom;
 
     float m_slideStartVal;
     float m_slideEndVal;

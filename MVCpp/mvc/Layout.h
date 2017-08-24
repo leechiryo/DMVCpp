@@ -88,7 +88,7 @@ namespace mvc {
   // Layout 调整算法的细节（以调整列宽度为例）
   // 
   // 1.计算绝对值和百分比列的宽度（设为a）
-  // 2.剩余宽度 = Layout宽度 - a的合计宽：度
+  // 2.剩余宽度 = Layout宽度 - a的合计宽度
   // 3.根据剩余宽度进行处理：
   //   - 如果剩余宽度<0，将a中的各列宽度等比例缩小，使剩余宽度为零。
   //   - 如果剩余宽度>0, 根据未定义列的个数（设为n）进行处理：
@@ -112,8 +112,8 @@ namespace mvc {
   class Layout {
   private:
     vector<vector<GridCell>> cells;
-    int rowCnt = 0;
-    int colCnt = 0;
+    int rowCnt;
+    int colCnt;
 
     float m_width = NAN;
     float m_height = NAN;
@@ -154,8 +154,8 @@ namespace mvc {
       vector<GridCell> row;
       row.push_back(cell);
       cells.push_back(row);
-      colCnt = 1;
       rowCnt = 1;
+      colCnt = 1;
       m_defaultRowColSet = true;
     }
 

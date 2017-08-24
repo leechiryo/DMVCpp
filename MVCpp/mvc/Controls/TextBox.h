@@ -14,7 +14,7 @@ namespace mvc {
     shared_ptr<Rectangle> m_backRect;
     shared_ptr<Text> m_vtext;
     shared_ptr<Line> m_caret;
-    shared_ptr<AnimationBase> m_aniCaret;
+    shared_ptr<Animation> m_aniCaret;
 
     size_t m_insertPos;
     float m_hTranslation;
