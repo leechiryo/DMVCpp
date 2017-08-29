@@ -19,7 +19,7 @@ namespace mvc {
     T *m_fieldPtr;
     WPModel m_wpModel;
 
-    ConvertFunc m_convertFunc;
+    std::function<void(void*, T&)> m_convertFunc;
 
   public:
 
@@ -58,12 +58,12 @@ namespace mvc {
     }
 
     template<typename M, typename S>
-    void Bind(string modelId, S M::*mPtr, void(*convertFunc)(const S*, T&)) {
+    void Bind(string modelId, S M::*mPtr, std::function<void(S*, T&)> convertFunc) {
       auto spModel = App::GetModel<M>(modelId);
       m_wpModel = spModel.get_spModel();
       if (spModel.isValid()) {
         m_source = &(spModel->*mPtr);
-        m_convertFunc = (ConvertFunc)convertFunc;
+        m_convertFunc = *(reinterpret_cast<decltype(m_convertFunc)*>(&convertFunc));
         m_fieldPtr = &m_fallback;  // unbind
       }
       else {
@@ -72,12 +72,12 @@ namespace mvc {
     }
 
     template<typename S>
-    void Bind(string modelId, void(*convertFunc)(const S*, T&)) {
+    void Bind(string modelId, std::function<void(S*, T&)> convertFunc) {
       auto spModel = App::GetModel<S>(modelId);
       m_wpModel = spModel.get_spModel();
       if (spModel.isValid()) {
         m_source = spModel;
-        m_convertFunc = (ConvertFunc)convertFunc;
+        m_convertFunc = *(reinterpret_cast<decltype(m_convertFunc)*>(&convertFunc));
         m_fieldPtr = &m_fallback;  // unbind
       }
       else {
