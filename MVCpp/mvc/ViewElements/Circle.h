@@ -7,7 +7,7 @@
 
 namespace mvc {
 
-  class Circle : public Graphic
+  class Circle : public Graphic<Circle>
   {
   private:
     float m_centerX = NAN;

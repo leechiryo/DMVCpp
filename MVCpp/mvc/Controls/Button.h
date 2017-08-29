@@ -78,7 +78,7 @@ namespace mvc {
       m_circle->SetColor(0xcccccc);
 
       float *addr = &m_maxRadius;
-      m_ani = m_circle->AddAnimation<Circle>([addr](Circle *c, int idx)->bool {
+      m_ani = m_circle->AddAnimation([addr](Circle *c, int idx)->bool {
         if (idx >= 7) return true;
         float maxRadius = *addr;
         c->SetCircleRadius(maxRadius * idx / 6.0f);

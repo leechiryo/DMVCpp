@@ -133,6 +133,13 @@ namespace mvc {
         App::UpdateViews();
       }
     }
+
+    shared_ptr<Animation> AddAnimation(std::function<bool(DerivedType*, int)> updateFunc) {
+      if (m_parentWnd) {
+        return m_parentWnd->CreateAnimation<DerivedType>(this, updateFunc);
+      }
+      return nullptr;
+    }
     
   };
 }

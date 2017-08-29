@@ -65,25 +65,25 @@ namespace mvc {
         return 0;
       });
 
-      m_aniSlideInFromLeft = AddAnimation<Dialog>([](Dialog *d, int idx)->bool {
+      m_aniSlideInFromLeft = AddAnimation([](Dialog *d, int idx)->bool {
         if (idx >= 7) return true;
         d->SetLeftOffset(d->m_slideStartVal + (d->m_slideEndVal - d->m_slideStartVal)*idx / 6);
         return false;
       });
 
-      m_aniSlideInFromRight = AddAnimation<Dialog>([](Dialog *d, int idx)->bool {
+      m_aniSlideInFromRight = AddAnimation([](Dialog *d, int idx)->bool {
         if (idx >= 7) return true;
         d->SetRightOffset(d->m_slideStartVal + (d->m_slideEndVal - d->m_slideStartVal)*idx / 6);
         return false;
       });
 
-      m_aniSlideInFromTop = AddAnimation<Dialog>([](Dialog *d, int idx)->bool {
+      m_aniSlideInFromTop = AddAnimation([](Dialog *d, int idx)->bool {
         if (idx >= 7) return true;
         d->SetTopOffset(d->m_slideStartVal + (d->m_slideEndVal - d->m_slideStartVal)*idx / 6);
         return false;
       });
 
-      m_aniSlideInFromBottom = AddAnimation<Dialog>([](Dialog *d, int idx)->bool {
+      m_aniSlideInFromBottom = AddAnimation([](Dialog *d, int idx)->bool {
         if (idx >= 7) return true;
         d->SetBottomOffset(d->m_slideStartVal + (d->m_slideEndVal - d->m_slideStartVal)*idx / 6);
         return false;

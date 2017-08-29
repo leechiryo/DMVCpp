@@ -7,7 +7,7 @@
 
 namespace mvc {
 
-  class RoundRectangle : public Graphic
+  class RoundRectangle : public Graphic<RoundRectangle>
   {
   private:
     float m_radiusX;

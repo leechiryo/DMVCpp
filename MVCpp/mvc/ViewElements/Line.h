@@ -6,7 +6,7 @@
 #include "Graphic.h"
 
 namespace mvc {
-  class Line : public Graphic
+  class Line : public Graphic<Line>
   {
   public:
     Line(const D2DContext &context, Window * parentWnd) : Graphic(context, parentWnd){

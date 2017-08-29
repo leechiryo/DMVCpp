@@ -7,7 +7,7 @@
 
 namespace mvc {
 
-  class Rectangle : public Graphic
+  class Rectangle : public Graphic<Rectangle>
   {
   public:
     Rectangle(const D2DContext &context, Window * parentWnd) :Graphic(context, parentWnd){

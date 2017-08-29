@@ -570,14 +570,6 @@ namespace mvc {
       m_layout.AddCol(width);
     }
 
-    template<typename T>
-    shared_ptr<Animation> AddAnimation(std::function<bool(T*, int)> updateFunc) {
-      if (m_parentWnd) {
-        return m_parentWnd->CreateAnimation<T>(this, updateFunc);
-      }
-      return nullptr;
-    }
-
     template <typename T = Layer>
     shared_ptr<T> AppendLayer() {
       auto layer = AppendSubView<T>();

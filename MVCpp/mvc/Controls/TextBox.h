@@ -107,7 +107,7 @@ namespace mvc {
       m_caret->SetWidth("0");
       m_caret->SetHeight("20");
 
-      m_aniCaret = m_caret->AddAnimation<Line>([](Line * l, int i)->bool{
+      m_aniCaret = m_caret->AddAnimation([](Line * l, int i)->bool{
         if (i <= 48)
         {
           if (i <= 8) {

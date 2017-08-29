@@ -6,7 +6,8 @@
 
 namespace mvc {
 
-  class Graphic : public View<Graphic>
+  template<typename DerivedType>
+  class Graphic : public View<DerivedType>
   {
   protected:
 
