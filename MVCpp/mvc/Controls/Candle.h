@@ -49,7 +49,7 @@ namespace mvc {
       m_topShadow->SetBottomOffset(0);
 
       m_rect->SetGridPosition(1, 0);
-      m_rect->SetOffset(0, 0, 0, 0);
+      m_rect->SetOffset(0.5, 0.5, 0.5, 0.5);
 
       m_bottomShadow->SetGridPosition(2, 0);
       m_bottomShadow->SetWidth("0");
