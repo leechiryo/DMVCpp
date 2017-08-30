@@ -53,6 +53,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   layer->AddLayoutCol("100");
   view->UploadLayout();
 
+  auto line = layer->AppendSubView<Line>();
+
   auto lbl = layer->AppendSubView<Label>(L"Some item:");
   regv("abc", lbl); // 将lbl注册到全局，以后程序的其他部分就可以用ID（getv<Label>("abc")）来取得lbl了
   lbl->SetGridPosition(1, 0);
@@ -91,7 +93,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   img->SetGridPosition(8, 1);
   img->SetOffset(0, 0);
 
-  auto line = layer->AppendSubView<Line>();
   line->SetColor(0x23ff00);
   line->SetGridPosition(7, 2);
   line->SetOffset(0, 0, 0, 0);
@@ -107,6 +108,13 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   //candle2->SetBottomOffset(0);
 
   // 设置直线的阴影效果
+  // 阴影效果通过以下特效的组合来达成。
+  //
+  // ┌───┐                                ┌────────┐
+  // │src│ ─→ shadow → affine transfrom → │  com-  │
+  // │img│ ─────────────────────────────→ │ posite │ → 最终结果
+  // └───┘                                └────────┘
+  //
   auto shadowEffect = line->CreateEffect(CLSID_D2D1Shadow, 0);
   auto affineTransEffect = line->CreateEffect(CLSID_D2D12DAffineTransform);
   auto compositeEffect = line->CreateEffect(CLSID_D2D1Composite, 1);
@@ -138,16 +146,17 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   // 但是，这不是一个普通的绑定，因为groupVal的类型为int型
   // 而lbl2的text表达的是wstring型，所以为了绑定到int型需要附加一个转换函数
   // 负责将int类型的值转换成wstring。
-  // 转换函数可以使用函数指针，或者不带捕获的lambda表达式。
-  // 使用函数指针时编译器可以从参数类型中识别出模板类型（如此例中的int），不需要
-  // 模板提示（即直接写Bind(...)），如果使用lambda表达式，编译器不能识别出模板类型，
-  // 所以要添加一个模板提示（即Bind<int>(...)）。
+  // 转换函数可以使用函数指针，或者lambda表达式。
+  // 编译器不能识别出模板类型，所以要添加一个模板提示（即Bind<int>(...)）。
   lbl2->text->Bind<int>("groupVal", [](const int * iptr, wstring& s){
     if (!(*iptr)){
       s = L"Select radio value.";
     }
     else{
-      s = L"You selected: " + to_wstring(*iptr);
+      wchar_t buf[] = L"You selected: x";
+      int index = sizeof(buf)/2 - 2;
+      buf[index] = to_wstring(*iptr)[0];
+      s = buf;
     }
   });
 

@@ -116,8 +116,10 @@ namespace mvc {
       m_pContext->SetTarget(m_d2dBuffer.ptr());
 
       // 创建一个特效用的context
-      m_pBmpRT = m_pContext.CreateCompatibleRenderTarget();
-      m_pEffectContext = m_pBmpRT.Query<ID2D1DeviceContext>();
+      //m_pBmpRT = m_pContext.CreateCompatibleRenderTarget();
+      //m_pEffectContext = m_pBmpRT.Query<ID2D1DeviceContext>();
+
+      ClearEffectContext();
     }
 
 
@@ -255,8 +257,8 @@ namespace mvc {
       m_pContext->SetTarget(m_d2dBuffer.ptr());
 
       // 创建一个特效用的context
-      m_pBmpRT = m_pContext.CreateCompatibleRenderTarget();
-      m_pEffectContext = m_pBmpRT.Query<ID2D1DeviceContext>();
+      //m_pBmpRT = m_pContext.CreateCompatibleRenderTarget();
+      //m_pEffectContext = m_pBmpRT.Query<ID2D1DeviceContext>();
     }
 
   public:

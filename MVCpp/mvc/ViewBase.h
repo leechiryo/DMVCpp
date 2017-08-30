@@ -283,6 +283,20 @@ namespace mvc {
       }
     }
 
+    void ClearEffectContext(){
+      m_pBmpRT = nullptr;
+      m_pEffectContext = nullptr;
+
+      for (auto it = m_subViews.begin(); it != m_subViews.end(); ++it) {
+        const auto &v = *it;
+        auto ptr = v.lock();
+
+        if (ptr) {
+          ptr->ClearEffectContext();
+        }
+      }
+    }
+
   public:
 
     ViewBase(const D2DContext & context, Window *parentWnd) {
@@ -498,19 +512,25 @@ namespace mvc {
           ptr->m_absLeft = m_absLeft + ptr->m_left;
           ptr->m_absTop = m_absTop + ptr->m_top;
 
-          ptr->m_pEffectContext = m_pEffectContext;
-          ptr->m_pBmpRT = m_pBmpRT;
+          //ptr->m_pEffectContext = m_pEffectContext;
+          //ptr->m_pBmpRT = m_pBmpRT;
 
           if (ptr->m_effects.size() > 0 && ptr->m_showEffect) {
             // 如果已经设定了特效，则要先将view绘制到一个临时的bmp上，然后再对其
             // 施加指定的特效，然后再将最后的结果绘制到画面。
+            if (ptr->m_pEffectContext.NotSet()){
+              // 创建一个特效用的context
+              ptr->m_pBmpRT = m_pContext.CreateCompatibleRenderTarget();
+              ptr->m_pEffectContext = ptr->m_pBmpRT.Query<ID2D1DeviceContext>();
+            }
+
             ptr->m_pContext = ptr->m_pEffectContext;
             ptr->m_pContext->SetTransform(TranslationMatrix(m_absLeft, m_absTop));
 
             ptr->m_pContext->BeginDraw();
             ptr->m_pContext->Clear(D2D1::ColorF(0xffffff, 0.0f));
             ptr->Draw();
-            ptr->m_pContext->EndDraw();
+            HRESULT hr = ptr->m_pContext->EndDraw();
 
             auto bmp = ptr->m_pBmpRT.GetResource<ID2D1Bitmap>(&ID2D1BitmapRenderTarget::GetBitmap);
 
