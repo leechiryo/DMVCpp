@@ -128,9 +128,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   auto dialog = view->AppendSubView<Dialog>();
   regv("dialog1", dialog);
-  //dialog->SetLeftOffset(0);
-  //dialog->SetTopOffset(0);
-  //dialog->SetBottomOffset(0);
   dialog->SetWidth("400");
   dialog->SetHeight("300");
 
@@ -162,6 +159,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   // 设置事件处理 Controller
   btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);
+  dialog->closebtn->AddEventHandler(WM_LBUTTONUP, MyController::CloseDialog);
 
   view->Show();
 }

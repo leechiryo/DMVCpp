@@ -18,4 +18,10 @@ public:
     layer->Blur();
     return 0;
   }
+
+  static LRESULT CloseDialog(shared_ptr<mvc::Button> btn, WPARAM wParam, LPARAM lParam) {
+    auto layer = mvc::getv<mvc::Layer>("layer1");
+    layer->Unblur();
+    return 0;
+  }
 };

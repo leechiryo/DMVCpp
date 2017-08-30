@@ -17,7 +17,6 @@ namespace mvc {
   private:
 
     shared_ptr<RoundRectangle> m_backrect;
-    shared_ptr<Button> m_closebtn;
     shared_ptr<Line> m_line1;
     shared_ptr<Line> m_line2;
     shared_ptr<Animation> m_aniSlideInFromLeft;
@@ -40,27 +39,28 @@ namespace mvc {
 
   public:
     ModelRef<wstring> *text;
+    shared_ptr<Button> closebtn;
     Dialog(const D2DContext &context, Window * parentWnd) : View(context, parentWnd){
       m_backrect = AppendSubView<RoundRectangle>();
       m_backrect->SetOffset(0, 0, 0, 0);
       m_backrect->SetRoundRadius(3, 3);
       m_backrect->SetBackColor(0xeeeeee);
 
-      m_closebtn = AppendSubView<Button>(L"");
-      m_closebtn->SetRightOffset(3);
-      m_closebtn->SetTopOffset(3);
-      m_closebtn->SetWidth("15");
-      m_closebtn->SetHeight("15");
+      closebtn = AppendSubView<Button>(L"");
+      closebtn->SetRightOffset(3);
+      closebtn->SetTopOffset(3);
+      closebtn->SetWidth("15");
+      closebtn->SetHeight("15");
 
-      m_line1 = m_closebtn->AppendSubView<Line>();
+      m_line1 = closebtn->AppendSubView<Line>();
       m_line1->SetOffset(3, 3, 3, 3);
-      m_line2 = m_closebtn->AppendSubView<Line>();
+      m_line2 = closebtn->AppendSubView<Line>();
       m_line2->SetOffset(3, 12, 3, 12);
 
       SetHidden(true);
 
       auto me = this;
-      m_closebtn->AddEventHandler(WM_LBUTTONUP, [me](shared_ptr<Button> btn, WPARAM wp, LPARAM lp)->LRESULT{
+      closebtn->AddEventHandler(WM_LBUTTONUP, [me](shared_ptr<Button> btn, WPARAM wp, LPARAM lp)->LRESULT{
         me->Close();
         return 0;
       });
