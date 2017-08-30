@@ -283,6 +283,7 @@ namespace mvc {
       }
     }
 
+    // 清空view及其子view的特效context。
     void ClearEffectContext(){
       m_pBmpRT = nullptr;
       m_pEffectContext = nullptr;
@@ -512,14 +513,11 @@ namespace mvc {
           ptr->m_absLeft = m_absLeft + ptr->m_left;
           ptr->m_absTop = m_absTop + ptr->m_top;
 
-          //ptr->m_pEffectContext = m_pEffectContext;
-          //ptr->m_pBmpRT = m_pBmpRT;
-
           if (ptr->m_effects.size() > 0 && ptr->m_showEffect) {
             // 如果已经设定了特效，则要先将view绘制到一个临时的bmp上，然后再对其
             // 施加指定的特效，然后再将最后的结果绘制到画面。
             if (ptr->m_pEffectContext.NotSet()){
-              // 创建一个特效用的context
+              // 如果特效用的context还未创建，则创建它
               ptr->m_pBmpRT = m_pContext.CreateCompatibleRenderTarget();
               ptr->m_pEffectContext = ptr->m_pBmpRT.Query<ID2D1DeviceContext>();
             }

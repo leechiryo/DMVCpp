@@ -115,10 +115,7 @@ namespace mvc {
 
       m_pContext->SetTarget(m_d2dBuffer.ptr());
 
-      // 创建一个特效用的context
-      //m_pBmpRT = m_pContext.CreateCompatibleRenderTarget();
-      //m_pEffectContext = m_pBmpRT.Query<ID2D1DeviceContext>();
-
+      // 清空特效的context，当描绘时会自动再次生成。
       ClearEffectContext();
     }
 
@@ -255,10 +252,6 @@ namespace mvc {
       m_d2dBuffer = m_pContext.CreateBitmap(dxgiBackBuffer.ptr(), bmpProp);
 
       m_pContext->SetTarget(m_d2dBuffer.ptr());
-
-      // 创建一个特效用的context
-      //m_pBmpRT = m_pContext.CreateCompatibleRenderTarget();
-      //m_pEffectContext = m_pBmpRT.Query<ID2D1DeviceContext>();
     }
 
   public:
