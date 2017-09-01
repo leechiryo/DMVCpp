@@ -62,8 +62,6 @@ namespace mvc {
       else if (o < c) {
         m_rect->SetBackColor(0xff0000);
       }
-
-      // 如果要設置padding，可以在這裏設置内部對象的位置
     }
 
     ~Candle() {
