@@ -15,6 +15,8 @@
 #include "mvc\ViewElements\Line.h"
 #include "MyController.h"
 #include <system_error>
+#include "mvc/DataModel/DateTime.h"
+
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dwrite.lib")
@@ -160,6 +162,12 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   // 设置事件处理 Controller
   btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);
   dialog->closebtn->AddEventHandler(WM_LBUTTONUP, MyController::CloseDialog);
+
+  DateTime t1{ "2017.08.23 12:23:32.784" };
+  DateTime t2{ "2017.08.23 12:23:34.783" };
+
+  long long difft = t2 - t1;
+  difft = t1 - t2;
 
   view->Show();
 }
