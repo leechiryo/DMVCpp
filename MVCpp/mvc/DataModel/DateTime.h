@@ -32,7 +32,14 @@ namespace mvc{
         throw std::runtime_error(errmsg);
       }
 
-      sscanf_s(timestr, "%d.%d.%d %d:%d:%d.%d", &m_year, &m_month, &m_day, &m_hour, &m_min, &m_second, &m_millisecond);
+      int num = sscanf_s(timestr, "%d.%d.%d %d:%d:%d.%d", &m_year, &m_month, &m_day, &m_hour, &m_min, &m_second, &m_millisecond);
+
+      if (num != 7){
+        string errmsg = "Cannot create date time from time string: ";
+        if (!timestr) errmsg = errmsg + "[null]";
+        else errmsg = errmsg + timestr;
+        throw std::runtime_error(errmsg);
+      }
       
       tm tm_ = {0};
       tm_.tm_year = m_year - 1900;
@@ -59,6 +66,38 @@ namespace mvc{
       int diffmilli = m_millisecond - t.m_millisecond;
       long long retval = diffsec * 1000 + diffmilli;
       return retval;
+    }
+
+    int GetYear(){
+      return m_year;
+    }
+
+    int GetMonth(){
+      return m_month;
+    }
+
+    int GetDay(){
+      return m_day;
+    }
+
+    int GetHour(){
+      return m_hour;
+    }
+
+    int GetMinute(){
+      return m_min;
+    }
+
+    int GetSecond(){
+      return m_second;
+    }
+
+    int GetMillisecond(){
+      return m_millisecond;
+    }
+
+    int GetWeekDay(){
+      return m_weekday;
     }
 
   };
