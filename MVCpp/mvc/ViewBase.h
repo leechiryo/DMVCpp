@@ -49,13 +49,27 @@ namespace mvc {
 
     bool isNumber(const char *str) {
       int len = strlen(str);
-      // check for empty string.
+
+      // check for empty string and period position.
       if (len == 0) return false;
-      bool retval = true;
+      if (str[0] == '.' || str[len - 1] == '.') return false;
+
+      int periodCnt = 0;
+
       for (int i = 0; i < len; i++) {
-        retval = retval && (str[i] >= '0') && (str[i] <= '9');
+        if (str[i] == '.'){
+          periodCnt++;
+          if (periodCnt > 1) return false;
+          continue;
+        }
+
+        bool isDigit = (str[i] >= '0') && (str[i] <= '9');
+
+        if (!isDigit){
+          return false;
+        }
       }
-      return retval;
+      return true;
     }
 
     bool isPercent(const char *str) {
@@ -63,13 +77,12 @@ namespace mvc {
       // check for empty and the only one character '%' 
       // should return false.
       if (len <= 1) return false;
-      bool retval = true;
-      for (int i = 0; i < len - 1; i++) {
-        retval = retval && (str[i] >= '0') && (str[i] <= '9');
-      }
+      if (str[len - 1] != '%') return false;
 
-      retval = retval && (str[len - 1] == '%');
-      return retval;
+      char buf[40];
+      strncpy_s(buf, str, len - 1);
+
+      return isNumber(buf);
     }
 
   protected:
@@ -190,13 +203,13 @@ namespace mvc {
       }
       else if (strlen(m_setWidth) > 0) {
         if (isNumber(m_setWidth)) {
-          m_calWidth = (float)atoi(m_setWidth);
+          sscanf_s(m_setWidth, "%f", &m_calWidth);
         }
         else if (isPercent(m_setWidth)) {
           char dg[10] = { 0 };
-          strcpy_s(dg, strlen(m_setWidth) + 1, m_setWidth);
-          dg[strlen(m_setWidth) - 1] = 0;
-          int a = atoi(dg);
+          strncpy_s(dg, m_setWidth, strlen(m_setWidth) - 1);
+          float a = 0.0f;
+          sscanf_s(dg, "%f", &a);
           m_calWidth = a * cell->width / 100.0f;
         }
       }
@@ -214,13 +227,13 @@ namespace mvc {
       }
       else if (strlen(m_setHeight) > 0) {
         if (isNumber(m_setHeight)) {
-          m_calHeight = (float)atoi(m_setHeight);
+          sscanf_s(m_setHeight, "%f", &m_calHeight);
         }
         else if (isPercent(m_setHeight)) {
           char dg[10] = { 0 };
-          strcpy_s(dg, strlen(m_setHeight) + 1, m_setHeight);
-          dg[strlen(m_setHeight) - 1] = 0;
-          int a = atoi(dg);
+          strncpy_s(dg, m_setHeight, strlen(m_setHeight) - 1);
+          float a = 0.0f;
+          sscanf_s(dg, "%f", &a);
           m_calHeight = a * cell->height / 100.0f;
         }
       }

@@ -36,6 +36,9 @@ namespace mvc {
       setHeightRatio = NAN;
     }
 
+
+    // 注意：如果width大于1，则设定的是绝对值，
+    // 如果width小于1，则设定的是百分比。
     void SetWidth(float width) {
       if (width >= 1) {
         setWidth = width;
@@ -48,6 +51,9 @@ namespace mvc {
       widthStr[0] = 0;
     }
 
+
+    // 注意：如果height大于1，则设定的是绝对值，
+    // 如果height小于1，则设定的是百分比。
     void SetHeight(float height) {
       if (height >= 1) {
         setHeight = height;
@@ -265,6 +271,9 @@ namespace mvc {
       colCnt++;
     }
 
+    // 追加新的一行并设定行的高度。
+    // 注意：此处的height如果大于1，则设定的是绝对高度
+    //      如果小于1，则设定的是百分比。
     void AddRow(float height) {
 
       if (m_defaultRowColSet) {
@@ -277,6 +286,9 @@ namespace mvc {
 
       if (!rowCnt && !colCnt) {
         GridCell cell;
+
+        // 如果height大于1，则设定的是绝对值，
+        // 如果height小于1，则设定的是百分比。
         cell.SetHeight(height);
         vector<GridCell> row;
         row.push_back(cell);
@@ -284,11 +296,17 @@ namespace mvc {
       }
       else if (!rowCnt && colCnt) {
         for (auto &c : cells[0]) {
+
+        // 如果height大于1，则设定的是绝对值，
+        // 如果height小于1，则设定的是百分比。
           c.SetHeight(height);
         }
       }
       else if (rowCnt && !colCnt) {
         GridCell cell;
+
+        // 如果height大于1，则设定的是绝对值，
+        // 如果height小于1，则设定的是百分比。
         cell.SetHeight(height);
         vector<GridCell> row;
         row.push_back(cell);
@@ -297,6 +315,9 @@ namespace mvc {
       else {
         vector<GridCell> row = cells[0];
         for (auto &c : row) {
+
+          // 如果height大于1，则设定的是绝对值，
+          // 如果height小于1，则设定的是百分比。
           c.SetHeight(height);
         }
         cells.push_back(row);
@@ -317,6 +338,9 @@ namespace mvc {
       if (!rowCnt && !colCnt) {
         // 既没有行也没有列时，生成一个cell，仅设置其宽度
         GridCell cell;
+
+        // 如果width大于1，则设定的是绝对值，
+        // 如果width小于1，则设定的是百分比。
         cell.SetWidth(width);
         vector<GridCell> row;
         row.push_back(cell);
@@ -326,6 +350,9 @@ namespace mvc {
         // 已经存在列，但是还没有行的时候，
         // 直接对第一行追加列并设置其宽度
         GridCell cell;
+
+        // 如果width大于1，则设定的是绝对值，
+        // 如果width小于1，则设定的是百分比。
         cell.SetWidth(width);
         cells[0].push_back(cell);
       }
@@ -334,6 +361,9 @@ namespace mvc {
         // 直接对已经存在的行设置其宽度
         // 将其转换为列。
         for (auto &r : cells) {
+
+          // 如果width大于1，则设定的是绝对值，
+          // 如果width小于1，则设定的是百分比。
           r[0].SetWidth(width);
         }
       }
@@ -342,6 +372,9 @@ namespace mvc {
         // 该列的高度与其他列相同但是宽度具有自己的值
         for (auto &r : cells) {
           GridCell c = r[0];
+
+          // 如果width大于1，则设定的是绝对值，
+          // 如果width小于1，则设定的是百分比。
           c.SetWidth(width);
           r.push_back(c);
         }
