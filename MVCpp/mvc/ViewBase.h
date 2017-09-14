@@ -18,8 +18,8 @@ namespace mvc {
     float m_topOffset = NAN;
     float m_rightOffset = NAN;
     float m_bottomOffset = NAN;
-    char m_setWidth[10];
-    char m_setHeight[10];
+    char m_setWidth[20];
+    char m_setHeight[20];
 
     LayoutInfo(){
       m_setWidth[0] = 0;
@@ -79,7 +79,7 @@ namespace mvc {
       if (len <= 1) return false;
       if (str[len - 1] != '%') return false;
 
-      char buf[40];
+      char buf[20];
       strncpy_s(buf, str, len - 1);
 
       return isNumber(buf);
@@ -109,8 +109,8 @@ namespace mvc {
     float m_topOffset;
     float m_rightOffset;
     float m_bottomOffset;
-    char m_setWidth[10];
-    char m_setHeight[10];
+    char m_setWidth[20];
+    char m_setHeight[20];
 
     float m_calWidth;
     float m_calHeight;
@@ -206,7 +206,7 @@ namespace mvc {
           sscanf_s(m_setWidth, "%f", &m_calWidth);
         }
         else if (isPercent(m_setWidth)) {
-          char dg[10] = { 0 };
+          char dg[20] = { 0 };
           strncpy_s(dg, m_setWidth, strlen(m_setWidth) - 1);
           float a = 0.0f;
           sscanf_s(dg, "%f", &a);
@@ -230,7 +230,7 @@ namespace mvc {
           sscanf_s(m_setHeight, "%f", &m_calHeight);
         }
         else if (isPercent(m_setHeight)) {
-          char dg[10] = { 0 };
+          char dg[20] = { 0 };
           strncpy_s(dg, m_setHeight, strlen(m_setHeight) - 1);
           float a = 0.0f;
           sscanf_s(dg, "%f", &a);
@@ -416,7 +416,7 @@ namespace mvc {
     }
 
     void SetWidth(const char *width) {
-      strcpy_s(m_setWidth, 10, width);
+      strcpy_s(m_setWidth, 20, width);
       UpdatePositionAndSize();
     }
 
@@ -426,7 +426,7 @@ namespace mvc {
     }
 
     void SetHeight(const char *height) {
-      strcpy_s(m_setHeight, 10, height);
+      strcpy_s(m_setHeight, 20, height);
       UpdatePositionAndSize();
     }
 

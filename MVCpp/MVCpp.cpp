@@ -8,9 +8,9 @@
 #include "mvc\Controls\Label.h"
 #include "mvc\Controls\CheckBox.h"
 #include "mvc\Controls\Radio.h"
-#include "mvc\Controls\Candle.h"
 #include "mvc\Controls\Layer.h"
 #include "mvc\Controls\Dialog.h"
+#include "mvc\Controls\Chart.h"
 #include "mvc\ViewElements\Image.h"
 #include "mvc\ViewElements\Line.h"
 #include "MyController.h"
@@ -100,18 +100,20 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   line->SetGridPosition(7, 2);
   line->SetOffset(0, 0, 0, 0);
 
-  vector<BarPrice> bplist;
   BarPrice bp1{ "2017.01.23 12:22:23.221", 1.12345, 1.12124, 1.11843, 1.11957 };
   BarPrice bp2{ "2017.01.23 12:22:23.221", 1.12034, 1.11957, 1.11331, 1.11423 };
   BarPrice bp3{ "2017.01.23 12:22:23.221", 1.11658, 1.11423, 1.11212, 1.11212 };
   BarPrice bp4{ "2017.01.23 12:22:23.221", 1.11443, 1.11212, 1.11021, 1.11323 };
 
-  bplist.push_back(bp1);
-  bplist.push_back(bp2);
-  bplist.push_back(bp3);
-  bplist.push_back(bp4);
+  //auto cht = layer->AppendSubView<Chart>();
+  //cht->AddBar(bp1);
+  //cht->AddBar(bp2);
+  //cht->AddBar(bp3);
+  //cht->AddBar(bp4);
 
-  size_t startIdx = 1;
+  //cht->SetGridPosition(8, 1);
+  //cht->SetOffset(100, 0, 0, 10);
+
 
   //auto candle1 = layer->AppendSubView<Candle>(&bplist, &startIdx, 0);
   //candle1->SetGridPosition(6, 2);

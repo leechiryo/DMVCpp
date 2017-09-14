@@ -408,7 +408,7 @@ namespace mvc {
           ttlWidth += c.width;
         }
         else if (isPercent(c.widthStr)) {
-          char dg[10] = { 0 };
+          char dg[20] = { 0 };
           strcpy_s(dg, strlen(c.widthStr) + 1, c.widthStr);
           dg[strlen(c.widthStr) - 1] = 0;
           int a = atoi(dg);
@@ -491,7 +491,7 @@ namespace mvc {
           ttlHeight += c.height;
         }
         else if (isPercent(c.heightStr)) {
-          char dg[10] = { 0 };
+          char dg[20] = { 0 };
           strcpy_s(dg, strlen(c.heightStr) + 1, c.heightStr);
           dg[strlen(c.heightStr) - 1] = 0;
           int a = atoi(dg);

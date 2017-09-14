@@ -92,7 +92,7 @@ namespace mvc {
         double rectHeight = (p1 - p2) * m_calHeight / (h - l);
         double bottomHeight = m_calHeight - topHeight - rectHeight;
 
-        char buf[10] = { 0 };
+        char buf[20] = { 0 };
 
         sprintf_s(buf, "%f", topHeight);
         m_topShadow->SetHeight(buf);
@@ -105,10 +105,10 @@ namespace mvc {
         m_bottomShadow->SetHeight(buf);
 
         if (o > c) {
-          m_rect->SetBackColor(0x00ff00);
+          m_rect->SetBackColor(0xff0000);
         }
         else if (o < c) {
-          m_rect->SetBackColor(0xff0000);
+          m_rect->SetBackColor(0x00ff00);
         }
 
         m_oldH = h;
