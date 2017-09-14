@@ -114,17 +114,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   //cht->SetGridPosition(8, 1);
   //cht->SetOffset(100, 0, 0, 10);
 
-
-  //auto candle1 = layer->AppendSubView<Candle>(&bplist, &startIdx, 0);
-  //candle1->SetGridPosition(6, 2);
-  //candle1->SetOffset(0, 0);
-  //candle1->SetBottomOffset(0);
-
-  //auto candle2 = layer->AppendSubView<Candle>(&bplist, &startIdx, 2);
-  //candle2->SetGridPosition(6, 2);
-  //candle2->SetOffset(10, 0);
-  //candle2->SetBottomOffset(0);
-
   // 设置直线的阴影效果
   // 阴影效果通过以下特效的组合来达成。
   //
