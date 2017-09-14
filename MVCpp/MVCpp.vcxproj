@@ -58,6 +58,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\zhi_li\Projects\Tests\MVCpp\MVCpp\sqlite3lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -97,6 +98,7 @@
     <ClInclude Include="mvc\ViewElements\Rectangle.h" />
     <ClInclude Include="mvc\ViewElements\RoundRectangle.h" />
     <ClInclude Include="mvc\ViewElements\Text.h" />
+    <ClInclude Include="sqlite3\sqlite3.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="mvc\App.h" />
     <ClInclude Include="mvc\ConstructorProxy.h" />

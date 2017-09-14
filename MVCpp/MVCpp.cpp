@@ -17,11 +17,13 @@
 #include <system_error>
 #include "mvc/DataModel/DateTime.h"
 #include "mvc/DataModel/TickPrice.h"
+#include "sqlite3\sqlite3.h"
 
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "Windowscodecs.lib")
+#pragma comment(lib, "sqlite3.lib")
 
 using namespace mvc;
 
@@ -167,6 +169,18 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   // 设置事件处理 Controller
   btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);
   dialog->closebtn->AddEventHandler(WM_LBUTTONUP, MyController::CloseDialog);
+
+  // sqlite3 test
+  sqlite3 *db;
+  int rc = sqlite3_open("abc.db", &db);
+  if (rc){
+    MessageBox(NULL, L"Error opening SQLite3 database.", L"ERROR", MB_OK);
+  }
+  else{
+    MessageBox(NULL, L"opened SQLite3 database.", L"ERROR", MB_OK);
+  }
+
+  sqlite3_close(db);
 
   view->Show();
 }
