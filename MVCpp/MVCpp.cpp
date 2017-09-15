@@ -13,11 +13,11 @@
 #include "mvc\Controls\Chart.h"
 #include "mvc\ViewElements\Image.h"
 #include "mvc\ViewElements\Line.h"
-#include "MyController.h"
 #include <system_error>
 #include "mvc/DataModel/DateTime.h"
 #include "mvc/DataModel/TickPrice.h"
-#include "sqlite3\sqlite3.h"
+
+#include "MyController.h"
 
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "d3d11.lib")
@@ -39,6 +39,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   // 准备 Model
   m<wstring>("my_model", L"Hello!");
   m<int>("groupVal", 0);
+  m<wstring>("csv_path", L"");
 
   // 准备 View
   auto view = v("main_window", L"MVC++ テスト", 800, 600);
@@ -60,7 +61,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   auto line = layer->AppendSubView<Line>();
 
-  auto lbl = layer->AppendSubView<Label>(L"Some item:");
+  auto lbl = layer->AppendSubView<Label>(L"CSV File:");
   regv("abc", lbl); // 将lbl注册到全局，以后程序的其他部分就可以用ID（getv<Label>("abc")）来取得lbl了
   lbl->SetGridPosition(1, 0);
   lbl->SetRightOffset(20);
@@ -73,6 +74,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   auto btn = layer->AppendSubView<Button>(L"START");
   btn->SetGridPosition(2, 1);
   btn->SetLeftOffset(0);
+
+  auto btn2 = layer->AppendSubView<Button>(L"IMPORT CSV");
+  btn2->SetGridPosition(2, 1);
+  btn2->SetLeftOffset(150);
 
   auto cbx = layer->AppendSubView<CheckBox>(L"这是一个CheckBox.");
   cbx->SetGridPosition(3, 1);
@@ -143,17 +148,22 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   // 绑定 Model 和 View
 
   // 直接绑定。绑定的Model对象类型和自身表达的类型一致。
+  // *直接绑定是双向绑定。即Model值的改变会自动反映到View上，
+  // *反之View上的改变，也会自动反映到Model上。
   btn->title->Bind("my_model");
   rdo1->selectedValue.Bind("groupVal");
   rdo2->selectedValue.Bind("groupVal");
   rdo3->selectedValue.Bind("groupVal");
+  tbx->text->Bind("csv_path");
 
   // 将lbl2的text属性绑定到id为groupVal的model上。
-  // 但是，这不是一个普通的绑定，因为groupVal的类型为int型
+  // 但是，这不是一个直接绑定，因为groupVal的类型为int型
   // 而lbl2的text表达的是wstring型，所以为了绑定到int型需要附加一个转换函数
-  // 负责将int类型的值转换成wstring。
+  // 负责将int类型的值转换成wstring。这种绑定方式称为间接绑定。
   // 转换函数可以使用函数指针，或者lambda表达式。
   // 编译器不能识别出模板类型，所以要添加一个模板提示（即Bind<int>(...)）。
+  // *间接绑定是单向绑定。即Model值的改变会自动反映到View上，
+  // *但是View上的改变不会反映到Model上。
   lbl2->text->Bind<int>("groupVal", [](const int * iptr, wstring& s){
     if (!(*iptr)){
       s = L"Select radio value.";
@@ -169,18 +179,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   // 设置事件处理 Controller
   btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);
   dialog->closebtn->AddEventHandler(WM_LBUTTONUP, MyController::CloseDialog);
-
-  // sqlite3 test
-  sqlite3 *db;
-  int rc = sqlite3_open("abc.db", &db);
-  if (rc){
-    MessageBox(NULL, L"Error opening SQLite3 database.", L"ERROR", MB_OK);
-  }
-  else{
-    MessageBox(NULL, L"opened SQLite3 database.", L"ERROR", MB_OK);
-  }
-
-  sqlite3_close(db);
+  btn2->AddEventHandler(WM_LBUTTONUP, MyController::ImportCSV);
 
   view->Show();
 }

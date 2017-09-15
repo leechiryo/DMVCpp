@@ -22,6 +22,11 @@ namespace mvc {
     UINT32 m_color;
 
     void UpdateCaretPos() {
+
+      if (m_insertPos > text->SafePtr()->length()){
+        m_insertPos = text->SafePtr()->length();
+      }
+
       float w = m_vtext->GetSubstrWidth(m_insertPos);
       float tbxw = static_cast<float>(m_right - m_left - 10);
       if (w > tbxw + m_hTranslation) {
