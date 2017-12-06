@@ -22,6 +22,22 @@ namespace mvc{
     int m_weekday;     //0~6: 周日到周六
 
   public:
+
+    DateTime(){
+      // create current time.
+      struct tm tm_;
+      time(&m_sectime);
+      localtime_s(&tm_, &m_sectime);
+      m_second = tm_.tm_sec;
+      m_year  =tm_.tm_year + 1900;
+      m_month = tm_.tm_mon + 1;
+      m_day = tm_.tm_mday;
+      m_hour = tm_.tm_hour;
+      m_min = tm_.tm_min;
+      m_second = tm_.tm_sec;
+      m_weekday = tm_.tm_wday;
+    }
+
     // timestr = 2011.01.02 22:00:26.739
     DateTime(const char * timestr){
 

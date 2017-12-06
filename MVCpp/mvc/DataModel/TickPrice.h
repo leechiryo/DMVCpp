@@ -3,7 +3,7 @@
 #include "DateTime.h"
 
 namespace mvc{
-  
+
   using namespace std;
 
   class TickPrice{
@@ -15,7 +15,7 @@ namespace mvc{
   public:
 
     // tickStr = time, ask, bid
-    TickPrice(const char * tickStr) : m_time{tickStr}{
+    TickPrice(const char * tickStr) : m_time{ tickStr }{
       const char * comma1 = strchr(tickStr, ',');
       if (!comma1){
         string errmsg = "Cannot create tick data from tick string: ";
@@ -37,15 +37,25 @@ namespace mvc{
       m_ask = ask;
     }
 
-    double GetAsk(){
+    TickPrice(const TickPrice& tp) : m_time{ tp.m_time }{
+      m_bid = tp.m_bid;
+      m_ask = tp.m_ask;
+    }
+
+    TickPrice(){
+      m_bid = 0.0;
+      m_ask = 0.0;
+    }
+
+    double GetAsk() const{
       return m_ask;
     }
 
-    double GetBid(){
+    double GetBid() const{
       return m_bid;
     }
 
-    const DateTime & GetDateTime(){
+    const DateTime & GetDateTime() const{
       return m_time;
     }
   };

@@ -6,6 +6,7 @@
 #include "Candle.h"
 #include "..\ViewElements\Rectangle.h"
 #include "..\DataModel\BarPrice.h"
+#include "..\DataModel\TickPrice.h"
 
 namespace mvc {
   class Chart : public View<Chart>
@@ -15,14 +16,38 @@ namespace mvc {
     vector<BarPrice> m_prices;
     size_t m_startBarIndex;
     shared_ptr<Rectangle> m_border;
+    shared_ptr<Text> m_info;
+
+    // controller method
+    static LRESULT Handle_LBUTTONDOWN(shared_ptr<Chart> cht, WPARAM wParam, LPARAM lParam) {
+      cht->m_startBarIndex++;
+      return 0;
+    }
+
+    static LRESULT Handle_RBUTTONDOWN(shared_ptr<Chart> cht, WPARAM wParam, LPARAM lParam) {
+      cht->m_startBarIndex--;
+      return 0;
+    }
 
   protected:
     virtual void CreateD2DResource() {
     }
 
   public:
-    ModelRef<wstring> *text;
+    ModelRef<TickPrice> lastTick;
+
     Chart(const D2DContext &context, Window * parentWnd): View(context, parentWnd){
+
+      m_info = AppendSubView<Text>(L"");
+      m_info->SetOffset(0, 0);
+
+      m_info->text.Link<TickPrice>(lastTick, [](const TickPrice * iptr, wstring& s){
+        wchar_t buf[100];
+        DateTime tt = iptr->GetDateTime();
+        swprintf_s(buf, L"%04d/%02d/%02d %02d:%02d:%02d %d", tt.GetYear(), tt.GetMonth(), tt.GetDay(), tt.GetHour(), tt.GetMinute(), tt.GetSecond(), tt.GetWeekDay());
+        s = buf;
+      });
+
 
       m_startBarIndex = 0;
 
@@ -33,6 +58,9 @@ namespace mvc {
 
       m_border = AppendSubView<Rectangle>();
       m_border->SetOffset(0, 0, 0, 0);
+
+      AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
+      AddEventHandler(WM_RBUTTONDOWN, Handle_RBUTTONDOWN);
     }
 
     void AddBar(const BarPrice & bp){
