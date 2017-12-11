@@ -1,6 +1,5 @@
 #pragma once
 
-#include "sqlite3\sqlite3.h"
 
 class MyController {
 public:
@@ -28,19 +27,9 @@ public:
   }
 
   static LRESULT ImportCSV(shared_ptr<mvc::Button> btn, WPARAM wParam, LPARAM lParam) {
-    auto m = mvc::getm<wstring>("csv_path");
 
-    // sqlite3 test
-    sqlite3 *db;
-    int rc = sqlite3_open("abc.db", &db);
-    if (rc){
-      MessageBox(NULL, L"Error opening SQLite3 database.", L"ERROR", MB_OK);
-    }
-    else{
-      MessageBox(NULL, L"opened SQLite3 database.", L"OK", MB_OK);
-    }
-
-    sqlite3_close(db);
+    auto cht = mvc::getv<mvc::Chart>("chart1");
+    cht->AutoPlay();
 
     return 0;
   }

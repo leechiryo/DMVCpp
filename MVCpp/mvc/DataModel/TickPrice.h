@@ -47,6 +47,12 @@ namespace mvc{
       m_ask = 0.0;
     }
 
+    void Update(const char * timeStr, double ask, double bid){
+      m_time = timeStr;
+      m_ask = ask;
+      m_bid = bid;
+    }
+
     double GetAsk() const{
       return m_ask;
     }

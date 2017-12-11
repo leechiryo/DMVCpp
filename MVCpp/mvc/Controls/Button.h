@@ -79,12 +79,17 @@ namespace mvc {
 
       float *addr = &m_maxRadius;
       m_ani = m_circle->AddAnimation([addr](Circle *c, int idx)->bool {
+
+        // 该动画总共有八帧（0-7），如果帧数超过8，则返回true表示动画结束。
         if (idx > 7) return true;
+
+        // 动画表现一个半径从小到大变化，同时有淡出效果的圆。
         float maxRadius = *addr;
         c->SetCircleRadius(maxRadius * idx / 6.0f);
         c->SetBackOpacity((7-idx)/6.0f);
         c->SetOpacity((7-idx)/6.0f);
         return false;
+
       });
 
       auto circle = m_circle;
