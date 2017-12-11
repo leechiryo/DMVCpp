@@ -57,10 +57,6 @@ namespace mvc {
       }
     }
 
-    void Link(ModelRef<T> &ref) {
-      m_fieldPtr = ref.SafePtr();
-    }
-
     template<typename M, typename S>
     void Bind(string modelId, S M::*mPtr, std::function<void(S*, T&)> convertFunc) {
       auto spModel = App::GetModel<M>(modelId);
@@ -90,8 +86,8 @@ namespace mvc {
     }
 
     template<typename S>
-    void Link(ModelRef<S> &ref, std::function<void(S*, T&)> convertFunc) {
-      m_source = ref.SafePtr();
+    void Link(ModelRef<S> &ref, std::function<void(ModelRef<S>*, T&)> convertFunc) {
+      m_source = &ref;
       m_convertFunc = *(reinterpret_cast<decltype(m_convertFunc)*>(&convertFunc));
       m_fieldPtr = &m_fallback;  // unbind
     }

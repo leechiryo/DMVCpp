@@ -9,6 +9,7 @@
 #include "..\DataModel\TickPrice.h"
 
 namespace mvc {
+
   class Chart : public View<Chart>
   {
   private:
@@ -17,6 +18,7 @@ namespace mvc {
     size_t m_startBarIndex;
     shared_ptr<Rectangle> m_border;
     shared_ptr<Text> m_info;
+
 
     // controller method
     static LRESULT Handle_LBUTTONDOWN(shared_ptr<Chart> cht, WPARAM wParam, LPARAM lParam) {
@@ -39,6 +41,7 @@ namespace mvc {
 
   public:
     ModelRef<TickPrice> lastTick;
+    ModelRef<TimeFrame> timeFrame;
 
     Chart(const D2DContext &context, Window * parentWnd): View(context, parentWnd){
 
@@ -48,13 +51,14 @@ namespace mvc {
       m_info = AppendSubView<Text>(L"");
       m_info->SetOffset(0, 0);
 
-      m_info->text.Link<TickPrice>(lastTick, [](const TickPrice * iptr, wstring& s){
+      m_info->text.Link<TickPrice>(lastTick, [](ModelRef<TickPrice> * iptr, wstring& s){
+        wchar_t * weekDays[7] = {L"Sun", L"Mon", L"Tue", L"Wed", L"Thu", L"Fri", L"Sat"};
         wchar_t buf[100];
-        DateTime tt = iptr->GetDateTime();
-        swprintf_s(buf, L"%04d/%02d/%02d %02d:%02d:%02d %d", tt.GetYear(), tt.GetMonth(), tt.GetDay(), tt.GetHour(), tt.GetMinute(), tt.GetSecond(), tt.GetWeekDay());
+        
+        DateTime tt = iptr->SafePtr()->GetDateTime();
+        swprintf_s(buf, L"%04d/%02d/%02d %02d:%02d:%02d %s", tt.GetYear(), tt.GetMonth(), tt.GetDay(), tt.GetHour(), tt.GetMinute(), tt.GetSecond(), weekDays[tt.GetWeekDay()]);
         s = buf;
       });
-
 
       m_startBarIndex = 0;
 
@@ -88,6 +92,15 @@ namespace mvc {
 
     virtual void DrawSelf() {
 
+      // 根据 lastTick 更新价格数组
+      if (m_prices.size() > 0 && m_prices[m_prices.size() - 1].GetDateTime().SameTime(lastTick->GetDateTime(), timeFrame)){
+        m_prices[m_prices.size() - 1].UpdateTick(lastTick);
+      }
+      else if(lastTick->GetBid() != 0 && lastTick->GetAsk() != 0){
+        BarPrice bp{ lastTick };
+        m_prices.push_back(bp);
+      }
+
       // 检查蜡烛图的开始位置是否超出价格数组的边界。
       if (m_prices.size() > 0 && m_startBarIndex > m_prices.size() - 1){
         m_startBarIndex = m_prices.size() - 1;
@@ -120,12 +133,19 @@ namespace mvc {
       for (size_t i = 0; i < candleCntInView; i++){
         double h = m_prices[m_startBarIndex + i].GetHigh();
         double l = m_prices[m_startBarIndex + i].GetLow();
-        double topoffset = (max - h) * m_calHeight / (max - min);
-        m_candles[i]->SetTopOffset(tof(topoffset));
-        double ratio = (h - l) / (max - min);
-        char bufHeight[10];
-        sprintf_s(bufHeight, "%.4f%%", ratio * 100);
-        m_candles[i]->SetHeight(bufHeight);
+
+        if (max > min){
+          double topoffset = (max - h) * m_calHeight / (max - min);
+          m_candles[i]->SetTopOffset(tof(topoffset));
+          double ratio = (h - l) / (max - min);
+          char bufHeight[10];
+          sprintf_s(bufHeight, "%.4f%%", ratio * 100);
+          m_candles[i]->SetHeight(bufHeight);
+        }
+        else{
+          m_candles[i]->SetTopOffset(tof(m_calHeight / 2));
+          m_candles[i]->SetHeight("0");
+        }
       }
 
     }

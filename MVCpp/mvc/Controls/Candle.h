@@ -74,7 +74,6 @@ namespace mvc {
         m_topShadow->SetHidden(false);
         m_rect->SetHidden(false);
         m_bottomShadow->SetHidden(false);
-
       }
 
       BarPrice& bp = m_prices->at((*m_startIndex) + m_offset);
@@ -85,30 +84,38 @@ namespace mvc {
       double c = bp.GetClose();
 
       if (m_oldH != h || m_oldO != o || m_oldL != l || m_oldC != c || m_oldCalHeight != m_calHeight){
-        double p1 = max(c, o);
-        double p2 = min(c, o);
-
-        double topHeight = (h - p1) * m_calHeight / (h - l);
-        double rectHeight = (p1 - p2) * m_calHeight / (h - l);
-        double bottomHeight = m_calHeight - topHeight - rectHeight;
-
-        char buf[20] = { 0 };
-
-        sprintf_s(buf, "%f", topHeight);
-        m_topShadow->SetHeight(buf);
-
-        sprintf_s(buf, "%f", rectHeight);
-        m_rect->SetTopOffset(tof(topHeight));
-        m_rect->SetHeight(buf);
-
-        sprintf_s(buf, "%f", bottomHeight);
-        m_bottomShadow->SetHeight(buf);
-
-        if (o > c) {
-          m_rect->SetBackColor(0xff0000);
+        if (h == l || m_calHeight == 0){
+          m_topShadow->SetHeight("0");
+          m_bottomShadow->SetHeight("0");
+          m_rect->SetTopOffset(tof(0));
+          m_rect->SetHeight("0");
         }
-        else if (o < c) {
-          m_rect->SetBackColor(0x00ff00);
+        else{
+          double p1 = max(c, o);
+          double p2 = min(c, o);
+
+          double topHeight = (h - p1) * m_calHeight / (h - l);
+          double rectHeight = (p1 - p2) * m_calHeight / (h - l);
+          double bottomHeight = m_calHeight - topHeight - rectHeight;
+
+          char buf[20] = { 0 };
+
+          sprintf_s(buf, "%f", topHeight);
+          m_topShadow->SetHeight(buf);
+
+          sprintf_s(buf, "%f", rectHeight);
+          m_rect->SetTopOffset(tof(topHeight));
+          m_rect->SetHeight(buf);
+
+          sprintf_s(buf, "%f", bottomHeight);
+          m_bottomShadow->SetHeight(buf);
+
+          if (o > c) {
+            m_rect->SetBackColor(0xff0000);
+          }
+          else if (o < c) {
+            m_rect->SetBackColor(0x00ff00);
+          }
         }
 
         m_oldH = h;

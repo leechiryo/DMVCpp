@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DateTime.h"
+#include "TickPrice.h"
 
 namespace mvc{
   
@@ -22,6 +23,13 @@ namespace mvc{
       m_close = close;
     }
 
+    BarPrice(const TickPrice & tp) : m_time{ tp.GetDateTime() }{
+      m_high = tp.GetBid();
+      m_open = tp.GetBid();
+      m_low = tp.GetBid();
+      m_close = tp.GetBid();
+    }
+
     double GetHigh(){
       return m_high;
     }
@@ -36,6 +44,18 @@ namespace mvc{
 
     double GetClose(){
       return m_close;
+    }
+
+    void UpdateTick(const TickPrice &tp){
+      m_close = tp.GetBid();
+
+      if (m_close > m_high){
+        m_high = m_close;
+      }
+
+      if (m_close < m_low){
+        m_low = m_close;
+      }
     }
 
     const DateTime & GetDateTime(){

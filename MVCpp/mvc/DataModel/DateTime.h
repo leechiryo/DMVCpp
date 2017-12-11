@@ -8,6 +8,10 @@ namespace mvc{
 
   using namespace std;
 
+  enum class TimeFrame {
+    ct1Min, ct5Min, ct15Min, ct1Hour, ct4Hour, ct1Day, ct1Week, ct1Mon
+  };
+
   class DateTime{
   private:
 
@@ -20,6 +24,7 @@ namespace mvc{
     int m_second; // 0~59
     int m_millisecond; // 0~999
     int m_weekday;     //0~6: 周日到周六
+    int m_weekCount; // 0~52 or 53
 
   public:
 
@@ -36,6 +41,35 @@ namespace mvc{
       m_min = tm_.tm_min;
       m_second = tm_.tm_sec;
       m_weekday = tm_.tm_wday;
+      m_weekCount = (tm_.tm_yday + 7 - (tm_.tm_wday ? (tm_.tm_wday - 1) : 6)) / 7;
+    }
+
+    bool SameTime(const DateTime& time, TimeFrame tf) const {
+      bool retval = true;
+
+      switch (tf){
+      case TimeFrame::ct1Min:
+        retval = retval && (m_min == time.m_min);
+      case TimeFrame::ct5Min:
+        retval = retval && ((m_min / 5) == (time.m_min / 5));
+      case TimeFrame::ct15Min:
+        retval = retval && ((m_min / 15) == (time.m_min / 15));
+      case TimeFrame::ct1Hour:
+        retval = retval && (m_hour == time.m_hour);
+      case TimeFrame::ct4Hour:
+        retval = retval && ((m_hour / 4) == (time.m_hour / 4));
+      case TimeFrame::ct1Day:
+        retval = retval && (m_day == time.m_day);
+      case TimeFrame::ct1Mon:
+        retval = retval && (m_year == time.m_year && m_month == time.m_month);
+        break;
+
+      case TimeFrame::ct1Week:
+        retval = retval && (m_year == time.m_year && m_weekCount == time.m_weekCount);
+        break;
+      }
+
+      return retval;
     }
 
     // timestr = 2011.01.02 22:00:26.739
@@ -74,6 +108,7 @@ namespace mvc{
       }
 
       m_weekday = tm_.tm_wday;
+      m_weekCount = (tm_.tm_yday + 7 - (tm_.tm_wday ? (tm_.tm_wday - 1) : 6)) / 7;
     }
 
     // 计算两个时间结构之间的差。结果是long long类型，单位是微秒。
@@ -84,35 +119,35 @@ namespace mvc{
       return retval;
     }
 
-    int GetYear(){
+    int GetYear() const{
       return m_year;
     }
 
-    int GetMonth(){
+    int GetMonth() const{
       return m_month;
     }
 
-    int GetDay(){
+    int GetDay() const{
       return m_day;
     }
 
-    int GetHour(){
+    int GetHour() const{
       return m_hour;
     }
 
-    int GetMinute(){
+    int GetMinute() const{
       return m_min;
     }
 
-    int GetSecond(){
+    int GetSecond() const{
       return m_second;
     }
 
-    int GetMillisecond(){
+    int GetMillisecond() const{
       return m_millisecond;
     }
 
-    int GetWeekDay(){
+    int GetWeekDay() const{
       return m_weekday;
     }
 
