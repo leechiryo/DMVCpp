@@ -20,12 +20,16 @@ namespace mvc {
 
     // controller method
     static LRESULT Handle_LBUTTONDOWN(shared_ptr<Chart> cht, WPARAM wParam, LPARAM lParam) {
-      cht->m_startBarIndex++;
+      if (cht->m_prices.size() > 0 && cht->m_startBarIndex < cht->m_prices.size() - 1){
+        cht->m_startBarIndex++;
+      }
       return 0;
     }
 
     static LRESULT Handle_RBUTTONDOWN(shared_ptr<Chart> cht, WPARAM wParam, LPARAM lParam) {
-      cht->m_startBarIndex--;
+      if (cht->m_startBarIndex > 0){
+        cht->m_startBarIndex--;
+      }
       return 0;
     }
 
@@ -37,6 +41,9 @@ namespace mvc {
     ModelRef<TickPrice> lastTick;
 
     Chart(const D2DContext &context, Window * parentWnd): View(context, parentWnd){
+
+      // 设置画面的裁剪区域。
+      SetInnerClipAreaOffset(0, 0, 0, 0);
 
       m_info = AppendSubView<Text>(L"");
       m_info->SetOffset(0, 0);
@@ -51,8 +58,13 @@ namespace mvc {
 
       m_startBarIndex = 0;
 
+      // 一个画面最多可以表示一百根蜡烛。
+      // 每根蜡烛都有一个指向价格数组的指针，蜡烛图中开始价格的索引，自身在所有蜡烛中的索引。
       for (int i = 0; i < 100; i++){
         shared_ptr<Candle> cdl = AppendSubView<Candle>(&m_prices, &m_startBarIndex, i);
+
+        // 横向的位置由蜡烛的索引决定。
+        cdl->SetLeftOffset(tof(10 * i + 5));
         m_candles.push_back(cdl);
       }
 
@@ -76,12 +88,12 @@ namespace mvc {
 
     virtual void DrawSelf() {
 
-      // 更新所有的蜡烛位置。
-      // 横向的位置由蜡烛的索引决定。
-      for (size_t i = 0; i < m_candles.size(); i++){
-        m_candles[i]->SetLeftOffset(tof(10 * i + 5));
+      // 检查蜡烛图的开始位置是否超出价格数组的边界。
+      if (m_prices.size() > 0 && m_startBarIndex > m_prices.size() - 1){
+        m_startBarIndex = m_prices.size() - 1;
       }
 
+      // 设置各个蜡烛的纵向位置
       // 纵向位置由最大和最小价格决定以及各蜡烛的价格决定。
 
       // 算出画面中可以表示的蜡烛数量。
@@ -90,9 +102,9 @@ namespace mvc {
       candleCntInView = candleCntInView > (m_prices.size() - m_startBarIndex) ? 
                         (m_prices.size() - m_startBarIndex) : candleCntInView;
 
+      // 算出画面中表示价格的最大值和最小值
       double min = DBL_MAX;
       double max = -DBL_MAX;
-
 
       for (size_t i = 0; i < candleCntInView; i++){
         if (m_prices.size() <= m_startBarIndex + i) break;
@@ -104,6 +116,7 @@ namespace mvc {
         min = l < min ? l : min;
       }
 
+      // 根据价格的最大值和最小值以及各个蜡烛的价格所占比例，算出各蜡烛的纵向位置。
       for (size_t i = 0; i < candleCntInView; i++){
         double h = m_prices[m_startBarIndex + i].GetHigh();
         double l = m_prices[m_startBarIndex + i].GetLow();

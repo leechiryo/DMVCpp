@@ -112,14 +112,14 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   BarPrice bp3{ "2017.01.23 12:22:23.221", 1.11658, 1.11423, 1.11212, 1.11212 };
   BarPrice bp4{ "2017.01.23 12:22:23.221", 1.11443, 1.11212, 1.11021, 1.11323 };
 
-  //auto cht = layer->AppendSubView<Chart>();
+  auto cht = layer->AppendSubView<Chart>();
   //cht->AddBar(bp1);
   //cht->AddBar(bp2);
   //cht->AddBar(bp3);
   //cht->AddBar(bp4);
 
-  //cht->SetGridPosition(8, 1);
-  //cht->SetOffset(100, 0, 0, 10);
+  cht->SetGridPosition(8, 1);
+  cht->SetOffset(0, 0, 0, 0);
 
   // 设置直线的阴影效果
   // 阴影效果通过以下特效的组合来达成。
