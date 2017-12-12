@@ -89,6 +89,7 @@
     <ClInclude Include="mvc\Controls\Chart.h" />
     <ClInclude Include="mvc\Controls\Dialog.h" />
     <ClInclude Include="mvc\Controls\Layer.h" />
+    <ClInclude Include="mvc\Controls\TickProvider.h" />
     <ClInclude Include="mvc\DataModel\BarPrice.h" />
     <ClInclude Include="mvc\DataModel\DateTime.h" />
     <ClInclude Include="mvc\DataModel\TickPrice.h" />

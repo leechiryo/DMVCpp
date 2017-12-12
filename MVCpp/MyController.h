@@ -28,8 +28,8 @@ public:
 
   static LRESULT ImportCSV(shared_ptr<mvc::Button> btn, WPARAM wParam, LPARAM lParam) {
 
-    auto cht = mvc::getv<mvc::Chart>("chart1");
-    cht->AutoPlay();
+    auto tp = mvc::getv<mvc::TickProvider>("tick_provider1");
+    tp->Start();
 
     return 0;
   }

@@ -11,6 +11,7 @@
 #include "mvc\Controls\Layer.h"
 #include "mvc\Controls\Dialog.h"
 #include "mvc\Controls\Chart.h"
+#include "mvc\Controls\TickProvider.h"
 #include "mvc\ViewElements\Image.h"
 #include "mvc\ViewElements\Line.h"
 #include <system_error>
@@ -40,7 +41,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   m<wstring>("my_model", L"Hello!");
   m<int>("groupVal", 0);
   m<wstring>("csv_path", L"");
-  m<TickPrice>("last_tick", { "2017.01.23 12:26:23.221", 1.11328, 1.11323 });
+  m<TickPrice>("last_tick", {});
 
   // 准备 View
   auto view = v("main_window", L"MVC++ テスト", 800, 600);
@@ -108,10 +109,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   line->SetGridPosition(7, 2);
   line->SetOffset(0, 0, 0, 0);
 
-  BarPrice bp1{ "2017.01.23 12:22:23.221", 1.12345, 1.12124, 1.11843, 1.11957 };
-  BarPrice bp2{ "2017.01.23 12:23:23.221", 1.12034, 1.11957, 1.11331, 1.11423 };
-  BarPrice bp3{ "2017.01.23 12:24:23.221", 1.11658, 1.11423, 1.11212, 1.11212 };
-  BarPrice bp4{ "2017.01.23 12:25:23.221", 1.11443, 1.11212, 1.11021, 1.11323 };
+  //BarPrice bp1{ "2017.01.23 12:22:23.221", 1.12345, 1.12124, 1.11843, 1.11957 };
+  //BarPrice bp2{ "2017.01.23 12:23:23.221", 1.12034, 1.11957, 1.11331, 1.11423 };
+  //BarPrice bp3{ "2017.01.23 12:24:23.221", 1.11658, 1.11423, 1.11212, 1.11212 };
+  //BarPrice bp4{ "2017.01.23 12:25:23.221", 1.11443, 1.11212, 1.11021, 1.11323 };
 
   auto cht = layer->AppendSubView<Chart>();
   //cht->AddBar(bp1);
@@ -121,9 +122,12 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   cht->SetGridPosition(8, 1);
   cht->SetOffset(0, 0, 0, 0);
-  //cht->lastTick.Bind("last_tick");
+  cht->lastTick.Bind("last_tick");
 
-  regv("chart1", cht);
+  auto tp = layer->AppendSubView<TickProvider>("data.db");
+  tp->updateTarget.Bind("last_tick");
+
+  regv("tick_provider1", tp);
 
   // 设置直线的阴影效果
   // 阴影效果通过以下特效的组合来达成。
