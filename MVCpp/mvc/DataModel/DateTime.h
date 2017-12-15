@@ -112,7 +112,7 @@ namespace mvc{
     }
 
     // 计算两个时间结构之间的差。结果是long long类型，单位是微秒。
-    long long operator-(const DateTime & t){
+    long long operator-(const DateTime & t) const{
       time_t diffsec = m_sectime - t.m_sectime;
       int diffmilli = m_millisecond - t.m_millisecond;
       long long retval = diffsec * 1000 + diffmilli;

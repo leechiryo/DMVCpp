@@ -41,7 +41,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   m<wstring>("my_model", L"Hello!");
   m<int>("groupVal", 0);
   m<wstring>("csv_path", L"");
-  m<TickPrice>("last_tick", {});
+  m<vector<TickPrice>>("last_tick", {});
 
   // 准备 View
   auto view = v("main_window", L"MVC++ テスト", 800, 600);
@@ -122,7 +122,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   cht->SetGridPosition(8, 1);
   cht->SetOffset(0, 0, 0, 0);
-  cht->lastTick.Bind("last_tick");
+  cht->ticks.Bind("last_tick");
 
   auto tp = layer->AppendSubView<TickProvider>("data.db");
   tp->updateTarget.Bind("last_tick");

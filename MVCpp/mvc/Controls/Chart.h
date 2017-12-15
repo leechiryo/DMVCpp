@@ -14,14 +14,14 @@ namespace mvc {
   {
   private:
     vector<shared_ptr<Candle>> m_candles;
-    vector<BarPrice> m_prices;
+    vector<BarPrice> m_bars;
     size_t m_startBarIndex;
     shared_ptr<Rectangle> m_border;
     shared_ptr<Text> m_info;
 
     // controller method
     static LRESULT Handle_LBUTTONDOWN(shared_ptr<Chart> cht, WPARAM wParam, LPARAM lParam) {
-      if (cht->m_prices.size() > 0 && cht->m_startBarIndex < cht->m_prices.size() - 1){
+      if (cht->m_bars.size() > 0 && cht->m_startBarIndex < cht->m_bars.size() - 1){
         cht->m_startBarIndex++;
       }
       return 0;
@@ -39,9 +39,8 @@ namespace mvc {
     }
 
   public:
-    ModelRef<TickPrice> lastTick;
+    ModelRef<vector<TickPrice>> ticks;
     ModelRef<TimeFrame> timeFrame;
-    ModelRef<int> speed;
 
     Chart(const D2DContext &context, Window * parentWnd): View(context, parentWnd){
 
@@ -51,13 +50,16 @@ namespace mvc {
       m_info = AppendSubView<Text>(L"");
       m_info->SetOffset(0, 0);
 
-      m_info->text.Link<TickPrice>(lastTick, [](ModelRef<TickPrice> * iptr, wstring& s){
+      m_info->text.Link<vector<TickPrice>>(ticks, [](ModelRef<vector<TickPrice>> * iptr, wstring& s){
         wchar_t * weekDays[7] = {L"Sun", L"Mon", L"Tue", L"Wed", L"Thu", L"Fri", L"Sat"};
         wchar_t buf[100];
         
-        DateTime tt = iptr->SafePtr()->GetDateTime();
-        swprintf_s(buf, L"%04d/%02d/%02d %02d:%02d:%02d %s", tt.GetYear(), tt.GetMonth(), tt.GetDay(), tt.GetHour(), tt.GetMinute(), tt.GetSecond(), weekDays[tt.GetWeekDay()]);
-        s = buf;
+        if (iptr->SafePtr()->size() > 0){
+          auto p = iptr->SafePtr()->back();
+          DateTime tt = p.GetDateTime();
+          swprintf_s(buf, L"%04d/%02d/%02d %02d:%02d:%02d %s", tt.GetYear(), tt.GetMonth(), tt.GetDay(), tt.GetHour(), tt.GetMinute(), tt.GetSecond(), weekDays[tt.GetWeekDay()]);
+          s = buf;
+        }
       });
 
       m_startBarIndex = 0;
@@ -65,7 +67,7 @@ namespace mvc {
       // 一个画面最多可以表示一百根蜡烛。
       // 每根蜡烛都有一个指向价格数组的指针，蜡烛图中开始价格的索引，自身在所有蜡烛中的索引。
       for (int i = 0; i < 100; i++){
-        shared_ptr<Candle> cdl = AppendSubView<Candle>(&m_prices, &m_startBarIndex, i);
+        shared_ptr<Candle> cdl = AppendSubView<Candle>(&m_bars, &m_startBarIndex, i);
 
         // 横向的位置由蜡烛的索引决定。
         cdl->SetLeftOffset(tof(10 * i + 5));
@@ -80,7 +82,7 @@ namespace mvc {
     }
 
     void AddBar(const BarPrice & bp){
-      m_prices.push_back(bp);
+      m_bars.push_back(bp);
     }
 
     void SetStartIndex(size_t idx){
@@ -92,18 +94,23 @@ namespace mvc {
 
     virtual void DrawSelf() {
 
-      // 根据 lastTick 更新价格数组
-      if (m_prices.size() > 0 && m_prices[m_prices.size() - 1].GetDateTime().SameTime(lastTick->GetDateTime(), timeFrame)){
-        m_prices[m_prices.size() - 1].UpdateTick(lastTick);
-      }
-      else if(lastTick->GetBid() != 0 && lastTick->GetAsk() != 0){
-        BarPrice bp{ lastTick };
-        m_prices.push_back(bp);
+      // 根据 ticks 更新价格数组
+      if (ticks->size() > 0){
+        for (auto & tick : *(ticks.SafePtr())){
+          if (m_bars.size() > 0 &&  m_bars[m_bars.size() - 1].GetDateTime().SameTime(tick.GetDateTime(), timeFrame)){
+            m_bars[m_bars.size() - 1].UpdateTick(tick);
+          }
+          else if(tick.GetBid() != 0 && tick.GetAsk() != 0){
+            BarPrice bp{ tick };
+            m_bars.push_back(bp);
+          }
+        }
+        ticks->clear();
       }
 
       // 检查蜡烛图的开始位置是否超出价格数组的边界。
-      if (m_prices.size() > 0 && m_startBarIndex > m_prices.size() - 1){
-        m_startBarIndex = m_prices.size() - 1;
+      if (m_bars.size() > 0 && m_startBarIndex > m_bars.size() - 1){
+        m_startBarIndex = m_bars.size() - 1;
       }
 
       // 设置各个蜡烛的纵向位置
@@ -112,18 +119,18 @@ namespace mvc {
       // 算出画面中可以表示的蜡烛数量。
       size_t candleCntInView = static_cast<size_t>((m_calWidth + 5) / 10);
       candleCntInView = candleCntInView > 100 ? 100 : candleCntInView;
-      candleCntInView = candleCntInView > (m_prices.size() - m_startBarIndex) ? 
-                        (m_prices.size() - m_startBarIndex) : candleCntInView;
+      candleCntInView = candleCntInView > (m_bars.size() - m_startBarIndex) ? 
+                        (m_bars.size() - m_startBarIndex) : candleCntInView;
 
       // 算出画面中表示价格的最大值和最小值
       double min = DBL_MAX;
       double max = -DBL_MAX;
 
       for (size_t i = 0; i < candleCntInView; i++){
-        if (m_prices.size() <= m_startBarIndex + i) break;
+        if (m_bars.size() <= m_startBarIndex + i) break;
 
-        double h = m_prices[m_startBarIndex + i].GetHigh();
-        double l = m_prices[m_startBarIndex + i].GetLow();
+        double h = m_bars[m_startBarIndex + i].GetHigh();
+        double l = m_bars[m_startBarIndex + i].GetLow();
 
         max = h > max ? h : max;
         min = l < min ? l : min;
@@ -131,8 +138,8 @@ namespace mvc {
 
       // 根据价格的最大值和最小值以及各个蜡烛的价格所占比例，算出各蜡烛的纵向位置。
       for (size_t i = 0; i < candleCntInView; i++){
-        double h = m_prices[m_startBarIndex + i].GetHigh();
-        double l = m_prices[m_startBarIndex + i].GetLow();
+        double h = m_bars[m_startBarIndex + i].GetHigh();
+        double l = m_bars[m_startBarIndex + i].GetLow();
 
         if (max > min){
           double topoffset = (max - h) * m_calHeight / (max - min);
@@ -147,8 +154,6 @@ namespace mvc {
           m_candles[i]->SetHeight("0");
         }
       }
-
     }
-
   };
 }
