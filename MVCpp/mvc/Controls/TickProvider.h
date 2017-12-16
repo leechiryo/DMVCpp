@@ -13,6 +13,8 @@ namespace mvc {
   private:
     shared_ptr<Animation> m_aniUpdateTick;
     sqlite3 *db;
+    TickPrice m_firstTp;
+    TickPrice m_lastTp;
 
   protected:
 
@@ -26,7 +28,7 @@ namespace mvc {
 
     TickProvider(const D2DContext &context, Window *parentWnd, const char *dbpath) : View(context, parentWnd) {
 
-      updateSpeed = 1;
+      updateSpeed = 16;
 
       // open sqlite3 database
       int rc = sqlite3_open(dbpath, &db);
@@ -49,17 +51,15 @@ namespace mvc {
         double ask = sqlite3_column_double(stmt, 1);
         double bid = sqlite3_column_double(stmt, 2);
 
-        TickPrice firstTp{ time, ask, bid };
-        TickPrice lastTp{ time, ask, bid };
-        TickPrice * ptrFirstTp = &firstTp;
-        TickPrice * ptrLastTp = &lastTp;
+        m_firstTp.Update(time, ask, bid);
+        m_lastTp.Update(time, ask, bid);
 
         // 设置一个动画函数用于更新lastTick
-        m_aniUpdateTick = AddAnimation([stmt, ptrFirstTp, ptrLastTp](TickProvider *c, int idx)->bool {
+        m_aniUpdateTick = AddAnimation([stmt](TickProvider *c, int idx)->bool {
 
           double timelimit = 1000 * (c->updateSpeed) * idx / 60;
-          while (ptrLastTp->GetDateTime() - ptrFirstTp->GetDateTime() <= timelimit){
-            c->updateTarget->push_back(*ptrLastTp);
+          while (c->m_lastTp.GetDateTime() - c->m_firstTp.GetDateTime() <= timelimit){
+            c->updateTarget->push_back(c->m_lastTp);
 
             // 从数据库中读取一次lastTick
             if (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -67,7 +67,7 @@ namespace mvc {
               double ask = sqlite3_column_double(stmt, 1);
               double bid = sqlite3_column_double(stmt, 2);
 
-              ptrLastTp->Update(time, ask, bid);
+              c->m_lastTp.Update(time, ask, bid);
             }
             else{
               // 如果无法从数据库中读取新的tick，则停止动画处理
