@@ -42,6 +42,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   m<int>("groupVal", 0);
   m<wstring>("csv_path", L"");
   m<vector<TickPrice>>("last_tick", {});
+  m<wstring>("btn2", L"START");
 
   // 准备 View
   auto view = v("main_window", L"MVC++ テスト", 800, 600);
@@ -123,6 +124,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   cht->SetGridPosition(8, 1);
   cht->SetOffset(0, 0, 0, 0);
   cht->ticks.Bind("last_tick");
+  regv("cht1", cht);
 
   auto tp = layer->AppendSubView<TickProvider>("data.db");
   tp->updateTarget.Bind("last_tick");
@@ -163,6 +165,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   rdo2->selectedValue.Bind("groupVal");
   rdo3->selectedValue.Bind("groupVal");
   tbx->text->Bind("csv_path");
+  btn2->title->Bind("btn2");
+  
 
   // 将lbl2的text属性绑定到id为groupVal的model上。
   // 但是，这不是一个直接绑定，因为groupVal的类型为int型

@@ -155,5 +155,9 @@ namespace mvc {
         }
       }
     }
+
+    void Reset(){
+      m_bars.clear();
+    }
   };
 }

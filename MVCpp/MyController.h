@@ -28,8 +28,20 @@ public:
 
   static LRESULT ImportCSV(shared_ptr<mvc::Button> btn, WPARAM wParam, LPARAM lParam) {
 
+    auto m = mvc::getm<wstring>("btn2");
     auto tp = mvc::getv<mvc::TickProvider>("tick_provider1");
-    tp->Start();
+    auto cht = mvc::getv<mvc::Chart>("cht1");
+
+    if (*m == L"START") {
+      (*m) = L"STOP";
+      cht->Reset();
+      tp->Start();
+    }
+    else {
+      (*m) = L"START";
+      tp->Stop();
+      cht->Reset();
+    }
 
     return 0;
   }
