@@ -29,7 +29,7 @@ namespace mvc {
 
     TickProvider(const D2DContext &context, Window *parentWnd, const char *dbpath) : View(context, parentWnd) {
 
-      updateSpeed = 32;
+      updateSpeed = 64;
       db = nullptr;
       stmt = nullptr;
 
@@ -87,7 +87,6 @@ namespace mvc {
     void Start(){
 
       if (m_aniUpdateTick){
-
         // DB 初始化
         if (stmt){
           sqlite3_finalize(stmt);

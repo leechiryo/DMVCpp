@@ -12,6 +12,11 @@ namespace mvc {
     SPModel m_spModel;  // 这个共享指针确保在访问Model时，程序的其它部分不会删除该Model。
 
   public:
+    ModelSafePtr(){
+      m_fieldPtr = nullptr;
+      m_spModel = nullptr;
+    }
+
     ModelSafePtr(T *p, const shared_ptr<ModelBase> &pm) {
       m_fieldPtr = p;
       m_spModel = pm;

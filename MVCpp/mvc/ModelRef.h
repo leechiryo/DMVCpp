@@ -57,6 +57,16 @@ namespace mvc {
       }
     }
 
+    void Bind(ModelSafePtr<T> &ref) {
+      m_wpModel = ref.get_spModel();
+      if (ref.isValid()) {
+        m_fieldPtr = ref;
+      }
+      else {
+        throw runtime_error("Can not bind to an object which is destroied.");
+      }
+    }
+
     template<typename M, typename S>
     void Bind(string modelId, S M::*mPtr, std::function<void(S*, T&)> convertFunc) {
       auto spModel = App::GetModel<M>(modelId);
@@ -86,7 +96,7 @@ namespace mvc {
     }
 
     template<typename S>
-    void Link(ModelRef<S> &ref, std::function<void(ModelRef<S>*, T&)> convertFunc) {
+    void Link(S &ref, std::function<void(S*, T&)> convertFunc) {
       m_source = &ref;
       m_convertFunc = *(reinterpret_cast<decltype(m_convertFunc)*>(&convertFunc));
       m_fieldPtr = &m_fallback;  // unbind

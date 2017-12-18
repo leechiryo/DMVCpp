@@ -18,6 +18,7 @@ namespace mvc {
     size_t m_startBarIndex;
     shared_ptr<Rectangle> m_border;
     shared_ptr<Text> m_info;
+    ModelSafePtr<wstring> m_infoText;
 
     // controller method
     static LRESULT Handle_LBUTTONDOWN(shared_ptr<Chart> cht, WPARAM wParam, LPARAM lParam) {
@@ -42,25 +43,16 @@ namespace mvc {
     ModelRef<vector<TickPrice>> ticks;
     ModelRef<TimeFrame> timeFrame;
 
-    Chart(const D2DContext &context, Window * parentWnd): View(context, parentWnd){
+    Chart(const D2DContext &context, Window * parentWnd) : View(context, parentWnd){
+
+      m_infoText = App::CreateModel<wstring>({});
 
       // 设置画面的裁剪区域。
       SetInnerClipAreaOffset(0, 0, 0, 0);
 
       m_info = AppendSubView<Text>(L"");
       m_info->SetOffset(0, 0);
-
-      m_info->text.Link<vector<TickPrice>>(ticks, [](ModelRef<vector<TickPrice>> * iptr, wstring& s){
-        wchar_t * weekDays[7] = {L"Sun", L"Mon", L"Tue", L"Wed", L"Thu", L"Fri", L"Sat"};
-        wchar_t buf[100];
-        
-        if (iptr->SafePtr()->size() > 0){
-          auto p = iptr->SafePtr()->back();
-          DateTime tt = p.GetDateTime();
-          swprintf_s(buf, L"%04d/%02d/%02d %02d:%02d:%02d %s", tt.GetYear(), tt.GetMonth(), tt.GetDay(), tt.GetHour(), tt.GetMinute(), tt.GetSecond(), weekDays[tt.GetWeekDay()]);
-          s = buf;
-        }
-      });
+      m_info->text.Bind(m_infoText);
 
       m_startBarIndex = 0;
 
@@ -97,14 +89,24 @@ namespace mvc {
       // 根据 ticks 更新价格数组
       if (ticks->size() > 0){
         for (auto & tick : *(ticks.SafePtr())){
-          if (m_bars.size() > 0 &&  m_bars[m_bars.size() - 1].GetDateTime().SameTime(tick.GetDateTime(), timeFrame)){
+          if (m_bars.size() > 0 && m_bars[m_bars.size() - 1].GetDateTime().SameTime(tick.GetDateTime(), timeFrame)){
             m_bars[m_bars.size() - 1].UpdateTick(tick);
           }
-          else if(tick.GetBid() != 0 && tick.GetAsk() != 0){
+          else if (tick.GetBid() != 0 && tick.GetAsk() != 0){
             BarPrice bp{ tick };
             m_bars.push_back(bp);
           }
         }
+
+        wchar_t * weekDays[7] = { L"Sun", L"Mon", L"Tue", L"Wed", L"Thu", L"Fri", L"Sat" };
+        wchar_t buf[100];
+        if (ticks->size() > 0){
+          auto p = ticks->back();
+          DateTime tt = p.GetDateTime();
+          swprintf_s(buf, L"%04d/%02d/%02d %02d:%02d:%02d %s", tt.GetYear(), tt.GetMonth(), tt.GetDay(), tt.GetHour(), tt.GetMinute(), tt.GetSecond(), weekDays[tt.GetWeekDay()]);
+          *m_infoText = buf;
+        }
+
         ticks->clear();
       }
 
@@ -119,8 +121,8 @@ namespace mvc {
       // 算出画面中可以表示的蜡烛数量。
       size_t candleCntInView = static_cast<size_t>((m_calWidth + 5) / 10);
       candleCntInView = candleCntInView > 100 ? 100 : candleCntInView;
-      candleCntInView = candleCntInView > (m_bars.size() - m_startBarIndex) ? 
-                        (m_bars.size() - m_startBarIndex) : candleCntInView;
+      candleCntInView = candleCntInView > (m_bars.size() - m_startBarIndex) ?
+        (m_bars.size() - m_startBarIndex) : candleCntInView;
 
       // 算出画面中表示价格的最大值和最小值
       double min = DBL_MAX;
