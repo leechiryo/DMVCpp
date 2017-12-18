@@ -19,6 +19,10 @@ namespace mvc {
     shared_ptr<Rectangle> m_border;
     shared_ptr<Text> m_info;
     ModelSafePtr<wstring> m_infoText;
+    shared_ptr<Line> m_line;
+    shared_ptr<Text> m_lastPrice;
+    ModelSafePtr<wstring> m_lastPriceText;
+    static const int RIGHT_MARGIN = 80;
 
     // controller method
     static LRESULT Handle_LBUTTONDOWN(shared_ptr<Chart> cht, WPARAM wParam, LPARAM lParam) {
@@ -46,6 +50,7 @@ namespace mvc {
     Chart(const D2DContext &context, Window * parentWnd) : View(context, parentWnd){
 
       m_infoText = App::CreateModel<wstring>({});
+      m_lastPriceText = App::CreateModel<wstring>({});
 
       // 设置画面的裁剪区域。
       SetInnerClipAreaOffset(0, 0, 0, 0);
@@ -67,7 +72,17 @@ namespace mvc {
       }
 
       m_border = AppendSubView<Rectangle>();
-      m_border->SetOffset(0, 0, 0, 0);
+      m_border->SetOffset(0, 0, tof(RIGHT_MARGIN), 0);
+
+      m_line = AppendSubView<Line>();
+      m_line->SetLeftOffset(0);
+      m_line->SetRightOffset(tof(RIGHT_MARGIN));
+      m_line->SetHeight("0");
+      m_line->SetColor(0xcccccc);
+
+      m_lastPrice = AppendSubView<Text>(L"");
+      m_lastPrice->SetRightOffset(0);
+      m_lastPrice->text.Bind(m_lastPriceText);
 
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
       AddEventHandler(WM_RBUTTONDOWN, Handle_RBUTTONDOWN);
@@ -156,6 +171,16 @@ namespace mvc {
           m_candles[i]->SetHeight("0");
         }
       }
+
+      // 设定当前价格的水平线
+      if (m_bars.size() > 0){
+        double lastPrice = m_bars.back().GetClose();
+        double topoffset = (max - lastPrice) * m_calHeight / (max - min);
+        *m_lastPriceText = std::to_wstring(lastPrice);
+        m_line->SetTopOffset(tof(topoffset));
+        m_lastPrice->SetTopOffset(tof(topoffset - 10));
+      }
+
     }
 
     void Reset(){
