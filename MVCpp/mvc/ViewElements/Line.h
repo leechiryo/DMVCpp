@@ -8,6 +8,8 @@
 namespace mvc {
   class Line : public Graphic<Line>
   {
+  private:
+
   public:
     Line(const D2DContext &context, Window * parentWnd) : Graphic(context, parentWnd){
     }
@@ -15,7 +17,7 @@ namespace mvc {
     virtual void DrawSelf() {
       D2D1_POINT_2F p1 = Point2D(m_left, m_top);
       D2D1_POINT_2F p2 = Point2D(m_right, m_bottom);
-      m_pContext->DrawLine(p1, p2, m_pBrush.ptr(), m_stroke);
+      m_pContext->DrawLine(p1, p2, m_pBrush.ptr(), m_stroke, m_pStrokeStyle.ptr());
     }
   };
 }

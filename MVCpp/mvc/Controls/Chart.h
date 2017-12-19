@@ -22,6 +22,10 @@ namespace mvc {
     shared_ptr<Line> m_line;
     shared_ptr<Text> m_lastPrice;
     ModelSafePtr<wstring> m_lastPriceText;
+
+    shared_ptr<Line> m_levels[20];
+    shared_ptr<Text> m_levelLabels[20];
+
     static const int RIGHT_MARGIN = 80;
 
     // controller method
@@ -79,10 +83,23 @@ namespace mvc {
       m_line->SetRightOffset(tof(RIGHT_MARGIN));
       m_line->SetHeight("0");
       m_line->SetColor(0xcccccc);
+      m_line->SetStrokeStyle(D2D1::StrokeStyleProperties(D2D1_CAP_STYLE_FLAT,
+        D2D1_CAP_STYLE_FLAT,
+        D2D1_CAP_STYLE_FLAT,
+        D2D1_LINE_JOIN_MITER,
+        10.0f,
+        D2D1_DASH_STYLE_DASH,
+        0.0f), nullptr, 0);
 
       m_lastPrice = AppendSubView<Text>(L"");
       m_lastPrice->SetRightOffset(0);
       m_lastPrice->text.Bind(m_lastPriceText);
+
+      for (int i = 0; i < 20; i++){
+        m_levels[i] = AppendSubView<Line>();
+        m_levels[i]->SetHidden(true);
+        m_levels[i]->SetRightOffset(tof(RIGHT_MARGIN));
+      }
 
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
       AddEventHandler(WM_RBUTTONDOWN, Handle_RBUTTONDOWN);

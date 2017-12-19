@@ -14,6 +14,7 @@ namespace mvc {
     // D2D 资源(离开作用域时会自动销毁)
     DxResource<ID2D1SolidColorBrush> m_pBackBrush;
     DxResource<ID2D1SolidColorBrush> m_pBrush;
+    DxResource<ID2D1StrokeStyle> m_pStrokeStyle;
 
     UINT32 m_color;
     float m_opacity;
@@ -70,6 +71,11 @@ namespace mvc {
 
     void SetStroke(float stroke) {
       m_stroke = stroke;
+    }
+
+    typedef HRESULT(ID2D1Factory1::*CreateStrokeStyle_TYPE)(const D2D1_STROKE_STYLE_PROPERTIES&, const FLOAT*, UINT, ID2D1StrokeStyle**);
+    void SetStrokeStyle(const D2D1_STROKE_STYLE_PROPERTIES &ss, const FLOAT *dashes, UINT dashesCount){
+      m_pStrokeStyle = App::s_pDirect2dFactory.GetResource<ID2D1StrokeStyle, CreateStrokeStyle_TYPE>(&ID2D1Factory1::CreateStrokeStyle, ss, dashes, dashesCount);
     }
 
     ~Graphic() {
