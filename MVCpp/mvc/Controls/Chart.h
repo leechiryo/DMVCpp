@@ -19,9 +19,8 @@ namespace mvc {
     shared_ptr<Rectangle> m_border;
     shared_ptr<Text> m_info;
     ModelSafePtr<wstring> m_infoText;
-    shared_ptr<Line> m_line;
-    shared_ptr<Text> m_lastPrice;
-    ModelSafePtr<wstring> m_lastPriceText;
+    shared_ptr<Line> m_tickLine;
+    shared_ptr<Label> m_tickLabel;
 
     shared_ptr<Line> m_levels[20];
     shared_ptr<Text> m_levelLabels[20];
@@ -54,7 +53,6 @@ namespace mvc {
     Chart(const D2DContext &context, Window * parentWnd) : View(context, parentWnd){
 
       m_infoText = App::CreateModel<wstring>({});
-      m_lastPriceText = App::CreateModel<wstring>({});
 
       // 设置画面的裁剪区域。
       SetInnerClipAreaOffset(0, 0, 0, 0);
@@ -78,27 +76,40 @@ namespace mvc {
       m_border = AppendSubView<Rectangle>();
       m_border->SetOffset(0, 0, tof(RIGHT_MARGIN), 0);
 
-      m_line = AppendSubView<Line>();
-      m_line->SetLeftOffset(0);
-      m_line->SetRightOffset(tof(RIGHT_MARGIN));
-      m_line->SetHeight("0");
-      m_line->SetColor(0xcccccc);
-      m_line->SetStrokeStyle(D2D1::StrokeStyleProperties(D2D1_CAP_STYLE_FLAT,
-        D2D1_CAP_STYLE_FLAT,
-        D2D1_CAP_STYLE_FLAT,
-        D2D1_LINE_JOIN_MITER,
-        10.0f,
-        D2D1_DASH_STYLE_DASH,
-        0.0f), nullptr, 0);
+      m_tickLine = AppendSubView<Line>();
+      m_tickLine->SetLeftOffset(0);
+      m_tickLine->SetRightOffset(tof(RIGHT_MARGIN));
+      m_tickLine->SetHeight("0");
+      m_tickLine->SetColor(0xcccccc);
 
-      m_lastPrice = AppendSubView<Text>(L"");
-      m_lastPrice->SetRightOffset(0);
-      m_lastPrice->text.Bind(m_lastPriceText);
+
+      m_tickLabel = AppendSubView<Label>(L"");
+      m_tickLabel->SetHidden(true);
+      m_tickLabel->SetRightOffset(0);
+      m_tickLabel->SetColor(0xffffff);
+      m_tickLabel->SetBackColor(0x0);
+      m_tickLabel->SetPadding(2, 0, 2, 0);
 
       for (int i = 0; i < 20; i++){
         m_levels[i] = AppendSubView<Line>();
         m_levels[i]->SetHidden(true);
+        m_levels[i]->SetLeftOffset(0);
         m_levels[i]->SetRightOffset(tof(RIGHT_MARGIN));
+        m_levels[i]->SetHeight("0");
+        m_levels[i]->SetColor(0xaaaaaa);
+        m_levels[i]->SetStrokeStyle(
+                       D2D1::StrokeStyleProperties(D2D1_CAP_STYLE_FLAT,
+                         D2D1_CAP_STYLE_FLAT,
+                         D2D1_CAP_STYLE_FLAT,
+                         D2D1_LINE_JOIN_MITER,
+                         10.0f,
+                         D2D1_DASH_STYLE_DASH,
+                         0.0f), 
+                       nullptr, 0);
+
+        m_levelLabels[i] = AppendSubView<Text>(L"");
+        m_levelLabels[i]->SetRightOffset(tof(RIGHT_MARGIN - 50));
+        m_levelLabels[i]->SetHidden(true);
       }
 
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
@@ -189,15 +200,46 @@ namespace mvc {
         }
       }
 
+      // 设定价格的水平线
+      if ((max - min) * 10000 > 5){
+        int minPoint = static_cast<int>(min * 10000);
+        int maxPoint = static_cast<int>(max * 10000);
+
+        int levelPace = static_cast<int>((maxPoint - minPoint) * 15 * 5 / m_calHeight);
+        if (levelPace < 5){
+          levelPace = 5;
+        }
+
+        int minLevel = minPoint - minPoint % levelPace;
+        int maxLevel = maxPoint - maxPoint % levelPace + levelPace;
+
+        for (int i = 0; i < 20; i++){
+          m_levels[i]->SetHidden(true);
+          m_levelLabels[i]->SetHidden(true);
+        }
+
+        for (int level = minLevel, i = 0; level <= maxLevel && i < 20; level += levelPace, i++){
+          double topoffset = (maxPoint - level) * m_calHeight / (maxPoint - minPoint);
+          m_levels[i]->SetTopOffset(tof(topoffset));
+          m_levels[i]->SetHidden(false);
+
+          wstring &labelText = *(m_levelLabels[i]->text.SafePtr());
+          labelText = to_wstring(level);
+          m_levelLabels[i]->SetTopOffset(tof(topoffset - 10));
+          m_levelLabels[i]->SetHidden(false);
+        }
+      }
+
       // 设定当前价格的水平线
       if (m_bars.size() > 0){
         double lastPrice = m_bars.back().GetClose();
         double topoffset = (max - lastPrice) * m_calHeight / (max - min);
-        *m_lastPriceText = std::to_wstring(lastPrice);
-        m_line->SetTopOffset(tof(topoffset));
-        m_lastPrice->SetTopOffset(tof(topoffset - 10));
+        wstring &labelText = *(m_tickLabel->text->SafePtr());
+        labelText = std::to_wstring(lastPrice);
+        m_tickLine->SetTopOffset(tof(topoffset));
+        m_tickLabel->SetTopOffset(tof(topoffset - 10));
+        m_tickLabel->SetHidden(false);
       }
-
     }
 
     void Reset(){
