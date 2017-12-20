@@ -29,16 +29,10 @@ namespace mvc {
 
     // controller method
     static LRESULT Handle_LBUTTONDOWN(shared_ptr<Chart> cht, WPARAM wParam, LPARAM lParam) {
-      if (cht->m_bars.size() > 0 && cht->m_startBarIndex < cht->m_bars.size() - 1){
-        cht->m_startBarIndex++;
-      }
       return 0;
     }
 
     static LRESULT Handle_RBUTTONDOWN(shared_ptr<Chart> cht, WPARAM wParam, LPARAM lParam) {
-      if (cht->m_startBarIndex > 0){
-        cht->m_startBarIndex--;
-      }
       return 0;
     }
 
@@ -76,20 +70,6 @@ namespace mvc {
       m_border = AppendSubView<Rectangle>();
       m_border->SetOffset(0, 0, tof(RIGHT_MARGIN), 0);
 
-      m_tickLine = AppendSubView<Line>();
-      m_tickLine->SetLeftOffset(0);
-      m_tickLine->SetRightOffset(tof(RIGHT_MARGIN));
-      m_tickLine->SetHeight("0");
-      m_tickLine->SetColor(0xcccccc);
-
-
-      m_tickLabel = AppendSubView<Label>(L"");
-      m_tickLabel->SetHidden(true);
-      m_tickLabel->SetRightOffset(0);
-      m_tickLabel->SetColor(0xffffff);
-      m_tickLabel->SetBackColor(0x0);
-      m_tickLabel->SetPadding(2, 0, 2, 0);
-
       for (int i = 0; i < 20; i++){
         m_levels[i] = AppendSubView<Line>();
         m_levels[i]->SetHidden(true);
@@ -111,6 +91,20 @@ namespace mvc {
         m_levelLabels[i]->SetRightOffset(tof(RIGHT_MARGIN - 50));
         m_levelLabels[i]->SetHidden(true);
       }
+
+      m_tickLine = AppendSubView<Line>();
+      m_tickLine->SetLeftOffset(0);
+      m_tickLine->SetRightOffset(tof(RIGHT_MARGIN));
+      m_tickLine->SetHeight("0");
+      m_tickLine->SetColor(0xcccccc);
+
+
+      m_tickLabel = AppendSubView<Label>(L"");
+      m_tickLabel->SetHidden(true);
+      m_tickLabel->SetRightOffset(0);
+      m_tickLabel->SetColor(0xffffff);
+      m_tickLabel->SetBackColor(0x0);
+      m_tickLabel->SetPadding(2, 0, 2, 0);
 
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
       AddEventHandler(WM_RBUTTONDOWN, Handle_RBUTTONDOWN);
@@ -162,7 +156,7 @@ namespace mvc {
       // 纵向位置由最大和最小价格决定以及各蜡烛的价格决定。
 
       // 算出画面中可以表示的蜡烛数量。
-      size_t candleCntInView = static_cast<size_t>((m_calWidth + 5) / 10);
+      size_t candleCntInView = static_cast<size_t>((m_calWidth - RIGHT_MARGIN + 5) / 10);
       candleCntInView = candleCntInView > 100 ? 100 : candleCntInView;
       candleCntInView = candleCntInView > (m_bars.size() - m_startBarIndex) ?
         (m_bars.size() - m_startBarIndex) : candleCntInView;
@@ -201,7 +195,7 @@ namespace mvc {
       }
 
       // 设定价格的水平线
-      if ((max - min) * 10000 > 5){
+      if ((max - min) * 10000 > 5) {
         int minPoint = static_cast<int>(min * 10000);
         int maxPoint = static_cast<int>(max * 10000);
 
