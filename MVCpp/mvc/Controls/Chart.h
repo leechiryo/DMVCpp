@@ -57,9 +57,9 @@ namespace mvc {
 
       m_startBarIndex = 0;
 
-      // 一个画面最多可以表示一百根蜡烛。
+      // 一个画面最多可以表示二百根蜡烛。
       // 每根蜡烛都有一个指向价格数组的指针，蜡烛图中开始价格的索引，自身在所有蜡烛中的索引。
-      for (int i = 0; i < 100; i++){
+      for (int i = 0; i < 200; i++){
         shared_ptr<Candle> cdl = AppendSubView<Candle>(&m_bars, &m_startBarIndex, i);
 
         // 横向的位置由蜡烛的索引决定。
@@ -157,9 +157,17 @@ namespace mvc {
 
       // 算出画面中可以表示的蜡烛数量。
       size_t candleCntInView = static_cast<size_t>((m_calWidth - RIGHT_MARGIN + 5) / 10);
-      candleCntInView = candleCntInView > 100 ? 100 : candleCntInView;
+      candleCntInView = candleCntInView > 200 ? 200 : candleCntInView;
       candleCntInView = candleCntInView > (m_bars.size() - m_startBarIndex) ?
         (m_bars.size() - m_startBarIndex) : candleCntInView;
+
+      if (candleCntInView > m_bars.size() - m_startBarIndex) {
+        candleCntInView = m_bars.size() - m_startBarIndex;
+      }
+      else
+      {
+        m_startBarIndex = m_bars.size() - candleCntInView;
+      }
 
       // 算出画面中表示价格的最大值和最小值
       double min = DBL_MAX;
