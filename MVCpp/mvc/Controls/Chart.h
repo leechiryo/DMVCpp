@@ -18,7 +18,6 @@ namespace mvc {
     size_t m_startBarIndex;
     shared_ptr<Rectangle> m_border;
     shared_ptr<Text> m_info;
-    ModelSafePtr<wstring> m_infoText;
     shared_ptr<Line> m_tickLine;
     shared_ptr<Label> m_tickLabel;
 
@@ -46,14 +45,11 @@ namespace mvc {
 
     Chart(const D2DContext &context, Window * parentWnd) : View(context, parentWnd){
 
-      m_infoText = App::CreateModel<wstring>({});
-
       // 设置画面的裁剪区域。
       SetInnerClipAreaOffset(0, 0, 0, 0);
 
       m_info = AppendSubView<Text>(L"");
       m_info->SetOffset(0, 0);
-      m_info->text.Bind(m_infoText);
 
       m_startBarIndex = 0;
 
@@ -98,7 +94,6 @@ namespace mvc {
       m_tickLine->SetHeight("0");
       m_tickLine->SetColor(0xcccccc);
 
-
       m_tickLabel = AppendSubView<Label>(L"");
       m_tickLabel->SetHidden(true);
       m_tickLabel->SetRightOffset(0);
@@ -135,13 +130,14 @@ namespace mvc {
           }
         }
 
-        wchar_t * weekDays[7] = { L"Sun", L"Mon", L"Tue", L"Wed", L"Thu", L"Fri", L"Sat" };
+        static wchar_t * weekDays[7] = { L"Sun", L"Mon", L"Tue", L"Wed", L"Thu", L"Fri", L"Sat" };
         wchar_t buf[100];
         if (ticks->size() > 0){
           auto p = ticks->back();
           DateTime tt = p.GetDateTime();
           swprintf_s(buf, L"%04d/%02d/%02d %02d:%02d:%02d %s", tt.GetYear(), tt.GetMonth(), tt.GetDay(), tt.GetHour(), tt.GetMinute(), tt.GetSecond(), weekDays[tt.GetWeekDay()]);
-          *m_infoText = buf;
+          wstring &infoText = *(m_info->text.SafePtr());
+          infoText = buf;
         }
 
         ticks->clear();

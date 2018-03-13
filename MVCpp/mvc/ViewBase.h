@@ -29,10 +29,17 @@ namespace mvc {
 
   class ViewBase {
 
+    typedef SPView(*CreateSubViewFromXML)(SPView, string, const map<string, wstring> &);
+
     template<typename T>
     friend class View;
-
     friend class Window;
+
+  public:
+    static map<string, CreateSubViewFromXML> & GetXmlLoaders(){
+      static map<string, CreateSubViewFromXML> s_xmlLoaders;
+      return s_xmlLoaders;
+    }
 
   private:
     bool m_hidden;

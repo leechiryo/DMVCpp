@@ -8,16 +8,43 @@
 using namespace std;
 
 namespace mvc {
+  class XmlTagInitializer;
+
   template<typename DerivedType>
   class View : public ViewBase {
     //typedef LRESULT(*ControllerMethod)(shared_ptr<DerivedType>, WPARAM, LPARAM);
     typedef std::function<LRESULT(shared_ptr<DerivedType>, WPARAM, LPARAM)> ControllerMethod;
     friend class App;
+    friend class XmlTagInitializer;
 
   private:
     map<int, vector<ControllerMethod> > m_eventHandlers;
 
+    static SPView CreateSubViewFromXML(SPView parentView, string id, const map<string, wstring> & settings){
+      if (id == ""){
+        return parentView->AppendSubView<DerivedType>(settings);
+      }
+      else{
+        auto newSubView = parentView->AppendSubView<DerivedType>(settings);
+        regv(id, newSubView);
+        return newSubView;
+      }
+    }
+
   protected:
+
+    static int SetXmlTag(string tag){
+      auto& s_xmlLoaders = GetXmlLoaders();
+      auto it = s_xmlLoaders.find(tag);
+      if (s_xmlLoaders.end() != it){
+        it->second = CreateSubViewFromXML;
+        return 0;
+      }
+      else{
+        s_xmlLoaders.insert({ tag, CreateSubViewFromXML });
+        return 1;
+      }
+    }
 
     virtual WPView GetClickedSubView(int pixelX, int pixelY) {
 
@@ -107,6 +134,7 @@ namespace mvc {
   public:
 
     View(const D2DContext &context, Window *parentWnd) : ViewBase(context, parentWnd) {
+
     }
 
     void AddEventHandler(int msg, ControllerMethod method) {

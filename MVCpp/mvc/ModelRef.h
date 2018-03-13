@@ -95,13 +95,6 @@ namespace mvc {
       }
     }
 
-    template<typename S>
-    void Link(S &ref, std::function<void(S*, T&)> convertFunc) {
-      m_source = &ref;
-      m_convertFunc = *(reinterpret_cast<decltype(m_convertFunc)*>(&convertFunc));
-      m_fieldPtr = &m_fallback;  // unbind
-    }
-
     void UnBind() {
       m_fieldPtr = &m_fallback;
     }

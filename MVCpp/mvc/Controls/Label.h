@@ -3,12 +3,14 @@
 #include "..\Types.h"
 #include "..\View.h"
 #include "..\ModelRef.h"
+#include "..\ViewElements\Rectangle.h"
 #include "..\ViewElements\Text.h"
 
 namespace mvc {
   class Label : public View<Label>
   {
   private:
+
     shared_ptr<Text> m_vtext;
     shared_ptr<Rectangle> m_labelBack;
 
@@ -41,6 +43,17 @@ namespace mvc {
       m_topPadding = 0;
       m_rightPadding = 0;
       m_bottomPadding = 0;
+    }
+
+    // 用于XML构造的函数
+    Label(const D2DContext &context, Window * parentWnd, const map<string, wstring> & xmlSettings)
+      : Label(context, parentWnd, L""){
+
+      auto it = xmlSettings.find("text");
+      if (it != xmlSettings.end()){
+        *(m_vtext->text.SafePtr()) = it->second;
+      }
+
     }
 
     ~Label() {

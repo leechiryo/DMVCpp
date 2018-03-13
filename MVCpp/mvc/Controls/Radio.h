@@ -58,6 +58,22 @@ namespace mvc {
       selectedValue = 0;
     }
 
+    // 用于XML构造的函数
+    Radio(const D2DContext &context, Window *parentWnd, const map<string, wstring> &xmlSettings) 
+      : Radio(context, parentWnd, 0, L"") {
+
+      auto it = xmlSettings.find("text");
+      if (it != xmlSettings.end()){
+        *(m_title->text.SafePtr()) = it->second;
+      }
+
+      auto it2 = xmlSettings.find("value");
+      if (it2 != xmlSettings.end()){
+        m_value = stoi(it2->second);
+      }
+
+    }
+
     ~Radio() {
     }
 

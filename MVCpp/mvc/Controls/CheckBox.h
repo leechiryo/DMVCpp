@@ -66,6 +66,15 @@ namespace mvc {
       checked = true;
     }
 
+    // 用于XML构造的函数
+    CheckBox(const D2DContext &context, Window *parentWnd, const map<string, wstring> &xmlSettings)
+      : CheckBox(context, parentWnd, L"") {
+      auto it = xmlSettings.find("text");
+      if (it != xmlSettings.end()){
+        *(m_title->text.SafePtr()) = it->second;
+      }
+    }
+
     ~CheckBox() {
     }
 

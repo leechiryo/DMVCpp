@@ -165,6 +165,17 @@ namespace mvc {
       this->text = &(m_vtext->text);
     }
 
+    // 用于XML构造的函数
+    TextBox(const D2DContext &context, Window *parentWnd, const map<string, wstring> &xmlSettings)
+      : TextBox(context, parentWnd, L"") {
+
+      auto it = xmlSettings.find("text");
+      if (it != xmlSettings.end()){
+        *(m_vtext->text.SafePtr()) = it->second;
+      }
+
+    }
+
     ~TextBox() {
     }
 

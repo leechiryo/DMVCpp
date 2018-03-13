@@ -124,14 +124,6 @@ namespace mvc {
       return ptr->get_safeptr();
     }
 
-    template <typename T>
-    static ModelSafePtr<T> CreateModel(const ConstructorProxy<Model<T>> &cp) {
-      shared_ptr<Model<T>> ptr = cp.GetSP();
-      // save the weak pointer of T to the object itself.
-      ptr->m_wpThis = ptr;
-      return ptr->get_safeptr();
-    }
-
     static void RemoveView(string id)
     {
       auto it = s_views.find(id);

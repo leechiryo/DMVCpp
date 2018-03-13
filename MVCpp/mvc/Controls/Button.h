@@ -11,7 +11,6 @@ namespace mvc {
   class Button : public View<Button>
   {
   private:
-
     // D2D 资源(离开作用域时会自动销毁)
     shared_ptr<Rectangle> m_backRect;
     shared_ptr<Text> m_title;
@@ -101,6 +100,15 @@ namespace mvc {
       AddEventHandler(WM_LBUTTONUP, Handle_LBUTTONUP);
 
       title = &(m_title->text);
+    }
+
+    // 用于XML构造的函数
+    Button(const D2DContext &context, Window *parentWnd, const map<string, wstring>& xmlSettings) 
+      : Button(context, parentWnd, L"") {
+      auto it = xmlSettings.find("text");
+      if (it != xmlSettings.end()){
+        *(m_title->text.SafePtr()) = it->second;
+      }
     }
 
     ~Button() {

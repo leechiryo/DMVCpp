@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "..\Types.h"
 #include "..\View.h"
@@ -89,6 +89,12 @@ namespace mvc {
         return false;
       });
     }
+
+    // 用于XML构造的函数
+    Dialog(const D2DContext &context, Window * parentWnd, const map<string, wstring> xmlSettings)
+      : Dialog(context, parentWnd){
+    }
+
 
     ~Dialog() {
     }
