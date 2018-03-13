@@ -105,6 +105,11 @@ namespace mvc {
       AddEventHandler(WM_RBUTTONDOWN, Handle_RBUTTONDOWN);
     }
 
+    // 用于XML构造的函数
+    Chart(const D2DContext &context, Window * parentWnd, const map<string, wstring> &xmlSettings) 
+      : Chart(context, parentWnd) {
+    }
+
     void AddBar(const BarPrice & bp){
       m_bars.push_back(bp);
     }

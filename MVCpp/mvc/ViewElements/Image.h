@@ -25,6 +25,17 @@ namespace mvc {
     Image(const D2DContext &context, Window *parentWnd, LPCWSTR fileName) : View(context, parentWnd), m_fileName( fileName ) {
     }
 
+    // 用于XML构造的函数
+    Image(const D2DContext &context, Window *parentWnd, const map<string, wstring> &xmlSettings) 
+      : Image(context, parentWnd, L""){
+
+      auto it = xmlSettings.find("src");
+      if (it != xmlSettings.end()){
+        m_fileName = it->second;
+      }
+
+    }
+
     virtual void DrawSelf() {
       auto size = m_pBitmap->GetSize();
       m_right = m_left + size.width;

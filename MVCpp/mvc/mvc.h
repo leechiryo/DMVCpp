@@ -40,7 +40,7 @@ namespace mvc {
 
   void regv(string id, SPView v);
 
-  void load_layout(xml_node<> *layoutNode, Layout * layout);
+  void load_layout(xml_node<> *layoutNode, SPView * view);
 
   void load_xml(xml_node<> *node, SPView currentView);
 

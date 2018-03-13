@@ -1,11 +1,4 @@
-﻿#include "Label.h"
-#include "Button.h"
-#include "CheckBox.h"
-#include "Dialog.h"
-#include "Layer.h"
-#include "Radio.h"
-#include "TextBox.h"
-
+﻿
 namespace mvc{
 
   // 一段用于初始化的代码，注册所有控件的XML tag定义。
@@ -21,6 +14,10 @@ namespace mvc{
       Layer::SetXmlTag("layer");
       Radio::SetXmlTag("radio");
       TextBox::SetXmlTag("textbox");
+      Image::SetXmlTag("img");
+      Line::SetXmlTag("line");
+      Chart::SetXmlTag("chart");
+      TickProvider::SetXmlTag("tickprovider");
 
     }
   } _xmlTagInitializer;
