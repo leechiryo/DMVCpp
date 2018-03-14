@@ -316,6 +316,10 @@ namespace mvc {
       m_layout.SetHeight(tof(m_bottom));
     }
 
+    HWND GetHandle(){
+      return m_hwnd;
+    }
+
     void Show() {
       if (m_hwnd) {
 

@@ -597,6 +597,8 @@ namespace mvc {
       auto vb = static_pointer_cast<ViewBase>(v);
       vb->CreateD2DResource();
       m_subViews.push_back(v);
+      App::RegisterSubView(v);
+
       return v;
     }
 

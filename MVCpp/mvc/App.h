@@ -19,8 +19,9 @@ namespace mvc {
 
   private:
     static ComLibrary s_comLib;
-    static map<string, SPView> s_views;
+    static map<string, SPView> s_viewsWithId;
     static map<string, SPModel> s_models;
+    static list<SPView> s_allViews;
 
   public:
 
@@ -103,10 +104,14 @@ namespace mvc {
     }
 
     static void RegisterSubView(string id, const SPView &v){
-      if (s_views.find(id) != s_views.end()) {
+      if (s_viewsWithId.find(id) != s_viewsWithId.end()) {
         throw std::runtime_error("The id exists already." + id);
       }
-      s_views.insert({ id, v });
+      s_viewsWithId.insert({ id, v });
+    }
+
+    static void RegisterSubView(const SPView &v){
+      s_allViews.push_back(v);
     }
 
     template <typename T>
@@ -126,12 +131,12 @@ namespace mvc {
 
     static void RemoveView(string id)
     {
-      auto it = s_views.find(id);
-      if (it != s_views.end()) {
+      auto it = s_viewsWithId.find(id);
+      if (it != s_viewsWithId.end()) {
         if (it->second) {
           it->second.reset();
         }
-        s_views.erase(it);
+        s_viewsWithId.erase(it);
       }
     }
 
@@ -148,10 +153,10 @@ namespace mvc {
 
     template <typename T>
     static shared_ptr<T> GetView(string id) {
-      if (s_views.find(id) == s_views.end()) {
-        throw std::runtime_error("Can not find the view.");
+      if (s_viewsWithId.find(id) == s_viewsWithId.end()) {
+        throw std::runtime_error("Can not find the view with id: " + id + ".");
       }
-      auto ptr = dynamic_pointer_cast<T, ViewBase>(s_views[id]);
+      auto ptr = dynamic_pointer_cast<T, ViewBase>(s_viewsWithId[id]);
       return ptr;
     }
 

@@ -4,7 +4,8 @@
 
 namespace mvc {
   ComLibrary App::s_comLib;
-  map<string, SPView> App::s_views;
+  map<string, SPView> App::s_viewsWithId;
+  list<SPView> App::s_allViews;
   map<string, SPModel> App::s_models;
 
   double App::DPI_SCALE_X = 1.0f;
