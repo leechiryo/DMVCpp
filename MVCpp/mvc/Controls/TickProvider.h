@@ -17,17 +17,7 @@ namespace mvc {
     TickPrice m_firstTp;
     TickPrice m_lastTp;
 
-  protected:
-
-    virtual void CreateD2DResource() {
-    }
-
-  public:
-
-    ModelRef<vector<TickPrice>> updateTarget;
-    ModelRef<int> updateSpeed;
-
-    TickProvider(const D2DContext &context, Window *parentWnd, const char *dbpath) : View(context, parentWnd) {
+    void tpConstructor(const D2DContext &context, Window *parentWnd, const char *dbpath){
 
       updateSpeed = 64;
       db = nullptr;
@@ -65,16 +55,28 @@ namespace mvc {
 
         return false;
       });
+    }
+
+  protected:
+
+    virtual void CreateD2DResource() {
+    }
+
+  public:
+
+    ModelRef<vector<TickPrice>> updateTarget;
+    ModelRef<int> updateSpeed;
+
+
+    TickProvider(const D2DContext &context, Window *parentWnd, const char *dbpath) : View(context, parentWnd) {
+
+      tpConstructor(context, parentWnd, dbpath);
 
     }
 
-    // need to be refactor
+    // 用于XML构造的函数
     TickProvider(const D2DContext &context, Window *parentWnd, const map<string, wstring> xmlSettings)
       : View(context, parentWnd) {
-
-      updateSpeed = 64;
-      db = nullptr;
-      stmt = nullptr;
 
       auto it = xmlSettings.find("src");
       if (it == xmlSettings.end()) {
@@ -86,40 +88,9 @@ namespace mvc {
       char * dbpath = new char[size];
       WideCharToMultiByte(CP_UTF8, 0, wideDbPath, -1, dbpath, size, NULL, NULL);
 
-      // open sqlite3 database
-      int rc = sqlite3_open(dbpath, &db);
+      tpConstructor(context, parentWnd, dbpath);
+
       delete[] dbpath;
-
-      if (rc) {
-        MessageBox(NULL, L"Error opening SQLite3 database.", L"ERROR", MB_OK);
-        return;
-      }
-
-      // 设置一个动画函数用于更新lastTick
-      m_aniUpdateTick = AddAnimation([](TickProvider *c, int idx)->bool {
-
-        if (!c->stmt) return true;
-
-        double timelimit = 1000 * (c->updateSpeed) * idx / 60;
-        while (c->m_lastTp.GetDateTime() - c->m_firstTp.GetDateTime() <= timelimit) {
-          c->updateTarget->push_back(c->m_lastTp);
-
-          // 从数据库中读取一次lastTick
-          if (sqlite3_step(c->stmt) == SQLITE_ROW) {
-            const char * time = (char *)sqlite3_column_text(c->stmt, 0);
-            double ask = sqlite3_column_double(c->stmt, 1);
-            double bid = sqlite3_column_double(c->stmt, 2);
-
-            c->m_lastTp.Update(time, ask, bid);
-          }
-          else {
-            // 如果无法从数据库中读取新的tick，则停止动画处理
-            return true;
-          }
-        }
-
-        return false;
-      });
 
     }
 
