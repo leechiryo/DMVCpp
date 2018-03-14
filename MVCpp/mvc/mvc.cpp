@@ -68,16 +68,20 @@ namespace mvc{
         // 当前节点既不是layout，也不是window。
         auto & s_xmlLoaders = ViewBase::GetXmlLoaders();
 
+        // 取得该tag对应的view初始化器。
         auto it = s_xmlLoaders.find(node->name());
 
+        // 如果存在对应的初始化器
         if (s_xmlLoaders.end() != it){
 
+          // 首先获取id
           char * id = "";
           xml_attribute<> * idAttr = node->first_attribute("id");
           if (idAttr){
             id = idAttr->value();
           }
 
+          // 将所有的属性值保存在哈希表中
           map<string, wstring> xmlSettings;
           for (const xml_attribute<>* a = node->first_attribute(); a; a = a->next_attribute()){
             char * aName = a->name();
@@ -92,9 +96,10 @@ namespace mvc{
             delete[] wide;
           }
 
+          // 生成view对象。
           currentView = it->second(parentView, id, xmlSettings);
 
-          // set common attribute.
+          // 对于通用的属性，设置view的对应的位置偏移，大小等状态
           int row = 0, col = 0;
           auto commonIt = xmlSettings.find("row");
           if (commonIt != xmlSettings.end()) {

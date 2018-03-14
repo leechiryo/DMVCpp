@@ -15,8 +15,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   _In_ LPTSTR    lpCmdLine,
   _In_ int       nCmdShow)
 {
-  App::Initialize();
-
   // 准备 Model
   m<wstring>("my_model", L"Hello!");
   m<int>("groupVal", 0);

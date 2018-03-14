@@ -1,4 +1,4 @@
-#include "App.h"
+﻿#include "App.h"
 #include "View.h"
 #include "Model.h"
 
@@ -13,4 +13,14 @@ namespace mvc {
   DxResource<ID2D1Factory1> App::s_pDirect2dFactory;
   DxResource<IDWriteFactory1> App::s_pDWriteFactory;
   DxResource<IWICImagingFactory> App::s_pImagingFactory;
+
+  class AppInitializer{
+  public:
+    AppInitializer(){
+
+      // 此处的代码会在main函数之前执行。
+      App::Initialize();
+
+    }
+  } _appInitializer;
 }
