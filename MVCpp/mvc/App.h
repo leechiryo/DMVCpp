@@ -163,7 +163,7 @@ namespace mvc {
     template <typename T>
     static ModelSafePtr<T> GetModel(string id) {
       if (s_models.find(id) == s_models.end()) {
-        throw std::runtime_error("Can not find the model.");
+        throw std::runtime_error("Can not find the model with id: " + id + ".");
       }
       auto ptrm = static_pointer_cast<Model<T>, ModelBase>(s_models[id]);
       return ptrm->get_safeptr();

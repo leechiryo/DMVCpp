@@ -97,7 +97,7 @@ namespace mvc{
           }
 
           // 生成view对象。
-          currentView = it->second(parentView, id, xmlSettings);
+          currentView = it->second(parentView, id, { xmlSettings });
 
           // 对于通用的属性，设置view的对应的位置偏移，大小等状态
           int row = 0, col = 0;

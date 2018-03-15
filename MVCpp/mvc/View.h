@@ -20,7 +20,8 @@ namespace mvc {
   private:
     map<int, vector<ControllerMethod> > m_eventHandlers;
 
-    static SPView CreateSubViewFromXML(SPView parentView, string id, const map<string, wstring> & settings){
+    static SPView CreateSubViewFromXML(SPView parentView, string id, const XmlSettings & xmlSettings){
+      auto settings = xmlSettings.settings;
       if (id == ""){
         return parentView->AppendSubView<DerivedType>(settings);
       }

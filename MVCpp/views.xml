@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <window id="main_window" text="MVC++ テスト" width="800" height="600">
-  <layer>
+  <layer id="layer1">
     <layout gridline="true">
       <rows>
         <row height="50"/>

@@ -27,9 +27,13 @@ namespace mvc {
     }
   };
 
+  struct XmlSettings{
+    map<string, wstring> settings;
+  };
+
   class ViewBase {
 
-    typedef SPView(*CreateSubViewFromXML)(SPView, string, const map<string, wstring> &);
+    typedef SPView(*CreateSubViewFromXML)(SPView, string, const XmlSettings &);
 
     template<typename T>
     friend class View;
