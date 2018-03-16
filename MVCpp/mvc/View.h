@@ -116,15 +116,18 @@ namespace mvc {
       }
 
       // 如果子元素未处理该消息，则本元素尝试处理它。
-      auto it = m_eventHandlers.find(msg);
-      if (it != m_eventHandlers.end()) {
-        auto spThis = m_wpThis.lock();
-        if (spThis) {
-          for (auto handler : it->second) {
-            result = handler(dynamic_pointer_cast<DerivedType>(spThis), wParam, lParam);
+      // 但，字符或者键盘事件需要本元素处在聚焦状态才处理。
+      if ((msg != WM_CHAR && msg != WM_KEYDOWN) || m_focused) {
+        auto it = m_eventHandlers.find(msg);
+        if (it != m_eventHandlers.end()) {
+          auto spThis = m_wpThis.lock();
+          if (spThis) {
+            for (auto handler : it->second) {
+              result = handler(dynamic_pointer_cast<DerivedType>(spThis), wParam, lParam);
+            }
+            eventView = m_wpThis;
+            return 1;  // 向父元素返回1表示本元素已经处理该消息。
           }
-          eventView = m_wpThis;
-          return 1;  // 向父元素返回1表示本元素已经处理该消息。
         }
       }
 
