@@ -24,6 +24,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     m<wstring>("csv_path", L"");
     m<vector<TickPrice>>("last_tick", {});
     m<wstring>("btn2", L"START");
+    m<wstring>("pubno", L"");
 
     // 准备 View
     load_views(IDR_RCDATA1);
@@ -39,6 +40,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     auto line = getv<Line>("line1");
     auto cht = getv<Chart>("cht1");
     auto tp = getv<TickProvider>("tick_provider1");
+    auto lbl3 = getv<Label>("lbl3");
+    auto lbl4 = getv<Label>("lbl4");
 
 
     // 设置直线的阴影效果
@@ -74,7 +77,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     btn2->title->Bind("btn2");
     cht->ticks.Bind("last_tick");
     tp->updateTarget.Bind("last_tick");
-
+    lbl3->text->Bind("pubno");
 
     // 将lbl2的text属性绑定到id为groupVal的model上。
     // 但是，这不是一个直接绑定，因为groupVal的类型为int型
@@ -100,6 +103,14 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);
     dialog->closebtn->AddEventHandler(WM_LBUTTONUP, MyController::CloseDialog);
     btn2->AddEventHandler(WM_LBUTTONUP, MyController::ImportCSV);
+
+    // 通过事件机制（TEXTCHANGED）来更新画面的表现
+    tbx->AddEventHandler(TextBox::MSG_TEXTCHANGED, MyController::OnTextChanged);
+
+    // 通过绑定来更新画面的表现
+    lbl4->text->Bind<wstring>("csv_path", [](const wstring * path, wstring& s) {
+      s = L"checked:" + (*path);
+    });
 
     view->Show();
   }

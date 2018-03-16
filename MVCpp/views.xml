@@ -34,6 +34,8 @@
     <img id="img1" src="01.png" row="8" col="1" left="0" top="0"/>
     <chart id="cht1" row="8" col="1" left="0" right="0" top="0" bottom="0"/>
     <tickprovider id="tick_provider1" src="data.db"/>
+    <label id="lbl3" row="1" col="2" left="5"/>
+    <label id="lbl4" row="2" col="2" left="5"/>
 
   </layer>
 

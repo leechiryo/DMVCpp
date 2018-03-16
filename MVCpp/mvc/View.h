@@ -20,12 +20,12 @@ namespace mvc {
   private:
     map<int, vector<ControllerMethod> > m_eventHandlers;
 
-    static SPView CreateSubViewFromXML(SPView parentView, string id, const XmlSettings & xmlSettings){
+    static SPView CreateSubViewFromXML(SPView parentView, string id, const XmlSettings & xmlSettings) {
       auto settings = xmlSettings.settings;
-      if (id == ""){
+      if (id == "") {
         return parentView->AppendSubView<DerivedType>(settings);
       }
-      else{
+      else {
         auto newSubView = parentView->AppendSubView<DerivedType>(settings);
         regv(id, newSubView);
         return newSubView;
@@ -34,14 +34,14 @@ namespace mvc {
 
   protected:
 
-    static int SetXmlTag(string tag){
+    static int SetXmlTag(string tag) {
       auto& s_xmlLoaders = GetXmlLoaders();
       auto it = s_xmlLoaders.find(tag);
-      if (s_xmlLoaders.end() != it){
+      if (s_xmlLoaders.end() != it) {
         it->second = CreateSubViewFromXML;
         return 0;
       }
-      else{
+      else {
         s_xmlLoaders.insert({ tag, CreateSubViewFromXML });
         return 1;
       }
@@ -63,7 +63,7 @@ namespace mvc {
 
       // 如果内部的所有子view都没有被选中，则说明自身被选中，
       // 于是返回自身。
-      if(m_canBeFocused) return m_wpThis;
+      if (m_canBeFocused) return m_wpThis;
       else {
         WPView emptyV;
         return emptyV;
@@ -154,15 +154,21 @@ namespace mvc {
 
     }
 
-    void FireEvent(int msg) {
+    void FireEvent(int msg, WPARAM wParam, LPARAM lParam) {
       if (m_eventHandlers.find(msg) != m_eventHandlers.end()) {
+        // 如果本view可以处理该事件，则处理之。
         auto spThis = m_wpThis.lock();
         if (spThis) {
           for (auto handler : m_eventHandlers[msg]) {
-            handler(dynamic_pointer_cast<DerivedType>(spThis), msg, 0);
+            handler(dynamic_pointer_cast<DerivedType>(spThis), wParam, lParam);
           }
         }
-        App::UpdateViews();
+      }
+      else {
+        // 如果本view不能处理该事件，则交给父view处理。
+        if (m_parentView) {
+          m_parentView->FireEvent(msg, wParam, lParam);
+        }
       }
     }
 
@@ -172,6 +178,6 @@ namespace mvc {
       }
       return nullptr;
     }
-    
+
   };
 }

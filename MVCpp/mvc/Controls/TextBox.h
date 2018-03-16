@@ -10,6 +10,9 @@
 namespace mvc {
   class TextBox : public View<TextBox> {
 
+  public:
+    static const int MSG_TEXTCHANGED = WM_USER + 1;
+
   private:
     shared_ptr<Rectangle> m_backRect;
     shared_ptr<Text> m_vtext;
@@ -53,6 +56,7 @@ namespace mvc {
         tbx->m_insertPos++;
         tbx->UpdateCaretPos();
         tbx->m_aniCaret->SetFrameIndex(9);
+        tbx->FireEvent(MSG_TEXTCHANGED, 0, 0);
       }
       return 0;
     }
@@ -63,12 +67,14 @@ namespace mvc {
         if (tbx->m_insertPos > 0) {
           (*(tbx->text))->erase(tbx->m_insertPos - 1, 1);
           tbx->m_insertPos--;
+          tbx->FireEvent(MSG_TEXTCHANGED, 0, 0);
         }
         tbx->m_aniCaret->SetFrameIndex(9);
         break;
       case VK_DELETE:
         if (tbx->m_insertPos < (*(tbx->text))->length()) {
           (*(tbx->text))->erase(tbx->m_insertPos, 1);
+          tbx->FireEvent(MSG_TEXTCHANGED, 0, 0);
         }
         tbx->m_aniCaret->SetFrameIndex(9);
         break;

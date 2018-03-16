@@ -26,6 +26,13 @@ public:
     return 0;
   }
 
+  static LRESULT OnTextChanged(shared_ptr<mvc::TextBox> tbx, WPARAM wParam, LPARAM lParam) {
+    auto pubno = mvc::getm<wstring>("pubno");
+    auto csvPath = mvc::getm<wstring>("csv_path");
+    *pubno = *csvPath;
+    return 0;
+  }
+
   static LRESULT ImportCSV(shared_ptr<mvc::Button> btn, WPARAM wParam, LPARAM lParam) {
 
     auto m = mvc::getm<wstring>("btn2");

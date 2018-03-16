@@ -100,7 +100,6 @@ namespace mvc {
     WPView m_wpThis;
     WPViewList m_subViews;
 
-
     double m_absLeft;
     double m_absTop;
 
@@ -112,6 +111,7 @@ namespace mvc {
     Window * m_parentWnd;
     Layout m_layout;
     Layout *m_parentLayout;
+	ViewBase * m_parentView;
 
     int m_row;
     int m_col;
@@ -368,6 +368,8 @@ namespace mvc {
     virtual void FocusChanged() {
     }
 
+	virtual void FireEvent(int msg, WPARAM wParam, LPARAM lParam) = 0;
+
     void SetHidden(bool hidden) {
       m_hidden = hidden;
     }
@@ -597,6 +599,7 @@ namespace mvc {
       auto v = make_shared<T>(m_pContext, m_parentWnd, args...);
       v->m_wpThis = v;
       v->m_parentLayout = &m_layout;
+	  v->m_parentView = this;
 
       auto vb = static_pointer_cast<ViewBase>(v);
       vb->CreateD2DResource();

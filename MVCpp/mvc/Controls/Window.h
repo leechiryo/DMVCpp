@@ -257,6 +257,7 @@ namespace mvc {
   public:
     Window(const WCHAR * title, int width, int height) : View({}, this) {
       m_hwnd = nullptr;
+      m_parentView = nullptr;
       m_canBeFocused = false;
 
       int a = m_animations.size();
