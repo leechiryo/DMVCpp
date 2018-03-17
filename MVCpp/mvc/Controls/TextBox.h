@@ -11,7 +11,7 @@ namespace mvc {
   class TextBox : public View<TextBox> {
 
   public:
-    static const int MSG_TEXTCHANGED = WM_USER + 1;
+    static const int MSG_TEXTCHANGED = WM_USER + 100;
 
   private:
     shared_ptr<Rectangle> m_backRect;

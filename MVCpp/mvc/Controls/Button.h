@@ -40,14 +40,16 @@ namespace mvc {
       return 0;
     }
 
-  protected:
-    virtual void MouseEnter(double x, double y) {
-      m_backRect->SetBackColor(0x999999);
+    static LRESULT Handle_MOUSEENTER(shared_ptr<Button> btn, WPARAM wParam, LPARAM lParam) {
+      btn->m_backRect->SetBackColor(0x999999);
+      return 0;
+    }
+    static LRESULT Handle_MOUSELEFT(shared_ptr<Button> btn, WPARAM wParam, LPARAM lParam) {
+      btn->m_backRect->SetBackColor(0xcccccc);
+      return 0;
     }
 
-    virtual void MouseLeft(double x, double y) {
-      m_backRect->SetBackColor(0xcccccc);
-    }
+  protected:
 
     virtual void CreateD2DResource() {
     }
@@ -98,6 +100,8 @@ namespace mvc {
 
       AddEventHandler(WM_LBUTTONDOWN, Handle_LBUTTONDOWN);
       AddEventHandler(WM_LBUTTONUP, Handle_LBUTTONUP);
+      AddEventHandler(MSG_MOUSEENTER, Handle_MOUSEENTER);
+      AddEventHandler(MSG_MOUSELEFT, Handle_MOUSELEFT);
 
       title = &(m_title->text);
     }

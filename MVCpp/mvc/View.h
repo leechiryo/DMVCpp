@@ -12,7 +12,6 @@ namespace mvc {
 
   template<typename DerivedType>
   class View : public ViewBase {
-    //typedef LRESULT(*ControllerMethod)(shared_ptr<DerivedType>, WPARAM, LPARAM);
     typedef std::function<LRESULT(shared_ptr<DerivedType>, WPARAM, LPARAM)> ControllerMethod;
     friend class App;
     friend class XmlTagInitializer;
@@ -47,28 +46,36 @@ namespace mvc {
       }
     }
 
+
     virtual WPView GetClickedSubView(int pixelX, int pixelY) {
 
       // 查询所有的子view，看其是否被选中。
+      // 如果鼠标坐标同时落在多个view上，则只有最上层（zOrder最大）的view被选中
+      WPView retval;
+      int maxZOrder = 0;
+
       for (auto v : m_subViews) {
         auto spv = v.lock();
         if (!spv) continue;
         if (spv->HitTest(pixelX, pixelY)) {
           // 如果鼠标事件发生时的坐标在子 View 的内部，
           // 则在该子view中进一步查询内部的子view。
-          auto csv = spv->GetClickedSubView(pixelX, pixelY);
-          if (!csv.expired()) return csv;
+          auto wphsv = spv->GetClickedSubView(pixelX, pixelY);
+          auto sphsv = wphsv.lock();
+          if (sphsv && sphsv->m_zOrder > maxZOrder) {
+            retval = wphsv;
+            maxZOrder = sphsv->m_zOrder;
+          }
+          else if (spv->m_zOrder > maxZOrder) {
+            retval = spv;
+            maxZOrder = spv->m_zOrder;
+          }
         }
       }
 
-      // 如果内部的所有子view都没有被选中，则说明自身被选中，
-      // 于是返回自身。
-      if (m_canBeFocused) return m_wpThis;
-      else {
-        WPView emptyV;
-        return emptyV;
-      }
+      return retval;
     }
+
 
     virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result, WPView &eventView) {
 
@@ -77,6 +84,7 @@ namespace mvc {
       int pixelY = 0;
       double dipX = 0.0;
       double dipY = 0.0;
+      SPView sphitv;
       if (msg == WM_MOUSEMOVE || msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP) {
         // 当鼠标事件发生时，先获取鼠标的坐标信息。
         pixelX = GET_X_LPARAM(lParam);
@@ -84,29 +92,20 @@ namespace mvc {
         dipX = AbsPixelX2RelX(pixelX);
         dipY = AbsPixelY2RelY(pixelY);
         isMouseEvent = true;
+
+        auto wphitv = GetHitSubView(pixelX, pixelY);
+        sphitv = wphitv.lock();
+
+        if (sphitv) {
+          UpdateMouseInState(sphitv, pixelX, pixelY);
+          sphitv->FireEvent(msg, wParam, lParam);
+        }
+        return 1;
       }
 
       for (auto v : m_subViews) {
         auto spv = v.lock();
         if (!spv) continue;
-        if (isMouseEvent) {
-          // 遇到 mouse 事件，判断该事件是否表示进入某个子 view
-          if (!spv->HitTest(pixelX, pixelY)) {
-            if (spv->m_mouseIn) {
-              spv->m_mouseIn = 0;
-              spv->MouseLeft(dipX, dipY);
-            }
-            // 如果鼠标事件发生时的坐标不在子 View 的内部，则跳过之后的事件处理(continue)，
-            // 仅当鼠标的坐标在元素所在区域内才处理它。
-            continue;
-          }
-          else {
-            if (!spv->m_mouseIn) {
-              spv->m_mouseIn = 1;
-              spv->MouseEnter(dipX, dipY);
-            }
-          }
-        }
 
         // 子元素先尝试处理该消息。
         char processed = spv->HandleMessage(msg, wParam, lParam, result, eventView);

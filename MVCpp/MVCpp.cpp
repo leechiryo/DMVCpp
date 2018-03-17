@@ -109,7 +109,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
     // 通过绑定来更新画面的表现
     lbl4->text->Bind<wstring>("csv_path", [](const wstring * path, wstring& s) {
-      s = L"checked:" + (*path);
+      s = L"bound: " + (*path);
     });
 
     view->Show();

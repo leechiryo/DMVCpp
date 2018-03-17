@@ -29,7 +29,7 @@ public:
   static LRESULT OnTextChanged(shared_ptr<mvc::TextBox> tbx, WPARAM wParam, LPARAM lParam) {
     auto pubno = mvc::getm<wstring>("pubno");
     auto csvPath = mvc::getm<wstring>("csv_path");
-    *pubno = *csvPath;
+    *pubno = L"event: " + *csvPath;
     return 0;
   }
 

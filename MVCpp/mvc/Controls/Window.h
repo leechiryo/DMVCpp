@@ -147,8 +147,8 @@ namespace mvc {
 
           pWnd->m_pContext->BeginDraw();
 
-          // 调用基类ViewBase的方法绘制.
-          pWnd->Draw();
+          // 调用基类ViewBase的方法绘制(同时重置zOrder为零)
+          pWnd->Draw(true);
 
           hr = pWnd->m_pContext->EndDraw();
 

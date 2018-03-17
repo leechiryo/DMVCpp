@@ -21,13 +21,13 @@ namespace mvc {
     char m_setWidth[20];
     char m_setHeight[20];
 
-    LayoutInfo(){
+    LayoutInfo() {
       m_setWidth[0] = 0;
       m_setHeight[0] = 0;
     }
   };
 
-  struct XmlSettings{
+  struct XmlSettings {
     map<string, wstring> settings;
   };
 
@@ -40,10 +40,13 @@ namespace mvc {
     friend class Window;
 
   public:
-    static map<string, CreateSubViewFromXML> & GetXmlLoaders(){
+    static map<string, CreateSubViewFromXML> & GetXmlLoaders() {
       static map<string, CreateSubViewFromXML> s_xmlLoaders;
       return s_xmlLoaders;
     }
+
+    static const int MSG_MOUSEENTER = WM_USER + 1;
+    static const int MSG_MOUSELEFT = WM_USER + 2;
 
   private:
     bool m_hidden;
@@ -68,7 +71,7 @@ namespace mvc {
       int periodCnt = 0;
 
       for (int i = 0; i < len; i++) {
-        if (str[i] == '.'){
+        if (str[i] == '.') {
           periodCnt++;
           if (periodCnt > 1) return false;
           continue;
@@ -76,7 +79,7 @@ namespace mvc {
 
         bool isDigit = (str[i] >= '0') && (str[i] <= '9');
 
-        if (!isDigit){
+        if (!isDigit) {
           return false;
         }
       }
@@ -111,10 +114,11 @@ namespace mvc {
     Window * m_parentWnd;
     Layout m_layout;
     Layout *m_parentLayout;
-	ViewBase * m_parentView;
+    ViewBase * m_parentView;
 
     int m_row;
     int m_col;
+    int m_zOrder = 0;
 
     float m_leftOffset;
     float m_topOffset;
@@ -139,14 +143,6 @@ namespace mvc {
     virtual void CreateD2DResource() = 0;
     virtual char HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam, LRESULT &result, WPView &eventView) = 0;
     virtual WPView GetClickedSubView(int pixelX, int pixelY) = 0;
-
-    // 如果需要处理鼠标进入事件，可以重载此函数
-    virtual void MouseEnter(double x, double y) {
-    }
-
-    // 如果需要处理鼠标离开事件，可以重载此函数
-    virtual void MouseLeft(double x, double y) {
-    }
 
     void SaveLayout(LayoutInfo *l) {
       l->m_leftOffset = m_leftOffset;
@@ -308,7 +304,7 @@ namespace mvc {
     }
 
     // 清空view及其子view的特效context。
-    void ClearEffectContext(){
+    void ClearEffectContext() {
       m_pBmpRT = nullptr;
       m_pEffectContext = nullptr;
 
@@ -368,7 +364,51 @@ namespace mvc {
     virtual void FocusChanged() {
     }
 
-	virtual void FireEvent(int msg, WPARAM wParam, LPARAM lParam) = 0;
+    virtual void FireEvent(int msg, WPARAM wParam, LPARAM lParam) = 0;
+
+    WPView GetHitSubView(int pixelX, int pixelY) {
+      // 查询所有的子view，看其是否处在鼠标位置。
+      WPView retval;
+      int maxZOrder = 0;
+
+      for (auto v : m_subViews) {
+        auto spv = v.lock();
+        if (!spv) continue;
+        if (spv->HitTest(pixelX, pixelY)) {
+          // 如果鼠标事件发生时的坐标在子 View 的内部，
+          // 则在该子view中进一步查询内部的子view。
+          auto wphsv = spv->GetHitSubView(pixelX, pixelY);
+          auto sphsv = wphsv.lock();
+          if (sphsv && sphsv->m_zOrder > maxZOrder) {
+            retval = wphsv;
+            maxZOrder = sphsv->m_zOrder;
+          }
+          else if (spv->m_zOrder > maxZOrder) {
+            retval = spv;
+            maxZOrder = spv->m_zOrder;
+          }
+        }
+      }
+
+      return retval;
+    }
+
+    void UpdateMouseInState(const SPView & miView, int pixelX, int pixelY) {
+      if (miView.get() != this && m_mouseIn) {
+        m_mouseIn = 0;
+        FireEvent(MSG_MOUSELEFT, pixelX, pixelY);
+      }
+      else if (miView.get() == this && !m_mouseIn) {
+        m_mouseIn = 1;
+        FireEvent(MSG_MOUSEENTER, pixelX, pixelY);
+      }
+
+      for (auto v : m_subViews) {
+        auto spv = v.lock();
+        if (!spv) continue;
+        spv->UpdateMouseInState(miView, pixelX, pixelY);
+      }
+    }
 
     void SetHidden(bool hidden) {
       m_hidden = hidden;
@@ -511,10 +551,30 @@ namespace mvc {
       m_showEffect = false;
     }
 
-    void Draw() {
+    void ClearZOrder() {
+      m_zOrder = 0;
+      for (auto v : m_subViews) {
+        auto spv = v.lock();
+        if (spv) {
+          spv->ClearZOrder();
+        }
+      }
+    }
 
-      if (m_hidden) return;
+    void Draw(int resetZOrder = 0) {
 
+      static int currentZOrder = 0;
+
+      if (resetZOrder) {
+        currentZOrder = 0;
+      }
+
+      if (m_hidden) {
+        if (m_zOrder) ClearZOrder();
+        return;
+      }
+
+      m_zOrder = currentZOrder++;
       DrawSelf();
 
       // 如果定义了内部剪切区域,则设置之
@@ -542,7 +602,7 @@ namespace mvc {
           if (ptr->m_effects.size() > 0 && ptr->m_showEffect) {
             // 如果已经设定了特效，则要先将view绘制到一个临时的bmp上，然后再对其
             // 施加指定的特效，然后再将最后的结果绘制到画面。
-            if (ptr->m_pEffectContext.NotSet()){
+            if (ptr->m_pEffectContext.NotSet()) {
               // 如果特效用的context还未创建，则创建它
               ptr->m_pBmpRT = m_pContext.CreateCompatibleRenderTarget();
               ptr->m_pEffectContext = ptr->m_pBmpRT.Query<ID2D1DeviceContext>();
@@ -599,7 +659,7 @@ namespace mvc {
       auto v = make_shared<T>(m_pContext, m_parentWnd, args...);
       v->m_wpThis = v;
       v->m_parentLayout = &m_layout;
-	  v->m_parentView = this;
+      v->m_parentView = this;
 
       auto vb = static_pointer_cast<ViewBase>(v);
       vb->CreateD2DResource();
