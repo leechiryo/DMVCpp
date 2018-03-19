@@ -7,6 +7,7 @@
 #include "..\ViewElements\Rectangle.h"
 #include "..\DataModel\BarPrice.h"
 #include "..\DataModel\TickPrice.h"
+#include "..\DataModel\Order.h"
 
 namespace mvc {
 
@@ -15,6 +16,10 @@ namespace mvc {
   private:
     vector<shared_ptr<Candle>> m_candles;
     vector<BarPrice> m_bars;
+    vector<Order> m_pendingOrders;
+    vector<Order> m_openOrders;
+    vector<Order> m_closedOrders;
+
     size_t m_startBarIndex;
     shared_ptr<Rectangle> m_border;
     shared_ptr<Text> m_info;

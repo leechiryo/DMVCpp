@@ -94,6 +94,7 @@
     <ClInclude Include="mvc\Controls\TickProvider.h" />
     <ClInclude Include="mvc\DataModel\BarPrice.h" />
     <ClInclude Include="mvc\DataModel\DateTime.h" />
+    <ClInclude Include="mvc\DataModel\Order.h" />
     <ClInclude Include="mvc\DataModel\TickPrice.h" />
     <ClInclude Include="mvc\ViewElements\Circle.h" />
     <ClInclude Include="mvc\ViewElements\Graphic.h" />
