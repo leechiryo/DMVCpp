@@ -94,6 +94,28 @@ namespace mvc {
         tbx->m_insertPos = tbx->m_insertPos < (*(tbx->text))->length() ? tbx->m_insertPos + 1 : (*(tbx->text))->length();
         tbx->m_aniCaret->SetFrameIndex(9);
         break;
+      case 'V':
+        if (GetKeyState(VK_CONTROL) & 0x8000){
+          // 按下Ctrl+V，将剪贴板的内容粘贴进来。
+          if (!IsClipboardFormatAvailable(CF_UNICODETEXT)) break;
+          if (!OpenClipboard(tbx->m_parentWnd->GetHandle())) break;
+          HGLOBAL hglb = GetClipboardData(CF_UNICODETEXT);
+          if (hglb){
+            LPTSTR str = (LPTSTR)GlobalLock(hglb);
+            if (str){
+              size_t len = _tcslen(str);
+              (*(tbx->text))->insert(tbx->m_insertPos, str);
+              tbx->m_insertPos += len;
+              tbx->UpdateCaretPos();
+              tbx->m_aniCaret->SetFrameIndex(9);
+
+              tbx->FireEvent(MSG_TEXTCHANGED, 0, 0);
+            }
+            GlobalUnlock(hglb);
+          }
+          CloseClipboard();
+        }
+        break;
       }
       tbx->UpdateCaretPos();
       return 0;
