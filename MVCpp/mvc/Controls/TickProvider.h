@@ -92,6 +92,10 @@ namespace mvc {
 
       delete[] dbpath;
 
+      it = xmlSettings.find("bind");
+      if (it != xmlSettings.end()){
+        updateTarget.Bind(Utf16To8(it->second.c_str()).get());
+      }
     }
 
     ~TickProvider() {

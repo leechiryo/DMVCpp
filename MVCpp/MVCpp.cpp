@@ -31,16 +31,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     auto view = getv<Window>("main_window");
     auto btn = getv<Button>("btn1");
     auto btn2 = getv<Button>("btn2");
-    auto rdo1 = getv<Radio>("rdo1");
-    auto rdo2 = getv<Radio>("rdo2");
-    auto rdo3 = getv<Radio>("rdo3");
     auto tbx = getv<TextBox>("tbx1");
     auto lbl2 = getv<Label>("lbl2");
     auto dialog = getv<Dialog>("dialog1");
     auto line = getv<Line>("line1");
-    auto cht = getv<Chart>("cht1");
-    auto tp = getv<TickProvider>("tick_provider1");
-    auto lbl3 = getv<Label>("lbl3");
     auto lbl4 = getv<Label>("lbl4");
 
 
@@ -69,15 +63,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     // 直接绑定。绑定的Model对象类型和自身表达的类型一致。
     // *直接绑定是双向绑定。即Model值的改变会自动反映到View上，
     // *反之View上的改变，也会自动反映到Model上。
-    btn->title->Bind("my_model");
-    rdo1->selectedValue.Bind("groupVal");
-    rdo2->selectedValue.Bind("groupVal");
-    rdo3->selectedValue.Bind("groupVal");
-    tbx->text->Bind("csv_path");
-    btn2->title->Bind("btn2");
-    cht->ticks.Bind("last_tick");
-    tp->updateTarget.Bind("last_tick");
-    lbl3->text->Bind("pubno");
+    // *直接绑定也可以在view.xml上定义。
 
     // 将lbl2的text属性绑定到id为groupVal的model上。
     // 但是，这不是一个直接绑定，因为groupVal的类型为int型
@@ -87,6 +73,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     // 编译器不能识别出模板类型，所以要添加一个模板提示（即Bind<int>(...)）。
     // *间接绑定是单向绑定。即Model值的改变会自动反映到View上，
     // *但是View上的改变不会反映到Model上。
+
+    // 关于性能：间接绑定时的处理函数会在每次画面更新时（画面以60hz的频率更新）
+    // 调用，因此处理函数对性能有相对严格的要求，只能进行相当简单的变换操作。
+    // 对于复杂的处理，应通过事件响应的方式实现。
     lbl2->text->Bind<int>("groupVal", [](const int * iptr, wstring& s){
       if (!(*iptr)){
         s = L"Select radio value.";
@@ -99,6 +89,11 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
       }
     });
 
+    // 通过绑定来更新画面的表现
+    lbl4->text->Bind<wstring>("csv_path", [](const wstring * path, wstring& s) {
+      s = L"bound: " + (*path);
+    });
+
     // 设置事件处理 Controller
     btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);
     dialog->closebtn->AddEventHandler(WM_LBUTTONUP, MyController::CloseDialog);
@@ -107,10 +102,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     // 通过事件机制（TEXTCHANGED）来更新画面的表现
     tbx->AddEventHandler(TextBox::MSG_TEXTCHANGED, MyController::OnTextChanged);
 
-    // 通过绑定来更新画面的表现
-    lbl4->text->Bind<wstring>("csv_path", [](const wstring * path, wstring& s) {
-      s = L"bound: " + (*path);
-    });
 
     view->Show();
   }

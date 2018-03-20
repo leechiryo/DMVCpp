@@ -113,6 +113,10 @@ namespace mvc {
     // 用于XML构造的函数
     Chart(const D2DContext &context, Window * parentWnd, const map<string, wstring> &xmlSettings) 
       : Chart(context, parentWnd) {
+      auto it = xmlSettings.find("bind");
+      if (it != xmlSettings.end()){
+        ticks.Bind(Utf16To8(it->second.c_str()).get());
+      }
     }
 
     void AddBar(const BarPrice & bp){

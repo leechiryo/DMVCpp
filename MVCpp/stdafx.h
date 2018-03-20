@@ -20,6 +20,7 @@
 #include <string>
 #include <memory>
 #include <wincodec.h>
+#include <functional>
 
 #include "resource.h"
 #include "rapidxml\rapidxml.hpp"
