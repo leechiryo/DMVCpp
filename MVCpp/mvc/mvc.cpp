@@ -171,5 +171,19 @@ namespace mvc{
     load_xml(doc.first_node(), nullptr);
   }
 
+  unique_ptr<wchar_t> Utf8To16(const char* utf8str){
+    size_t size = MultiByteToWideChar(CP_UTF8, 0, utf8str, -1, NULL, 0);
+    unique_ptr<wchar_t> retval{ new wchar_t[size] };
+    MultiByteToWideChar(CP_UTF8, 0, utf8str, -1, retval.get(), size);
+    return retval;
+  }
+
+  unique_ptr<char> Utf16To8(const wchar_t* utf16str){
+    size_t size = WideCharToMultiByte(CP_UTF8, 0, utf16str, -1, NULL, 0, NULL, NULL);
+    unique_ptr<char> retval{ new char[size] };
+    WideCharToMultiByte(CP_UTF8, 0, utf16str, -1, retval.get(), size, NULL, NULL);
+    return retval;
+  }
+
 }
 

@@ -46,4 +46,7 @@ namespace mvc {
 
   void load_views(int resourceId);
 
+  unique_ptr<wchar_t> Utf8To16(const char* utf8str);
+
+  unique_ptr<char> Utf16To8(const wchar_t* utf16str);
 }

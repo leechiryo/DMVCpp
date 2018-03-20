@@ -72,6 +72,10 @@ namespace mvc {
         m_value = stoi(it2->second);
       }
 
+      it = xmlSettings.find("bind");
+      if (it != xmlSettings.end()){
+        selectedValue.Bind(Utf16To8(it->second.c_str()).get());
+      }
     }
 
     ~Radio() {

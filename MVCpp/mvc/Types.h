@@ -76,6 +76,35 @@ namespace mvc {
     return static_cast<float>(x);
   }
 
+  class ScopeGuard{
+  public:
+    explicit ScopeGuard(std::function<void()> onExitScope)
+      : onExitScope_(onExitScope), dismissed_(false)
+    { }
+
+    ~ScopeGuard()
+    {
+      if (!dismissed_)
+      {
+        onExitScope_();
+      }
+    }
+
+    // 如果调用此函数，则会取消析构函数的执行。
+    void Dismiss()
+    {
+      dismissed_ = true;
+    }
+
+  private:
+    std::function<void()> onExitScope_;
+    bool dismissed_;
+
+  private: // noncopyable
+    ScopeGuard(ScopeGuard const&);
+    ScopeGuard& operator=(ScopeGuard const&);
+  };
+
   // Com 的初始化和销毁管理
   class ComLibrary{
   public:

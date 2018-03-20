@@ -38,7 +38,6 @@ namespace mvc {
     }
 
   public:
-    ModelRef<wstring> *text;
     shared_ptr<Button> closebtn;
     Dialog(const D2DContext &context, Window * parentWnd) : View(context, parentWnd){
       m_backrect = AppendSubView<RoundRectangle>();

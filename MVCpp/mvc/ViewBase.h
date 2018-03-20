@@ -366,6 +366,10 @@ namespace mvc {
 
     virtual void FireEvent(int msg, WPARAM wParam, LPARAM lParam) = 0;
 
+    Window* GetParentWnd(){
+      return m_parentWnd;
+    }
+
     WPView GetHitSubView(int pixelX, int pixelY) {
       // 查询所有的子view，看其是否处在鼠标位置。
       WPView retval;

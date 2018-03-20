@@ -202,6 +202,11 @@ namespace mvc {
         *(m_vtext->text.SafePtr()) = it->second;
       }
 
+      it = xmlSettings.find("bind");
+      if (it != xmlSettings.end()){
+        text->Bind(Utf16To8(it->second.c_str()).get());
+      }
+
     }
 
     ~TextBox() {

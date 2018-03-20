@@ -73,6 +73,11 @@ namespace mvc {
       if (it != xmlSettings.end()){
         *(m_title->text.SafePtr()) = it->second;
       }
+
+      it = xmlSettings.find("bind");
+      if (it != xmlSettings.end()){
+        checked.Bind(Utf16To8(it->second.c_str()).get());
+      }
     }
 
     ~CheckBox() {

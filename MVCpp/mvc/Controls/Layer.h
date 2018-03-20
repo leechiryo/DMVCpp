@@ -16,7 +16,6 @@ namespace mvc {
     }
 
   public:
-    ModelRef<wstring> *text;
     Layer(const D2DContext &context, Window * parentWnd): View(context, parentWnd){
       m_leftOffset = 0;
       m_rightOffset = 0;
