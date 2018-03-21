@@ -1,6 +1,5 @@
 #pragma once
 
-
 class MyController {
 public:
   static LRESULT UpdateTitle(shared_ptr<mvc::Button> btn, WPARAM wParam, LPARAM lParam) {
@@ -30,6 +29,20 @@ public:
     auto pubno = mvc::getm<wstring>("pubno");
     auto csvPath = mvc::getm<wstring>("csv_path");
     *pubno = L"event: " + *csvPath;
+
+    auto cht = mvc::getv<mvc::Chart>("cht1");
+
+    auto & tp = cht->LastTick();
+    mvc::OrderInfo oi;
+    oi.open = tp.GetBid();
+    oi.direction = mvc::OrderDirection::Buy;
+    oi.stop = oi.open - 0.0020;
+    oi.limit = oi.open + 0.0100;
+    oi.status = mvc::OrderStatus::Open;
+    oi.openTime = tp.GetDateTime();
+
+    cht->AddOrder(oi);
+
     return 0;
   }
 

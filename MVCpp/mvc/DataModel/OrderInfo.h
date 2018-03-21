@@ -2,15 +2,19 @@
 
 #include "DateTime.h"
 
-namespace mvc{
+namespace mvc {
   using namespace std;
 
-  enum class OrderStatus{Pending, Open, Close};
+  enum class OrderStatus { Pending, Open, Close };
+  enum class OrderDirection { Buy, Sell };
 
-  struct Order{
+  struct OrderInfo {
 
     // 仓位状态
     OrderStatus status;
+
+    // 仓位方向
+    OrderDirection direction;
 
     // 开仓时间(只有状态为Open或Close时才有意义)
     DateTime openTime;
@@ -26,6 +30,13 @@ namespace mvc{
 
     // 止盈(如未设置，则为零)
     double limit;
+
+    OrderInfo() {
+      open = 0.0;
+      close = 0.0;
+      stop = 0.0;
+      limit = 0.0;
+    }
 
   };
 }

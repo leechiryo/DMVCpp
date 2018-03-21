@@ -7,7 +7,8 @@
 #include "..\ViewElements\Rectangle.h"
 #include "..\DataModel\BarPrice.h"
 #include "..\DataModel\TickPrice.h"
-#include "..\DataModel\Order.h"
+#include "..\DataModel\OrderInfo.h"
+#include "PriceLine.h"
 
 namespace mvc {
 
@@ -16,9 +17,7 @@ namespace mvc {
   private:
     vector<shared_ptr<Candle>> m_candles;
     vector<BarPrice> m_bars;
-    vector<Order> m_pendingOrders;
-    vector<Order> m_openOrders;
-    vector<Order> m_closedOrders;
+    vector<OrderInfo> m_orders;
 
     size_t m_startBarIndex;
     shared_ptr<Rectangle> m_border;
@@ -28,6 +27,13 @@ namespace mvc {
 
     shared_ptr<Line> m_levels[20];
     shared_ptr<Text> m_levelLabels[20];
+
+    vector<shared_ptr<PriceLine>> m_orderLines;
+
+    TickPrice m_lastTick;
+
+    double minPriceInChart;
+    double maxPriceInChart;
 
     static const int RIGHT_MARGIN = 80;
 
@@ -48,7 +54,7 @@ namespace mvc {
     ModelRef<vector<TickPrice>> ticks;
     ModelRef<TimeFrame> timeFrame;
 
-    Chart(const D2DContext &context, Window * parentWnd) : View(context, parentWnd){
+    Chart(const D2DContext &context, Window * parentWnd) : View(context, parentWnd) {
 
       // 设置画面的裁剪区域。
       SetInnerClipAreaOffset(0, 0, 0, 0);
@@ -60,7 +66,7 @@ namespace mvc {
 
       // 一个画面最多可以表示二百根蜡烛。
       // 每根蜡烛都有一个指向价格数组的指针，蜡烛图中开始价格的索引，自身在所有蜡烛中的索引。
-      for (int i = 0; i < 200; i++){
+      for (int i = 0; i < 200; i++) {
         shared_ptr<Candle> cdl = AppendSubView<Candle>(&m_bars, &m_startBarIndex, i);
 
         // 横向的位置由蜡烛的索引决定。
@@ -71,7 +77,7 @@ namespace mvc {
       m_border = AppendSubView<Rectangle>();
       m_border->SetOffset(0, 0, tof(RIGHT_MARGIN), 0);
 
-      for (int i = 0; i < 20; i++){
+      for (int i = 0; i < 20; i++) {
         m_levels[i] = AppendSubView<Line>();
         m_levels[i]->SetHidden(true);
         m_levels[i]->SetLeftOffset(0);
@@ -79,14 +85,14 @@ namespace mvc {
         m_levels[i]->SetHeight("0");
         m_levels[i]->SetColor(0xaaaaaa);
         m_levels[i]->SetStrokeStyle(
-                       D2D1::StrokeStyleProperties(D2D1_CAP_STYLE_FLAT,
-                         D2D1_CAP_STYLE_FLAT,
-                         D2D1_CAP_STYLE_FLAT,
-                         D2D1_LINE_JOIN_MITER,
-                         10.0f,
-                         D2D1_DASH_STYLE_DASH,
-                         0.0f), 
-                       nullptr, 0);
+          D2D1::StrokeStyleProperties(D2D1_CAP_STYLE_FLAT,
+            D2D1_CAP_STYLE_FLAT,
+            D2D1_CAP_STYLE_FLAT,
+            D2D1_LINE_JOIN_MITER,
+            10.0f,
+            D2D1_DASH_STYLE_DASH,
+            0.0f),
+          nullptr, 0);
 
         m_levelLabels[i] = AppendSubView<Text>(L"");
         m_levelLabels[i]->SetRightOffset(tof(RIGHT_MARGIN - 50));
@@ -111,20 +117,39 @@ namespace mvc {
     }
 
     // 用于XML构造的函数
-    Chart(const D2DContext &context, Window * parentWnd, const map<string, wstring> &xmlSettings) 
+    Chart(const D2DContext &context, Window * parentWnd, const map<string, wstring> &xmlSettings)
       : Chart(context, parentWnd) {
       auto it = xmlSettings.find("bind");
-      if (it != xmlSettings.end()){
+      if (it != xmlSettings.end()) {
         ticks.Bind(Utf16To8(it->second.c_str()).get());
       }
     }
 
-    void AddBar(const BarPrice & bp){
+    void AddBar(const BarPrice & bp) {
       m_bars.push_back(bp);
     }
 
-    void SetStartIndex(size_t idx){
+    void SetStartIndex(size_t idx) {
       m_startBarIndex = idx;
+    }
+
+    void AddOrder(const OrderInfo &oi) {
+      m_orders.push_back(oi);
+      auto & order = m_orders.back();
+
+      auto v = AppendSubView<PriceLine>(PriceType::Entry, &order, &minPriceInChart, &maxPriceInChart);
+      v->SetLeftOffset(0.0f);
+      v->SetRightOffset(0.0f);
+      v = AppendSubView<PriceLine>(PriceType::StopLoss, &order, &minPriceInChart, &maxPriceInChart);
+      v->SetLeftOffset(0.0f);
+      v->SetRightOffset(0.0f);
+      v = AppendSubView<PriceLine>(PriceType::TakeProfit, &order, &minPriceInChart, &maxPriceInChart);
+      v->SetLeftOffset(0.0f);
+      v->SetRightOffset(0.0f);
+    }
+
+    TickPrice & LastTick() {
+      return m_lastTick;
     }
 
     ~Chart() {
@@ -133,12 +158,14 @@ namespace mvc {
     virtual void DrawSelf() {
 
       // 根据 ticks 更新价格数组
-      if (ticks->size() > 0){
-        for (auto & tick : *(ticks.SafePtr())){
-          if (m_bars.size() > 0 && m_bars[m_bars.size() - 1].GetDateTime().SameTime(tick.GetDateTime(), timeFrame)){
+      if (ticks->size() > 0) {
+        for (auto & tick : *(ticks.SafePtr())) {
+          if (m_bars.size() > 0 && m_bars[m_bars.size() - 1].GetDateTime().SameTime(tick.GetDateTime(), timeFrame)) {
+            // 如果最新的tick与当前蜡烛属于同一时间范畴，则更新当前蜡烛
             m_bars[m_bars.size() - 1].UpdateTick(tick);
           }
-          else if (tick.GetBid() != 0 && tick.GetAsk() != 0){
+          else if (tick.GetBid() != 0 && tick.GetAsk() != 0) {
+            // 否则开始一个新的蜡烛
             BarPrice bp{ tick };
             m_bars.push_back(bp);
           }
@@ -146,19 +173,18 @@ namespace mvc {
 
         static wchar_t * weekDays[7] = { L"Sun", L"Mon", L"Tue", L"Wed", L"Thu", L"Fri", L"Sat" };
         wchar_t buf[100];
-        if (ticks->size() > 0){
-          auto p = ticks->back();
-          DateTime tt = p.GetDateTime();
-          swprintf_s(buf, L"%04d/%02d/%02d %02d:%02d:%02d %s", tt.GetYear(), tt.GetMonth(), tt.GetDay(), tt.GetHour(), tt.GetMinute(), tt.GetSecond(), weekDays[tt.GetWeekDay()]);
-          wstring &infoText = *(m_info->text.SafePtr());
-          infoText = buf;
-        }
+        auto p = ticks->back();
+        DateTime tt = p.GetDateTime();
+        swprintf_s(buf, L"%04d/%02d/%02d %02d:%02d:%02d %s", tt.GetYear(), tt.GetMonth(), tt.GetDay(), tt.GetHour(), tt.GetMinute(), tt.GetSecond(), weekDays[tt.GetWeekDay()]);
+        wstring &infoText = *(m_info->text.SafePtr());
+        infoText = buf;
 
+        m_lastTick = ticks->back();
         ticks->clear();
       }
 
       // 检查蜡烛图的开始位置是否超出价格数组的边界。
-      if (m_bars.size() > 0 && m_startBarIndex > m_bars.size() - 1){
+      if (m_bars.size() > 0 && m_startBarIndex > m_bars.size() - 1) {
         m_startBarIndex = m_bars.size() - 1;
       }
 
@@ -183,7 +209,7 @@ namespace mvc {
       double min = DBL_MAX;
       double max = -DBL_MAX;
 
-      for (size_t i = 0; i < candleCntInView; i++){
+      for (size_t i = 0; i < candleCntInView; i++) {
         if (m_bars.size() <= m_startBarIndex + i) break;
 
         double h = m_bars[m_startBarIndex + i].GetHigh();
@@ -193,12 +219,15 @@ namespace mvc {
         min = l < min ? l : min;
       }
 
+      minPriceInChart = min;
+      maxPriceInChart = max;
+
       // 根据价格的最大值和最小值以及各个蜡烛的价格所占比例，算出各蜡烛的纵向位置。
-      for (size_t i = 0; i < candleCntInView; i++){
+      for (size_t i = 0; i < candleCntInView; i++) {
         double h = m_bars[m_startBarIndex + i].GetHigh();
         double l = m_bars[m_startBarIndex + i].GetLow();
 
-        if (max > min){
+        if (max > min) {
           double topoffset = (max - h) * m_calHeight / (max - min);
           m_candles[i]->SetTopOffset(tof(topoffset));
           double ratio = (h - l) / (max - min);
@@ -206,7 +235,7 @@ namespace mvc {
           sprintf_s(bufHeight, "%.4f%%", ratio * 100);
           m_candles[i]->SetHeight(bufHeight);
         }
-        else{
+        else {
           m_candles[i]->SetTopOffset(tof(m_calHeight / 2));
           m_candles[i]->SetHeight("0");
         }
@@ -218,19 +247,19 @@ namespace mvc {
         int maxPoint = static_cast<int>(max * 10000);
 
         int levelPace = static_cast<int>((maxPoint - minPoint) * 15 * 5 / m_calHeight);
-        if (levelPace < 5){
+        if (levelPace < 5) {
           levelPace = 5;
         }
 
         int minLevel = minPoint - minPoint % levelPace;
         int maxLevel = maxPoint - maxPoint % levelPace + levelPace;
 
-        for (int i = 0; i < 20; i++){
+        for (int i = 0; i < 20; i++) {
           m_levels[i]->SetHidden(true);
           m_levelLabels[i]->SetHidden(true);
         }
 
-        for (int level = minLevel, i = 0; level <= maxLevel && i < 20; level += levelPace, i++){
+        for (int level = minLevel, i = 0; level <= maxLevel && i < 20; level += levelPace, i++) {
           double topoffset = (maxPoint - level) * m_calHeight / (maxPoint - minPoint);
           m_levels[i]->SetTopOffset(tof(topoffset));
           m_levels[i]->SetHidden(false);
@@ -243,7 +272,7 @@ namespace mvc {
       }
 
       // 设定当前价格的水平线
-      if (m_bars.size() > 0){
+      if (m_bars.size() > 0) {
         double lastPrice = m_bars.back().GetClose();
         double topoffset = (max - lastPrice) * m_calHeight / (max - min);
         wstring &labelText = *(m_tickLabel->text->SafePtr());
@@ -254,7 +283,7 @@ namespace mvc {
       }
     }
 
-    void Reset(){
+    void Reset() {
       m_bars.clear();
     }
   };

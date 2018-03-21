@@ -361,6 +361,14 @@ namespace mvc {
       return 50;
     }
 
+    float GetCurrentWidth() {
+      return m_calWidth;
+    }
+
+    float GetCurrentHeight() {
+      return m_calHeight;
+    }
+
     virtual void FocusChanged() {
     }
 

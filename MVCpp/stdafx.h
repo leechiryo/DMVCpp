@@ -41,5 +41,3 @@
 #include <system_error>
 #include "mvc/DataModel/DateTime.h"
 #include "mvc/DataModel/TickPrice.h"
-
-#include "MyController.h"
