@@ -38,5 +38,14 @@ namespace mvc {
       limit = 0.0;
     }
 
+    OrderInfo(const OrderInfo &oi) {
+      status = oi.status;
+      direction = oi.direction;
+      openTime = oi.openTime;
+      open = oi.open;
+      close = oi.close;
+      stop = oi.stop;
+      limit = oi.limit;
+    }
   };
 }

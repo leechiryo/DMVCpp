@@ -137,13 +137,16 @@ namespace mvc {
       m_orders.push_back(oi);
       auto & order = m_orders.back();
 
-      auto v = AppendSubView<PriceLine>(PriceType::Entry, &order, &minPriceInChart, &maxPriceInChart);
+      auto v = AppendSubView<PriceLine>(PriceType::Entry, oi);
+      m_orderLines.push_back(v);
       v->SetLeftOffset(0.0f);
       v->SetRightOffset(0.0f);
-      v = AppendSubView<PriceLine>(PriceType::StopLoss, &order, &minPriceInChart, &maxPriceInChart);
+      v = AppendSubView<PriceLine>(PriceType::StopLoss, oi);
+      m_orderLines.push_back(v);
       v->SetLeftOffset(0.0f);
       v->SetRightOffset(0.0f);
-      v = AppendSubView<PriceLine>(PriceType::TakeProfit, &order, &minPriceInChart, &maxPriceInChart);
+      v = AppendSubView<PriceLine>(PriceType::TakeProfit, oi);
+      m_orderLines.push_back(v);
       v->SetLeftOffset(0.0f);
       v->SetRightOffset(0.0f);
     }
@@ -280,6 +283,40 @@ namespace mvc {
         m_tickLine->SetTopOffset(tof(topoffset));
         m_tickLabel->SetTopOffset(tof(topoffset - 10));
         m_tickLabel->SetHidden(false);
+      }
+
+      // 设置订单线的位置
+      for (auto ol : m_orderLines) {
+
+        double orderLinePrice;
+        switch (ol->priceType) {
+        case PriceType::Entry:
+          orderLinePrice = ol->orderInfo.open;
+          break;
+        case PriceType::StopLoss:
+          orderLinePrice = ol->orderInfo.stop;
+          break;
+        case PriceType::TakeProfit:
+          orderLinePrice = ol->orderInfo.limit;
+        }
+
+        double topOffset = CalTopOffset(orderLinePrice, min, max);
+        if (isnan(topOffset)) {
+          ol->SetHidden(true);
+          continue;
+        }
+        ol->SetHidden(false);
+        ol->SetTopOffset(tof(topOffset));
+      }
+    }
+
+    double CalTopOffset(double price, double minPrice, double maxPrice) {
+      if (maxPrice > minPrice && price >= minPrice && price <= maxPrice) {
+        double ratio = (maxPrice - price) / (maxPrice - minPrice);
+        return ratio * m_calHeight - 5.0; // 5.0是价格线到本view上边沿的距离
+      }
+      else {
+        return NAN;
       }
     }
 

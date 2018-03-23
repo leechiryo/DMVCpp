@@ -16,23 +16,18 @@ namespace mvc {
   private:
     shared_ptr<Line> m_priceLine;
     shared_ptr<Text> m_label;
-    PriceType m_priceType;
 
   protected:
     virtual void CreateD2DResource() {
     }
 
   public:
-    const OrderInfo* orderInfo;
-    const double* minPriceInChart;
-    const double* maxPriceInChart;
+    const OrderInfo orderInfo;
+    PriceType priceType;
 
 
-    PriceLine(const D2DContext &context, Window * parentWnd, PriceType type, const OrderInfo* oi, double * minPrice, double * maxPrice) : View(context, parentWnd) {
-      m_priceType = type;
-      orderInfo = oi;
-      minPriceInChart = minPrice;
-      maxPriceInChart = maxPrice;
+    PriceLine(const D2DContext &context, Window * parentWnd, PriceType type, const OrderInfo & oi) : View(context, parentWnd), orderInfo{ oi } {
+      priceType = type;
       m_priceLine = AppendSubView<Line>();
       m_priceLine->SetLeftOffset(0.0f);
       m_priceLine->SetRightOffset(0.0f);
@@ -60,71 +55,41 @@ namespace mvc {
       return 10.0f;
     }
 
-    double CalTopOffset(double price) {
-      if (*maxPriceInChart > *minPriceInChart && price >= *minPriceInChart && price <= *maxPriceInChart) {
-        double ratio = (*maxPriceInChart - price) / (*maxPriceInChart - *minPriceInChart);
-        return ratio * m_parentView->GetCurrentHeight() - 5.0; // 5.0是价格线到本view上边沿的距离
-      }
-      else {
-        return NAN;
-      }
-    }
-
     virtual void DrawSelf() {
-
 
       auto & labelTxt = *(m_label->text.SafePtr());
       wchar_t buf[100];
-      double topOffset = 0;
 
-      switch (m_priceType) {
+      switch (priceType) {
 
       case PriceType::Entry:
         m_priceLine->SetColor(0x123456);
 
-        topOffset = CalTopOffset(orderInfo->open);
-        if (isnan(topOffset)) {
-          break;
-        }
-        SetTopOffset(tof(topOffset));
-
-        if (orderInfo->direction == OrderDirection::Buy) {
+        if (orderInfo.direction == OrderDirection::Buy) {
           labelTxt = L"BUY";
         }
-        else if (orderInfo->direction == OrderDirection::Sell) {
+        else if (orderInfo.direction == OrderDirection::Sell) {
           labelTxt = L"SELL";
         }
         break;
 
       case PriceType::StopLoss:
-        if (orderInfo->stop == 0.0) {
+        if (orderInfo.stop == 0.0) {
           break;
         }
-
-        topOffset = CalTopOffset(orderInfo->stop);
-        if (isnan(topOffset)) {
-          break;
-        }
-        SetTopOffset(tof(topOffset));
 
         m_priceLine->SetColor(0xff3456);
-        swprintf_s(buf, L"%f", abs(orderInfo->stop - orderInfo->open));
+        swprintf_s(buf, L"%f", abs(orderInfo.stop - orderInfo.open));
         labelTxt = buf;
         break;
 
       case PriceType::TakeProfit:
-        if (orderInfo->limit == 0.0) {
+        if (orderInfo.limit == 0.0) {
           break;
         }
-
-        topOffset = CalTopOffset(orderInfo->limit);
-        if (isnan(topOffset)) {
-          break;
-        }
-        SetTopOffset(tof(topOffset));
 
         m_priceLine->SetColor(0x12ff56);
-        swprintf_s(buf, L"%f", abs(orderInfo->limit - orderInfo->open));
+        swprintf_s(buf, L"%f", abs(orderInfo.limit - orderInfo.open));
         labelTxt = buf;
         break;
       }

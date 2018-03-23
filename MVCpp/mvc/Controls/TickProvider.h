@@ -19,7 +19,7 @@ namespace mvc {
 
     void tpConstructor(const D2DContext &context, Window *parentWnd, const char *dbpath){
 
-      updateSpeed = 64;
+      updateSpeed = 128;
       db = nullptr;
       stmt = nullptr;
 
