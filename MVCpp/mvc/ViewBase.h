@@ -374,7 +374,7 @@ namespace mvc {
 
     virtual void FireEvent(int msg, WPARAM wParam, LPARAM lParam) = 0;
 
-    Window* GetParentWnd(){
+    Window* GetParentWnd() {
       return m_parentWnd;
     }
 
@@ -424,6 +424,17 @@ namespace mvc {
 
     void SetHidden(bool hidden) {
       m_hidden = hidden;
+
+      if (!m_hidden) {
+        m_layout.SetWidth(tof(m_right - m_left));
+        m_layout.SetHeight(tof(m_bottom - m_top));
+        for (auto subv : m_subViews) {
+          auto v = subv.lock();
+          if (v) {
+            v->UpdatePositionAndSize();
+          }
+        }
+      }
     }
 
     void SetLeftOffset(float offset) {

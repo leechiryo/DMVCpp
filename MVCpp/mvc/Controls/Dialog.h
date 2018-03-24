@@ -98,9 +98,6 @@ namespace mvc {
     ~Dialog() {
     }
 
-    void Open(){
-      SetHidden(false);
-    }
 
     void SlideIn(SlideInDir dir){
       if (m_isSliding) return;

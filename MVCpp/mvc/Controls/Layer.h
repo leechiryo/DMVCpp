@@ -42,6 +42,7 @@ namespace mvc {
     }
 
     virtual void DrawSelf() {
+      m_zOrder = 0;
     }
 
   };

@@ -140,15 +140,15 @@ namespace mvc {
       auto v = AppendSubView<PriceLine>(PriceType::Entry, oi);
       m_orderLines.push_back(v);
       v->SetLeftOffset(0.0f);
-      v->SetRightOffset(0.0f);
+      v->SetRightOffset(tof(RIGHT_MARGIN));
       v = AppendSubView<PriceLine>(PriceType::StopLoss, oi);
       m_orderLines.push_back(v);
       v->SetLeftOffset(0.0f);
-      v->SetRightOffset(0.0f);
+      v->SetRightOffset(tof(RIGHT_MARGIN));
       v = AppendSubView<PriceLine>(PriceType::TakeProfit, oi);
       m_orderLines.push_back(v);
       v->SetLeftOffset(0.0f);
-      v->SetRightOffset(0.0f);
+      v->SetRightOffset(tof(RIGHT_MARGIN));
     }
 
     TickPrice & LastTick() {
