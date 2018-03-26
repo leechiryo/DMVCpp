@@ -19,18 +19,18 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
   try{
     // 准备 Model
-    m<wstring>("my_model", L"Hello!");
     m<int>("groupVal", 0);
     m<wstring>("csv_path", L"");
     m<vector<TickPrice>>("last_tick", {});
-    m<wstring>("btn2", L"START");
+    m<wstring>("btnStart", L"START");
     m<wstring>("pubno", L"");
+    m<wstring>("time_frame", L"M1");
 
     // 准备 View
     load_views(IDR_RCDATA1);
     auto view = getv<Window>("main_window");
-    auto btn = getv<Button>("btn1");
-    auto btn2 = getv<Button>("btn2");
+    auto btn = getv<Button>("btnOption");
+    auto btnStart = getv<Button>("btnStart");
     auto tbx = getv<TextBox>("tbx1");
     auto lbl2 = getv<Label>("lbl2");
     auto dialog = getv<Dialog>("dialog1");
@@ -97,7 +97,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     // 设置事件处理 Controller
     btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);
     dialog->closebtn->AddEventHandler(WM_LBUTTONUP, MyController::CloseDialog);
-    btn2->AddEventHandler(WM_LBUTTONUP, MyController::ImportCSV);
+    btnStart->AddEventHandler(WM_LBUTTONUP, MyController::ImportCSV);
 
     // 通过事件机制（TEXTCHANGED）来更新画面的表现
     tbx->AddEventHandler(TextBox::MSG_TEXTCHANGED, MyController::OnTextChanged);

@@ -5,25 +5,23 @@
       <rows>
         <row height="50"/>
         <row height="50"/>
-        <row height="50"/>
         <row height="*"/>
       </rows>
       <cols>
         <col width="100"/>
         <col width="*"/>
-        <col width="100"/>
       </cols>
     </layout>
 
-    <label id="lbl1" row="1" col="0" text="Text:" right="20"/>
-    <textbox id="tbx1" row="1" col="1" text="Input ..." left="0" right="50" bind="csv_path"/>
-    <button id="btn1" row="2" col="1" text="START" left="0" bind="my_model" />
-    <button id="btn2" row="2" col="1" text="Play" left="150" bind="btn2" />
-    <line id="line1" row="3" col="2" left="0" right="0" top="0" bottom="0"/>
-    <chart id="cht1" row="3" col="1" left="0" right="0" top="0" bottom="0" bind="last_tick"/>
+    <label id="lbl1" row="1" col="0" text="Start:" right="20"/>
+    <textbox id="tbx1" row="1" col="1" left="0" width="110" bind="csv_path"/>
+    <button id="btnStart" row="1" col="1" text="Start" left="150" bind="btnStart" />
+    <button id="btnTimeFrame" row="1" col="1" text="M1" left="250" bind="time_frame" />
+    <button id="btnBuy" row="1" col="1" text="Buy" left="330" />
+    <button id="btnSell" row="1" col="1" text="Sell" left="400" />
+    <button id="btnOption" row="1" col="1" text="OPTION" right="20" />
+    <chart id="cht1" row="2" col="1" left="0" right="0" top="0" bottom="0" bind="last_tick"/>
     <tickprovider id="tick_provider1" src="data.db" bind="last_tick"/>
-    <label id="lbl3" row="1" col="2" left="5" bind="pubno"/>
-    <label id="lbl4" row="2" col="2" left="5"/>
 
   </layer>
 
@@ -47,7 +45,11 @@
       <radio id="rdo1" row="2" col="1" text="这是一个RadioBox1." value="1" left="0" bind="groupVal"/>
       <radio id="rdo2" row="3" col="1" text="这是一个RadioBox2." value="2" left="0" bind="groupVal"/>
       <radio id="rdo3" row="4" col="1" text="这是一个RadioBox3." value="3" left="0" bind="groupVal"/>
-      <label id="lbl2" row="5" col="1" left="0"/>
+      <label id="lbl2" row="5" col="1" left="0" top="0"/>
+
+      <label id="lbl3" row="5" col="1" left="0" bind="pubno" top="30"/>
+      <label id="lbl4" row="5" col="1" left="0" top="60"/>
+      <line id="line1" row="3" col="0" left="0" right="0" top="0" bottom="0"/>
     </layer>
   </dialog>
 

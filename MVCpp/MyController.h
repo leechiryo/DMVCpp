@@ -3,14 +3,6 @@
 class MyController {
 public:
   static LRESULT UpdateTitle(shared_ptr<mvc::Button> btn, WPARAM wParam, LPARAM lParam) {
-    auto m = mvc::getm<wstring>("my_model");
-    if (*m == L"Hello!") {
-      (*m) = L"Hi";
-    }
-    else {
-      (*m) = L"Hello!";
-    }
-
     auto dialog = mvc::getv<mvc::Dialog>("dialog1");
     dialog->SlideIn(mvc::SlideInDir::fromTop);
 
@@ -30,25 +22,25 @@ public:
     auto csvPath = mvc::getm<wstring>("csv_path");
     *pubno = L"event: " + *csvPath;
 
-    auto cht = mvc::getv<mvc::Chart>("cht1");
+    //auto cht = mvc::getv<mvc::Chart>("cht1");
 
-    auto & tp = cht->LastTick();
-    mvc::OrderInfo oi;
-    oi.open = tp.GetBid();
-    oi.direction = mvc::OrderDirection::Buy;
-    oi.stop = oi.open - 0.0020;
-    oi.limit = oi.open + 0.0100;
-    oi.status = mvc::OrderStatus::Open;
-    oi.openTime = tp.GetDateTime();
+    //auto & tp = cht->LastTick();
+    //mvc::OrderInfo oi;
+    //oi.open = tp.GetBid();
+    //oi.direction = mvc::OrderDirection::Buy;
+    //oi.stop = oi.open - 0.0020;
+    //oi.limit = oi.open + 0.0100;
+    //oi.status = mvc::OrderStatus::Open;
+    //oi.openTime = tp.GetDateTime();
 
-    cht->AddOrder(oi);
+    //cht->AddOrder(oi);
 
     return 0;
   }
 
   static LRESULT ImportCSV(shared_ptr<mvc::Button> btn, WPARAM wParam, LPARAM lParam) {
 
-    auto m = mvc::getm<wstring>("btn2");
+    auto m = mvc::getm<wstring>("btnStart");
     auto tp = mvc::getv<mvc::TickProvider>("tick_provider1");
     auto cht = mvc::getv<mvc::Chart>("cht1");
 
