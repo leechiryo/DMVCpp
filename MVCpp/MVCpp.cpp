@@ -20,7 +20,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   try{
     // 准备 Model
     m<int>("groupVal", 0);
-    m<wstring>("csv_path", L"");
+    m<wstring>("start_date", L"");
     m<vector<TickPrice>>("last_tick", {});
     m<wstring>("btnStart", L"START");
     m<wstring>("pubno", L"");
@@ -31,11 +31,15 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     auto view = getv<Window>("main_window");
     auto btn = getv<Button>("btnOption");
     auto btnStart = getv<Button>("btnStart");
-    auto tbx = getv<TextBox>("tbx1");
+    auto tbx = getv<TextBox>("tbxStartDate");
     auto lbl2 = getv<Label>("lbl2");
     auto dialog = getv<Dialog>("dialog1");
     auto line = getv<Line>("line1");
     auto lbl4 = getv<Label>("lbl4");
+
+    auto btnTimeFrame = getv<Button>("btnTimeFrame");
+    auto btnBuy = getv<Button>("btnBuy");
+    auto btnSell = getv<Button>("btnSell");
 
 
     // 设置直线的阴影效果
@@ -90,14 +94,17 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     });
 
     // 通过绑定来更新画面的表现
-    lbl4->text->Bind<wstring>("csv_path", [](const wstring * path, wstring& s) {
+    lbl4->text->Bind<wstring>("start_date", [](const wstring * path, wstring& s) {
       s = L"bound: " + (*path);
     });
 
     // 设置事件处理 Controller
     btn->AddEventHandler(WM_LBUTTONUP, MyController::UpdateTitle);
     dialog->closebtn->AddEventHandler(WM_LBUTTONUP, MyController::CloseDialog);
-    btnStart->AddEventHandler(WM_LBUTTONUP, MyController::ImportCSV);
+    btnStart->AddEventHandler(WM_LBUTTONUP, MyController::StartChart);
+    btnTimeFrame->AddEventHandler(WM_LBUTTONUP, MyController::ChangeFrame);
+    btnBuy->AddEventHandler(WM_LBUTTONUP, MyController::OnBuy);
+    btnSell->AddEventHandler(WM_LBUTTONUP, MyController::OnSell);
 
     // 通过事件机制（TEXTCHANGED）来更新画面的表现
     tbx->AddEventHandler(TextBox::MSG_TEXTCHANGED, MyController::OnTextChanged);

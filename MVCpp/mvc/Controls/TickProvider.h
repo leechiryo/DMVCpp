@@ -114,7 +114,7 @@ namespace mvc {
     virtual void DrawSelf() {
     }
 
-    void Start() {
+    void Start(const string & startDate) {
 
       if (m_aniUpdateTick) {
         // DB 初始化
@@ -123,7 +123,9 @@ namespace mvc {
           stmt = nullptr;
         }
 
-        int rc = sqlite3_prepare_v2(db, "select time, ask, bid from ticks;", -1, &stmt, nullptr);
+        string sqlText = "select time, ask, bid from ticks where time > '" + startDate + "';";
+
+        int rc = sqlite3_prepare_v2(db, sqlText.c_str(), -1, &stmt, nullptr);
         if (rc) {
           MessageBox(NULL, L"Error executing sql.", L"ERROR", MB_OK);
           return;

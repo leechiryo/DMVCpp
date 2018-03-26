@@ -14,9 +14,9 @@
     </layout>
 
     <label id="lbl1" row="1" col="0" text="Start:" right="20"/>
-    <textbox id="tbx1" row="1" col="1" left="0" width="110" bind="csv_path"/>
+    <textbox id="tbxStartDate" row="1" col="1" left="0" width="110" bind="start_date"/>
     <button id="btnStart" row="1" col="1" text="Start" left="150" bind="btnStart" />
-    <button id="btnTimeFrame" row="1" col="1" text="M1" left="250" bind="time_frame" />
+    <button id="btnTimeFrame" row="1" col="1" text="M1" left="240" width="50" bind="time_frame" />
     <button id="btnBuy" row="1" col="1" text="Buy" left="330" />
     <button id="btnSell" row="1" col="1" text="Sell" left="400" />
     <button id="btnOption" row="1" col="1" text="OPTION" right="20" />
