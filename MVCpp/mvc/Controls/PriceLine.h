@@ -22,7 +22,7 @@ namespace mvc {
     }
 
   public:
-    const OrderInfo orderInfo;
+    OrderInfo orderInfo;
     PriceType priceType;
 
 
@@ -56,6 +56,8 @@ namespace mvc {
     }
 
     virtual void DrawSelf() {
+
+      if (orderInfo.status == OrderStatus::Close) return;
 
       auto & labelTxt = *(m_label->text.SafePtr());
       wchar_t buf[100];

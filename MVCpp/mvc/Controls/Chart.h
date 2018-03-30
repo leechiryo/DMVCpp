@@ -151,6 +151,14 @@ namespace mvc {
       v->SetRightOffset(tof(RIGHT_MARGIN));
     }
 
+    void ClearOrder() {
+      m_orders.clear();
+
+      for (auto v : m_orderLines) {
+        v->orderInfo.status = OrderStatus::Close;
+      }
+    }
+
     TickPrice & LastTick() {
       return m_lastTick;
     }

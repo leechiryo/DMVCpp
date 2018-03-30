@@ -22,19 +22,6 @@ public:
     auto startDate = mvc::getm<wstring>("start_date");
     *pubno = L"event: " + *startDate;
 
-    //auto cht = mvc::getv<mvc::Chart>("cht1");
-
-    //auto & tp = cht->LastTick();
-    //mvc::OrderInfo oi;
-    //oi.open = tp.GetBid();
-    //oi.direction = mvc::OrderDirection::Buy;
-    //oi.stop = oi.open - 0.0020;
-    //oi.limit = oi.open + 0.0100;
-    //oi.status = mvc::OrderStatus::Open;
-    //oi.openTime = tp.GetDateTime();
-
-    //cht->AddOrder(oi);
-
     return 0;
   }
 
@@ -103,16 +90,25 @@ public:
     auto cht = mvc::getv<mvc::Chart>("cht1");
 
     auto & tp = cht->LastTick();
-    if (tp.GetAsk() != 0.0 || tp.GetBid() != 0) {
-      mvc::OrderInfo oi;
-      oi.open = tp.GetBid();
-      oi.direction = mvc::OrderDirection::Buy;
-      oi.stop = oi.open - 0.0020;
-      oi.limit = oi.open + 0.0100;
-      oi.status = mvc::OrderStatus::Open;
-      oi.openTime = tp.GetDateTime();
+    auto & text = *(btn->title->SafePtr());
+    if (tp.GetAsk() != 0.0 && tp.GetBid() != 0.0) {
 
-      cht->AddOrder(oi);
+      if (text == L"Buy") {
+        mvc::OrderInfo oi;
+        oi.open = tp.GetBid();
+        oi.direction = mvc::OrderDirection::Buy;
+        oi.stop = oi.open - 0.0020;
+        oi.limit = oi.open + 0.0100;
+        oi.status = mvc::OrderStatus::Open;
+        oi.openTime = tp.GetDateTime();
+
+        cht->AddOrder(oi);
+        text = L"Close";
+      }
+      else {
+        cht->ClearOrder();
+        text = L"Buy";
+      }
     }
 
     return 0;
@@ -123,7 +119,7 @@ public:
     auto cht = mvc::getv<mvc::Chart>("cht1");
 
     auto & tp = cht->LastTick();
-    if (tp.GetAsk() != 0.0 || tp.GetBid() != 0) {
+    if (tp.GetAsk() != 0.0 && tp.GetBid() != 0.0) {
       mvc::OrderInfo oi;
       oi.open = tp.GetBid();
       oi.direction = mvc::OrderDirection::Sell;

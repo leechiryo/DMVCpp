@@ -13,6 +13,7 @@
       </cols>
     </layout>
 
+    <label id="lbl5" row="0" col="1" text="2011.01.02 - 2013.01.25" left="0" bottom="0"/>
     <label id="lbl1" row="1" col="0" text="Start:" right="20"/>
     <textbox id="tbxStartDate" row="1" col="1" left="0" width="110" bind="start_date"/>
     <button id="btnStart" row="1" col="1" text="Start" left="150" bind="btnStart" />
