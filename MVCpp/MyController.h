@@ -88,26 +88,31 @@ public:
   static LRESULT OnBuy(shared_ptr<mvc::Button> btn, WPARAM wParam, LPARAM lParam) {
 
     auto cht = mvc::getv<mvc::Chart>("cht1");
+    auto btnSell = mvc::getv<mvc::Button>("btnSell");
 
     auto & tp = cht->LastTick();
     auto & text = *(btn->title->SafePtr());
+    auto & text2 = *(btnSell->title->SafePtr());
+
     if (tp.GetAsk() != 0.0 && tp.GetBid() != 0.0) {
 
-      if (text == L"Buy") {
-        mvc::OrderInfo oi;
-        oi.open = tp.GetBid();
-        oi.direction = mvc::OrderDirection::Buy;
-        oi.stop = oi.open - 0.0020;
-        oi.limit = oi.open + 0.0100;
-        oi.status = mvc::OrderStatus::Open;
-        oi.openTime = tp.GetDateTime();
+      if (text2 == L"Sell") {
+        if (text == L"Buy") {
+          mvc::OrderInfo oi;
+          oi.open = tp.GetBid();
+          oi.direction = mvc::OrderDirection::Buy;
+          oi.stop = oi.open - 0.0020;
+          oi.limit = oi.open + 0.0100;
+          oi.status = mvc::OrderStatus::Open;
+          oi.openTime = tp.GetDateTime();
 
-        cht->AddOrder(oi);
-        text = L"Close";
-      }
-      else {
-        cht->ClearOrder();
-        text = L"Buy";
+          cht->AddOrder(oi);
+          text = L"Close";
+        }
+        else {
+          cht->CloseOrder();
+          text = L"Buy";
+        }
       }
     }
 
@@ -117,18 +122,31 @@ public:
   static LRESULT OnSell(shared_ptr<mvc::Button> btn, WPARAM wParam, LPARAM lParam) {
 
     auto cht = mvc::getv<mvc::Chart>("cht1");
+    auto btnBuy = mvc::getv<mvc::Button>("btnBuy");
 
     auto & tp = cht->LastTick();
-    if (tp.GetAsk() != 0.0 && tp.GetBid() != 0.0) {
-      mvc::OrderInfo oi;
-      oi.open = tp.GetBid();
-      oi.direction = mvc::OrderDirection::Sell;
-      oi.stop = oi.open + 0.0020;
-      oi.limit = oi.open - 0.0100;
-      oi.status = mvc::OrderStatus::Open;
-      oi.openTime = tp.GetDateTime();
+    auto & text = *(btn->title->SafePtr());
+    auto & text2 = *(btnBuy->title->SafePtr());
 
-      cht->AddOrder(oi);
+    if (tp.GetAsk() != 0.0 && tp.GetBid() != 0.0) {
+      if (text2 == L"Buy") {
+        if (text == L"Sell") {
+          mvc::OrderInfo oi;
+          oi.open = tp.GetBid();
+          oi.direction = mvc::OrderDirection::Sell;
+          oi.stop = oi.open + 0.0020;
+          oi.limit = oi.open - 0.0100;
+          oi.status = mvc::OrderStatus::Open;
+          oi.openTime = tp.GetDateTime();
+
+          cht->AddOrder(oi);
+          text = L"Close";
+        }
+        else {
+          cht->CloseOrder();
+          text = L"Sell";
+        }
+      }
     }
 
     return 0;

@@ -31,6 +31,7 @@ namespace mvc {
     vector<shared_ptr<PriceLine>> m_orderLines;
 
     TickPrice m_lastTick;
+    int m_pips;
 
     double minPriceInChart;
     double maxPriceInChart;
@@ -61,6 +62,8 @@ namespace mvc {
 
       m_info = AppendSubView<Text>(L"");
       m_info->SetOffset(0, 0);
+
+      m_pips = 0;
 
       m_startBarIndex = 0;
 
@@ -135,27 +138,35 @@ namespace mvc {
 
     void AddOrder(const OrderInfo &oi) {
       m_orders.push_back(oi);
-      auto & order = m_orders.back();
 
-      auto v = AppendSubView<PriceLine>(PriceType::Entry, oi);
+      auto v = AppendSubView<PriceLine>(PriceType::Entry, &m_orders, m_orders.size() - 1);
       m_orderLines.push_back(v);
       v->SetLeftOffset(0.0f);
       v->SetRightOffset(tof(RIGHT_MARGIN));
-      v = AppendSubView<PriceLine>(PriceType::StopLoss, oi);
+      v->SetHidden(true);
+      v = AppendSubView<PriceLine>(PriceType::StopLoss, &m_orders, m_orders.size() - 1);
       m_orderLines.push_back(v);
       v->SetLeftOffset(0.0f);
       v->SetRightOffset(tof(RIGHT_MARGIN));
-      v = AppendSubView<PriceLine>(PriceType::TakeProfit, oi);
+      v->SetHidden(true);
+      v = AppendSubView<PriceLine>(PriceType::TakeProfit, &m_orders, m_orders.size() - 1);
       m_orderLines.push_back(v);
       v->SetLeftOffset(0.0f);
       v->SetRightOffset(tof(RIGHT_MARGIN));
+      v->SetHidden(true);
     }
 
-    void ClearOrder() {
-      m_orders.clear();
-
-      for (auto v : m_orderLines) {
-        v->orderInfo.status = OrderStatus::Close;
+    void CloseOrder() {
+      for (auto & o : m_orders) {
+        if (o.status == OrderStatus::Open) {
+          if (o.direction == OrderDirection::Buy) {
+            o.close = m_lastTick.GetBid();
+          }
+          else {
+            o.close = m_lastTick.GetAsk();
+          }
+          o.status = OrderStatus::Close;
+        }
       }
     }
 
@@ -182,15 +193,38 @@ namespace mvc {
           }
         }
 
+        m_lastTick = ticks->back();
+
+        int pips = 0;
+        for (auto & o : m_orders) {
+          if (o.status == OrderStatus::Open) {
+            if (o.direction == OrderDirection::Buy) {
+              pips += static_cast<int>((m_lastTick.GetBid() - o.open) * 10000);
+            }
+            else {
+              pips += static_cast<int>((o.open - m_lastTick.GetAsk()) * 10000);
+            }
+          }
+          else if (o.status == OrderStatus::Close) {
+            if (o.direction == OrderDirection::Buy) {
+              pips += static_cast<int>((o.close - o.open) * 10000);
+            }
+            else {
+              pips += static_cast<int>((o.open - o.close) * 10000);
+            }
+          }
+        }
+        m_pips = pips;
+
         static wchar_t * weekDays[7] = { L"Sun", L"Mon", L"Tue", L"Wed", L"Thu", L"Fri", L"Sat" };
         wchar_t buf[100];
         auto p = ticks->back();
         DateTime tt = p.GetDateTime();
-        swprintf_s(buf, L"%04d/%02d/%02d %02d:%02d:%02d %s", tt.GetYear(), tt.GetMonth(), tt.GetDay(), tt.GetHour(), tt.GetMinute(), tt.GetSecond(), weekDays[tt.GetWeekDay()]);
+        swprintf_s(buf, L"%04d/%02d/%02d %02d:%02d:%02d %s, pips=%d", tt.GetYear(), tt.GetMonth(), tt.GetDay(), tt.GetHour(), tt.GetMinute(), tt.GetSecond(), weekDays[tt.GetWeekDay()], m_pips);
         wstring &infoText = *(m_info->text.SafePtr());
         infoText = buf;
 
-        m_lastTick = ticks->back();
+
         ticks->clear();
       }
 
@@ -296,16 +330,21 @@ namespace mvc {
       // 设置订单线的位置
       for (auto ol : m_orderLines) {
 
+        if (ol->GetOrder().status == OrderStatus::Close) {
+          ol->SetHidden(true);
+          continue;
+        }
+
         double orderLinePrice;
         switch (ol->priceType) {
         case PriceType::Entry:
-          orderLinePrice = ol->orderInfo.open;
+          orderLinePrice = ol->GetOrder().open;
           break;
         case PriceType::StopLoss:
-          orderLinePrice = ol->orderInfo.stop;
+          orderLinePrice = ol->GetOrder().stop;
           break;
         case PriceType::TakeProfit:
-          orderLinePrice = ol->orderInfo.limit;
+          orderLinePrice = ol->GetOrder().limit;
         }
 
         double topOffset = CalTopOffset(orderLinePrice, min, max);

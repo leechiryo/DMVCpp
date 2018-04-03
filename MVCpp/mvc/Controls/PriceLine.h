@@ -16,17 +16,20 @@ namespace mvc {
   private:
     shared_ptr<Line> m_priceLine;
     shared_ptr<Text> m_label;
+    vector<OrderInfo> *m_orders;
+    int m_orderIndex;
 
   protected:
     virtual void CreateD2DResource() {
     }
 
   public:
-    OrderInfo orderInfo;
     PriceType priceType;
 
 
-    PriceLine(const D2DContext &context, Window * parentWnd, PriceType type, const OrderInfo & oi) : View(context, parentWnd), orderInfo{ oi } {
+    PriceLine(const D2DContext &context, Window * parentWnd, PriceType type, vector<OrderInfo> * orders, int orderIdx) : View(context, parentWnd) {
+      m_orders = orders;
+      m_orderIndex = orderIdx;
       priceType = type;
       m_priceLine = AppendSubView<Line>();
       m_priceLine->SetLeftOffset(0.0f);
@@ -51,13 +54,17 @@ namespace mvc {
     ~PriceLine() {
     }
 
+    OrderInfo & GetOrder() {
+      return (*m_orders)[m_orderIndex];
+    }
+
     virtual float GetDefaultHeight() {
       return 10.0f;
     }
 
     virtual void DrawSelf() {
 
-      if (orderInfo.status == OrderStatus::Close) return;
+      auto& orderInfo = (*m_orders)[m_orderIndex];
 
       auto & labelTxt = *(m_label->text.SafePtr());
       wchar_t buf[100];
