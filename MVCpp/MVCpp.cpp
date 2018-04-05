@@ -109,7 +109,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     // 通过事件机制（TEXTCHANGED）来更新画面的表现
     tbx->AddEventHandler(TextBox::MSG_TEXTCHANGED, MyController::OnTextChanged);
 
-
     view->Show();
   }
   catch (std::runtime_error re){

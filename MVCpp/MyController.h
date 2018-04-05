@@ -99,7 +99,7 @@ public:
       if (text2 == L"Sell") {
         if (text == L"Buy") {
           mvc::OrderInfo oi;
-          oi.open = tp.GetBid();
+          oi.open = tp.GetAsk();
           oi.direction = mvc::OrderDirection::Buy;
           oi.stop = oi.open - 0.0020;
           oi.limit = oi.open + 0.0100;

@@ -73,7 +73,7 @@ namespace mvc {
         shared_ptr<Candle> cdl = AppendSubView<Candle>(&m_bars, &m_startBarIndex, i);
 
         // 横向的位置由蜡烛的索引决定。
-        cdl->SetLeftOffset(tof(10 * i + 5));
+        cdl->SetLeftOffset(tof(7 * i + 5));
         m_candles.push_back(cdl);
       }
 
