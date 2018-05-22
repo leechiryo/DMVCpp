@@ -354,6 +354,7 @@ namespace mvc {
     }
 
     void Close() {
+      CloseHandle(m_drawThread);
       PostQuitMessage(0);
     }
 
