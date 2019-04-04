@@ -62,7 +62,7 @@ namespace mvc {
     list<tuple<DxResource<ID2D1Effect>, int>> m_effects;
 
     bool isNumber(const char *str) {
-      int len = strlen(str);
+      auto len = strlen(str);
 
       // check for empty string and period position.
       if (len == 0) return false;
@@ -70,7 +70,7 @@ namespace mvc {
 
       int periodCnt = 0;
 
-      for (int i = 0; i < len; i++) {
+      for (size_t i = 0; i < len; i++) {
         if (str[i] == '.') {
           periodCnt++;
           if (periodCnt > 1) return false;
@@ -87,7 +87,7 @@ namespace mvc {
     }
 
     bool isPercent(const char *str) {
-      int len = strlen(str);
+      auto len = strlen(str);
       // check for empty and the only one character '%' 
       // should return false.
       if (len <= 1) return false;

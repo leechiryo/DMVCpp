@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <list>
+#include <system_error>
 #include <d2d1_1.h>
 #include <dwrite_1.h>
 #include <d3d11_1.h>
@@ -74,6 +75,11 @@ namespace mvc {
   template<class T>
   inline float tof(T x){
     return static_cast<float>(x);
+  }
+
+  template<class T>
+  inline int toi(T x){
+    return static_cast<int>(x);
   }
 
   class ScopeGuard{

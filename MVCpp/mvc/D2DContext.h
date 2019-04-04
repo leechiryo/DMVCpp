@@ -103,7 +103,7 @@ namespace mvc {
     DxResource<IDWriteTextLayout> DrawText(const wstring *text, size_t charCnt, IDWriteTextFormat *textFormat,
       const D2D1_RECT_F &rect, ID2D1SolidColorBrush *brush) {
       auto layout = App::s_pDWriteFactory.GetResource<IDWriteTextLayout>(&IDWriteFactory::CreateTextLayout,
-        text->c_str(), charCnt, textFormat, rect.right - rect.left, rect.bottom - rect.top);
+        text->c_str(), toi(charCnt), textFormat, rect.right - rect.left, rect.bottom - rect.top);
       layout->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
       D2D1_POINT_2F o;
       o.x = rect.left;
@@ -115,7 +115,7 @@ namespace mvc {
     DxResource<IDWriteTextLayout> GetTextLayout(const wstring *text, size_t charCnt, IDWriteTextFormat *textFormat,
       const D2D1_RECT_F &rect, ID2D1SolidColorBrush *brush) {
       auto layout = App::s_pDWriteFactory.GetResource<IDWriteTextLayout>(&IDWriteFactory::CreateTextLayout,
-        text->c_str(), charCnt, textFormat, rect.right - rect.left, rect.bottom - rect.top);
+        text->c_str(), toi(charCnt), textFormat, rect.right - rect.left, rect.bottom - rect.top);
       layout->SetWordWrapping(DWRITE_WORD_WRAPPING_NO_WRAP);
       return layout;
     }

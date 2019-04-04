@@ -139,17 +139,17 @@ namespace mvc {
     void AddOrder(const OrderInfo &oi) {
       m_orders.push_back(oi);
 
-      auto v = AppendSubView<PriceLine>(PriceType::Entry, &m_orders, m_orders.size() - 1);
+      auto v = AppendSubView<PriceLine>(PriceType::Entry, &m_orders, toi(m_orders.size() - 1));
       m_orderLines.push_back(v);
       v->SetLeftOffset(0.0f);
       v->SetRightOffset(tof(RIGHT_MARGIN));
       v->SetHidden(true);
-      v = AppendSubView<PriceLine>(PriceType::StopLoss, &m_orders, m_orders.size() - 1);
+      v = AppendSubView<PriceLine>(PriceType::StopLoss, &m_orders, toi(m_orders.size() - 1));
       m_orderLines.push_back(v);
       v->SetLeftOffset(0.0f);
       v->SetRightOffset(tof(RIGHT_MARGIN));
       v->SetHidden(true);
-      v = AppendSubView<PriceLine>(PriceType::TakeProfit, &m_orders, m_orders.size() - 1);
+      v = AppendSubView<PriceLine>(PriceType::TakeProfit, &m_orders, toi(m_orders.size() - 1));
       m_orderLines.push_back(v);
       v->SetLeftOffset(0.0f);
       v->SetRightOffset(tof(RIGHT_MARGIN));

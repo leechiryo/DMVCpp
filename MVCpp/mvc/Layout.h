@@ -127,23 +127,23 @@ namespace mvc {
     bool m_defaultRowColSet;
 
     bool isNumber(const char *str) {
-      int len = strlen(str);
+      auto len = strlen(str);
       // check for empty string.
       if (len == 0) return false;
       bool retval = true;
-      for (int i = 0; i < len; i++) {
+      for (size_t i = 0; i < len; i++) {
         retval = retval && (str[i] >= '0') && (str[i] <= '9');
       }
       return retval;
     }
 
     bool isPercent(const char *str) {
-      int len = strlen(str);
+      auto len = strlen(str);
       // check for empty and the only one character '%' 
       // should return false.
       if (len <= 1) return false;
       bool retval = true;
-      for (int i = 0; i < len - 1; i++) {
+      for (size_t i = 0; i < len - 1; i++) {
         retval = retval && (str[i] >= '0') && (str[i] <= '9');
       }
 

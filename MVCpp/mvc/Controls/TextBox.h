@@ -30,7 +30,7 @@ namespace mvc {
         m_insertPos = text->SafePtr()->length();
       }
 
-      float w = m_vtext->GetSubstrWidth(m_insertPos);
+      float w = m_vtext->GetSubstrWidth(toi(m_insertPos));
       float tbxw = static_cast<float>(m_right - m_left - 10);
       if (w > tbxw + m_hTranslation) {
         m_hTranslation = w - tbxw;
@@ -52,7 +52,7 @@ namespace mvc {
 
     static LRESULT Handle_CHAR(shared_ptr<TextBox> tbx, WPARAM wParam, LPARAM lParam) {
       if (wParam > 31 && wParam != 127) {
-        (*(tbx->text))->insert(tbx->m_insertPos, 1, wParam);
+        (*(tbx->text))->insert(tbx->m_insertPos, 1, static_cast<wchar_t>(wParam));
         tbx->m_insertPos++;
         tbx->UpdateCaretPos();
         tbx->m_aniCaret->SetFrameIndex(9);

@@ -101,11 +101,11 @@ namespace mvc {
     }
 
     virtual float GetDefaultWidth() {
-      return GetSubstrWidth(text->size());
+      return GetSubstrWidth(toi(text->size()));
     }
 
     virtual float GetDefaultHeight() {
-      return GetSubstrHeight(text->size());
+      return GetSubstrHeight(toi(text->size()));
     }
 
     virtual void DrawSelf() {

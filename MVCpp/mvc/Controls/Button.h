@@ -28,7 +28,7 @@ namespace mvc {
       float fyPos = btn->AbsPixelY2RelY(yPos);
       float maxWidth = tof(max(fxPos, btn->m_calWidth - fxPos));
       float maxHeight = tof(max(fyPos, btn->m_calHeight - fyPos));
-      btn->m_maxRadius = sqrt(maxWidth * maxWidth + maxHeight * maxHeight);
+      btn->m_maxRadius = tof(sqrt(maxWidth * maxWidth + maxHeight * maxHeight));
       btn->m_circle->SetCirclePosition(btn->AbsPixelX2RelX(xPos), btn->AbsPixelY2RelY(yPos), 0.0f);
       btn->m_circle->SetHidden(false);
       btn->m_ani->PlayAndPauseAtStart();

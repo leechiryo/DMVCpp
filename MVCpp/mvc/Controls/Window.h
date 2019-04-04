@@ -260,8 +260,6 @@ namespace mvc {
       m_parentView = nullptr;
       m_canBeFocused = false;
 
-      int a = m_animations.size();
-
       // Register message handler methods.
       AddEventHandler(WM_SIZE, Handle_SIZE);
       AddEventHandler(WM_SIZING, Handle_SIZING);
